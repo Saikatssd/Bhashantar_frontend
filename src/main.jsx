@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 
-export const server = 'http://localhost:5566'
+export const server = 'https://bhashantar-backend.onrender.com/'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   //<React.StrictMode>
