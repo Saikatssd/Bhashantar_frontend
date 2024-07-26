@@ -341,7 +341,7 @@ const Editor = () => {
       return (
         <TinyMCEEditor
           key={documentId} // Force reinitialization on documentId change
-          apiKey='ooi9c4kr5rwugnplqe0yys09hwfen6hn4nr7hokoxxintdfp'
+          apiKey='b49qe47leuw15e45amyl6s8hh2wojjif4ka6kfptu0tt0v1w'
           value={htmlContent}
           init={{
             height: 'calc(100vh)',
