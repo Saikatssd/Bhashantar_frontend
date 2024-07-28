@@ -256,7 +256,7 @@ const AdminFileFlow = () => {
 
     return (
         <Box>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }} className="backdrop-blur-sm shadow-xl z-20">
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs example" centered>
                     <Tab label="Ready for Work" />
                     <Tab label="Work in Progress" />
