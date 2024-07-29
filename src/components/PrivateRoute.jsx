@@ -1,19 +1,16 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Route, Navigate } from 'react-router-dom';
 
-const PrivateRoute = ({ user, children }) => {
-  return user ? children : <Navigate to="/" />;
+const PrivateRoute = ({ user, role, allowedRoles, children, ...rest }) => {
+  if (!user) {
+    return <Navigate to="/" />;
+  }
+
+  if (!allowedRoles.includes(role)) {
+    return <Navigate to="/home" />;
+  }
+
+  return children;
 };
 
 export default PrivateRoute;
-
-
-// import React from 'react';
-// import { Navigate } from 'react-router-dom';
-
-// const PrivateRoute = ({ user, children }) => {
-//   if (user === null) return <Navigate to="/" />;
-//   return children;
-// };
-
-// export default PrivateRoute;

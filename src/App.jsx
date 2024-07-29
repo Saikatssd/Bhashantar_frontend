@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { auth } from './utils/firebase';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import PrivateRoute from './components/PrivateRoute';
-import { Toaster } from 'react-hot-toast';
-import { AuthProvider } from './context/AuthContext';
-import Profile from './pages/Profile';
-import CompanyInstance from './components/CompanyInstance';
-import Editor from './components/Editor'
 import DashboardWrapper from './components/DashboardWrapper';
-import UserHomeKyrotics from './pages/Users/KyroticsUserHome';
-import KyroInstance from './components/KyroInstance';
-import UserWorkspace from './components/ClientCompany/UserFileFlow';
 import FileStatusManager from './components/FileStatusManager';
-// import OfficeEditor from './components/OfficeEditor';
+import KyroInstance from './components/KyroInstance';
+import CompanyInstance from './components/CompanyInstance';
+import Editor from './components/Editor';
+import UserWorkspace from './components/ClientCompany/UserFileFlow';
+import { AuthProvider } from './context/AuthContext';
+import { Toaster } from 'react-hot-toast';
+import PrivateRoute from './components/PrivateRoute';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -26,45 +22,54 @@ const App = () => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         const token = await user.getIdTokenResult();
-        // console.log(token)
         user.roleName = token.claims.roleName;
         user.companyId = token.claims.companyId;
         setUser(user);
-        // console.log(user)
         setRole(user.roleName);
       } else {
         setUser(null);
       }
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  // const handleLogout = () => {
-  //   auth.signOut().then(() => {
-  //     setUser(null);
-  //   });
-  // };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <AuthProvider>
       <Router>
         <Routes>
-
-        <Route path="/status" element={<FileStatusManager  />} />
-
+        <Route path="*" element={<Navigate to="/" />} />
           <Route path="/" element={<Login />} />
-          {/* <Route path="/userKyro" element={<UserHomeKyrotics />} /> */}
-          <Route path="/home" element={<DashboardWrapper />} />
-          <Route path="/register" element={<Register />} />
-          {/* <Route path="/profile" element={<Profile />} /> */}
-          <Route path="/kyro/:companyId/*" element={<KyroInstance role={role} />} />
-          {/* <Route path="/superAdmin" element={<SuperAdminHome />} /> */}
-          <Route path="/company/:companyId/*" element={<CompanyInstance role={role} />} />
-          <Route path='/editor/:projectId/:documentId' element={<Editor />} />
-          <Route path="/myWork" element={<UserWorkspace />} />
+          <Route path="/register" element={<PrivateRoute user={user} role={role} allowedRoles={['superAdmin']}><Register /></PrivateRoute>} />
 
-          {/* <Route path="/project/:projectId" element={<ProjectFiles />} /> */}
-          {/* <Route path="/dashboard" element={<PrivateRoute user={user}><Dashboard role={role} onLogout={handleLogout} /></PrivateRoute>} /> */}
+          <Route path="/home" element={
+            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'superAdmin']}>
+              <DashboardWrapper />
+            </PrivateRoute>} />
+          <Route path="/kyro/:companyId/*" element={
+            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin']}>
+              <KyroInstance role={role} />
+            </PrivateRoute>} />
+          <Route path="/company/:companyId/*" element={
+            <PrivateRoute user={user} role={role} allowedRoles={['user','admin']}>
+              <CompanyInstance role={role} />
+            </PrivateRoute>} />
+          <Route path="/editor/:projectId/:documentId" element={
+            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'QA', 'superAdmin']} >
+              <Editor />
+            </PrivateRoute>} />
+          <Route path="/myWork" element={
+            <PrivateRoute user={user} role={role} allowedRoles={['user']}>
+              <UserWorkspace />
+            </PrivateRoute>} />
+          <Route path="/status" element={
+            <PrivateRoute user={user} role={role} allowedRoles={['admin','superAdmin']}>
+              <FileStatusManager />
+            </PrivateRoute>} />
         </Routes>
         <Toaster />
       </Router>

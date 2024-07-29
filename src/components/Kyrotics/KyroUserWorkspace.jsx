@@ -115,7 +115,7 @@ const KyroUserWorkspace = () => {
 
   return (
     <Box>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }} className="backdrop-blur-sm pt-2 shadow-xl z-20">
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs example" centered>
           <Tab label="In progress" />
           <Tab label="Completed" />
