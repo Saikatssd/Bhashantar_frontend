@@ -170,6 +170,7 @@ const KyroAdminFileFlow = () => {
 
       // await updateFileStatus(projectId, selectedFileId, 3, userId);
       setReadyForWorkFiles(files.filter(file => file.id !== selectedFileId));
+      window.location.reload();
       handleCloseModal();
     } catch (err) {
       console.error('Error updating file status:', err);
