@@ -212,7 +212,7 @@ const KyroAdminFileFlow = () => {
 
   return (
     <Box>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }} className="backdrop-blur-sm pt-2 shadow-xl z-20" >
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }} className="backdrop-blur-sm pt-3 shadow-md bg-white/30" >
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs example" centered>
           <Tab label="Ready for Work" />
           <Tab label="Work in Progress" />
