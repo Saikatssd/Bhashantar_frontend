@@ -111,10 +111,6 @@ const AdminFileFlow = () => {
                     }));
                 };
 
-                // const readyForWork = await fetchFileUsers(projectFiles.filter(file => file.status === 4));
-                // const inProgress = await fetchFileUsers(projectFiles.filter(file => file.status === 5));
-                // const completed = await fetchFileUsers(projectFiles.filter(file => file.status === 6));
-                // const downloaded = await fetchFileUsers(projectFiles.filter(file => file.status === 7));
 
                 const readyForWork = await fetchFileUsers(projectFiles.filter(file => file.status === 5));
                 const inProgress = await fetchFileUsers(projectFiles.filter(file => file.status === 6));
@@ -177,73 +173,56 @@ const AdminFileFlow = () => {
 
 
 
-    // const handleDownload = async (fileId, fileName) => {
-    //     try {
-    //         await exportFiles(projectId, fileId, fileName);
-    //         await updateFileStatusNumber(projectId, selectedFileId, 8);
+    const handleDownload = async (projectId, documentId, format) => {
 
-    //     } catch (err) {
-    //         console.error('Error downloading file:', err);
-    //         setError(err);
-    //     }
-    // };
-    const handleDownload = async (projectId, fileId, fileName) => {
+        setError(null);
+
         try {
-            console.log("url", `${server}/api/document/${projectId}/${fileId}/exportDoc`)
-            // Send a request to the backend to trigger the file export
-            const response = await axios({
-                url: `${server}/api/document/${projectId}/${fileId}/exportDoc`, // Replace with your actual API endpoint
-                method: 'GET',
-                responseType: 'blob', // Important for binary data
-            });
 
-            // Create a URL for the downloaded data
+            let endpoint = `${server}/api/document/${projectId}/${documentId}/downloadPdf`;
+            if (format === 'word') {
+                endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
+            }
+            const response = await axios.get(endpoint,
+                {
+                    responseType: 'blob',
+                });
+
+            // console.log("headers", response.headers);
+            // Extract filename from headers or use a fallback
+            const contentDisposition = response.headers['content-disposition'];
+            const filename = contentDisposition
+                ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+                : 'document.zip';
+
             const url = window.URL.createObjectURL(new Blob([response.data]));
-
-            // Create a link element and set the download attribute
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', fileName.replace('.pdf', '.zip')); // Use the correct file extension
-
-            // Append the link to the document and click it to start the download
+            link.setAttribute('download', filename);
             document.body.appendChild(link);
             link.click();
-
-            // Clean up by removing the link and revoking the object URL
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-
+            link.remove();
             // Optionally, update the file status
-            await updateFileStatus(projectId, fileId, { status: 8, client_downloadedDate: new Date().toISOString() });
-
-
+            // await updateFileStatus(projectId, documentId, { status: 8, client_downloadedDate: new Date().toISOString() });
         } catch (err) {
-            console.error('Error downloading file:', err);
-            setError(err); // Assuming setError is a state function for displaying errors
+            setError(err);
         }
-    };
+    }
 
-    // const handleDownloadSelected = async () => {
-    //     for (const fileId of selectedRows) {
-    //         handleDownload(projectId, fileId,fileName);
-    //         await updateFileStatus(projectId, fileId, { status: 8, client_downloadedDate: new Date().toISOString() });
-    //     }
-    //     setSelectedRows([]);
-    //     const updatedFiles = await fetchProjectFiles(projectId);
-    //     setFiles(updatedFiles);
-    //     navigate(-1);
 
-    // };
-    const handleDownloadSelected = async () => {
+    const handleDownloadSelected = async (format) => {
         try {
-            for (const { id, name } of selectedRows) {
-                await handleDownload(projectId, id, name);
+            for (const documentId of selectedRows) {
+                await handleDownload(projectId, documentId, format);
             }
             setSelectedRows([]);
         } catch (err) {
             console.error('Error downloading selected files:', err);
         }
     };
+
+
+
 
 
     if (isLoading) {
@@ -301,7 +280,7 @@ const AdminFileFlow = () => {
                     setSelectedRows={setSelectedRows}
                     handleChangePage={handleChangePage}
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
-                    handleEditClick={handleDownload}
+                    handleDownload={handleDownload}
                     handleDownloadSelected={handleDownloadSelected}
 
                 />

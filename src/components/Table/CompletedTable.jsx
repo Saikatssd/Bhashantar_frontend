@@ -1,4 +1,188 @@
-// import React from "react";
+// // import React from "react";
+// // import PropTypes from "prop-types";
+// // import TableCell from "@mui/material/TableCell";
+// // import TableRow from "@mui/material/TableRow";
+// // import TableContainer from "@mui/material/TableContainer";
+// // import TableHead from "@mui/material/TableHead";
+// // import TableBody from "@mui/material/TableBody";
+// // import TablePagination from "@mui/material/TablePagination";
+// // import Button from "@mui/material/Button";
+// // import Paper from "@mui/material/Paper";
+// // import MuiTable from "@mui/material/Table";
+// // import Checkbox from "@mui/material/Checkbox";
+// // // import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
+// // import DownloadIcon from '@mui/icons-material/Download';
+
+
+// // const formatDate = (dateString) => {
+// //     if (!dateString) return 'N/A';
+// //     const date = new Date(dateString);
+// //     return !isNaN(date.getTime()) ? date.toLocaleDateString() : 'Invalid Date';
+// // };
+
+// // function CompletedTable({
+// //     columns,
+// //     rows = [],
+// //     page,
+// //     rowsPerPage,
+// //     handleChangePage,
+// //     handleChangeRowsPerPage,
+// //     selectedRows,
+// //     setSelectedRows,
+// //     handleDownloadSelected,
+// //     handleEditClick,
+// //     projectName,
+// // }) {
+
+// //     const handleCheckboxClick = (event, id) => {
+// //         if (event.target.checked) {
+// //             setSelectedRows([...selectedRows, id]);
+// //         } else {
+// //             setSelectedRows(selectedRows.filter(rowId => rowId !== id));
+// //         }
+// //     };
+
+// //     return (
+// //         <div>
+// //             <h2
+// //                 style={{
+// //                     textAlign: "center",
+// //                     padding: "16px",
+// //                     fontWeight: "bold",
+// //                     fontSize: "24px",
+// //                 }}
+// //             >
+// //                 {projectName}
+// //             </h2>
+// //             <div className="flex justify-between items-center mb-4 px-4">
+
+// //                 <Button
+// //                     variant="contained"
+// //                     color="primary"
+// //                     onClick={handleDownloadSelected}
+// //                     disabled={selectedRows.length === 0}
+// //                 >
+// //                     <DownloadIcon  className="text-white text-lg mx-1"/>
+// //                     Download Selected
+// //                 </Button>
+// //             </div>
+// //             <Paper sx={{ width: "100%", overflow: "hidden" }}>
+// //                 <TableContainer sx={{ maxHeight: 700 }}>
+// //                     <MuiTable stickyHeader aria-label="sticky table">
+// //                         <TableHead>
+// //                             <TableRow>
+// //                                 <TableCell padding="checkbox">
+// //                                     <Checkbox
+// //                                         indeterminate={selectedRows.length > 0 && selectedRows.length < rows.length}
+// //                                         checked={rows.length > 0 && selectedRows.length === rows.length}
+// //                                         onChange={(event) => {
+// //                                             if (event.target.checked) {
+// //                                                 setSelectedRows(rows.map((row) => row.id));
+// //                                             } else {
+// //                                                 setSelectedRows([]);
+// //                                             }
+// //                                         }}
+// //                                     />
+// //                                 </TableCell>
+// //                                 {columns.map((column) => (
+// //                                     <TableCell
+// //                                         key={column.id}
+// //                                         align={column.align || "left"}
+// //                                         style={{ minWidth: column.minWidth }}
+// //                                     >
+// //                                         {column.label}
+// //                                     </TableCell>
+// //                                 ))}
+// //                             </TableRow>
+// //                         </TableHead>
+// //                         <TableBody>
+// //                             {rows
+// //                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+// //                                 .map((row, index) => (
+// //                                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+// //                                         <TableCell padding="checkbox">
+// //                                             <Checkbox
+// //                                                 checked={selectedRows.includes(row.id)}
+// //                                                 onChange={(event) => handleCheckboxClick(event, row.id)}
+// //                                             />
+// //                                         </TableCell>
+// //                                         {columns.map((column) => {
+// //                                             const value = row[column.id];
+// //                                             return (
+// //                                                 <TableCell
+// //                                                     key={column.id}
+// //                                                     align={column.align || "left"}
+// //                                                 >
+// //                                                     {column.id === "download" ? (
+// //                                                         <div>
+
+// //                                                             <Button
+// //                                                                 variant="contained"
+// //                                                                 color="primary"
+// //                                                                 onClick={() =>
+// //                                                                     handleEditClick &&
+// //                                                                     handleEditClick(row.projectId, row.id, row.name)
+// //                                                                 }
+// //                                                             >
+// //                                                                 Download
+// //                                                             </Button>
+// //                                                         </div>
+// //                                                     ) : column.id.endsWith('Date') && value ? (
+// //                                                         formatDate(value)
+// //                                                     ) : (
+// //                                                         value
+// //                                                     )}
+// //                                                 </TableCell>
+// //                                             );
+// //                                         })}
+// //                                     </TableRow>
+// //                                 ))}
+// //                         </TableBody>
+// //                     </MuiTable>
+// //                 </TableContainer>
+// //                 <TablePagination
+// //                     rowsPerPageOptions={[10, 25, 100]}
+// //                     component="div"
+// //                     count={rows.length}
+// //                     rowsPerPage={rowsPerPage}
+// //                     page={page}
+// //                     onPageChange={handleChangePage}
+// //                     onRowsPerPageChange={handleChangeRowsPerPage}
+// //                 />
+// //             </Paper>
+// //         </div>
+// //     );
+// // }
+
+// // CompletedTable.propTypes = {
+// //     columns: PropTypes.arrayOf(
+// //         PropTypes.shape({
+// //             id: PropTypes.string.isRequired,
+// //             label: PropTypes.string.isRequired,
+// //             minWidth: PropTypes.number.isRequired,
+// //             align: PropTypes.string,
+// //         })
+// //     ).isRequired,
+// //     rows: PropTypes.array,
+// //     page: PropTypes.number.isRequired,
+// //     rowsPerPage: PropTypes.number.isRequired,
+// //     handleChangePage: PropTypes.func.isRequired,
+// //     selectedRows: PropTypes.array.isRequired,
+// //     setSelectedRows: PropTypes.func.isRequired, handleChangeRowsPerPage: PropTypes.func.isRequired,
+// //     handleDownloadSelected: PropTypes.func.isRequired,
+// //     projectName: PropTypes.string.isRequired,
+// // };
+
+// // CompletedTable.defaultProps = {
+// //     rows: [],
+// //     handleEditClick: null,
+// // };
+
+// // export default CompletedTable;
+
+
+
+// import React, { useState } from "react";
 // import PropTypes from "prop-types";
 // import TableCell from "@mui/material/TableCell";
 // import TableRow from "@mui/material/TableRow";
@@ -9,6 +193,16 @@
 // import Button from "@mui/material/Button";
 // import Paper from "@mui/material/Paper";
 // import MuiTable from "@mui/material/Table";
+// import Checkbox from "@mui/material/Checkbox";
+// import DownloadIcon from '@mui/icons-material/Download';
+// import Menu from "@mui/material/Menu";
+// import MenuItem from "@mui/material/MenuItem";
+
+// const formatDate = (dateString) => {
+//     if (!dateString) return 'N/A';
+//     const date = new Date(dateString);
+//     return !isNaN(date.getTime()) ? date.toLocaleDateString() : 'Invalid Date';
+// };
 
 // function CompletedTable({
 //     columns,
@@ -17,15 +211,81 @@
 //     rowsPerPage,
 //     handleChangePage,
 //     handleChangeRowsPerPage,
-//     handleDownloadClick,
+//     selectedRows,
+//     setSelectedRows,
+//     handleDownloadSelected,
+//     handleDownload,
+//     projectName,
 // }) {
+//     const [anchorEl, setAnchorEl] = useState(null);
+//     const [currentFile, setCurrentFile] = useState(null);
+
+//     const handleCheckboxClick = (event, id) => {
+//         if (event.target.checked) {
+//             setSelectedRows([...selectedRows, id]);
+//         } else {
+//             setSelectedRows(selectedRows.filter(rowId => rowId !== id));
+//         }
+//     };
+
+//     const handleMenuOpen = (event, file) => {
+//         setAnchorEl(event.currentTarget);
+//         setCurrentFile(file);
+//     };
+
+//     const handleMenuClose = () => {
+//         setAnchorEl(null);
+//         setCurrentFile(null);
+//     };
+
+//     const handleDownloadClick = (format) => {
+//         if (currentFile) {
+//             handleDownload(currentFile.projectId, currentFile.id,  format);
+//         }
+//         handleMenuClose();
+//     };
+
 //     return (
 //         <div>
+//             <h2
+//                 style={{
+//                     textAlign: "center",
+//                     padding: "16px",
+//                     fontWeight: "bold",
+//                     fontSize: "24px",
+//                 }}
+//             >
+//                 {projectName}
+//             </h2>
+//             <div className="flex justify-between items-center mb-4 px-4">
+//                 <Button
+//                     variant="contained"
+//                     color="primary"
+//                     onClick={handleDownloadSelected}
+//                     disabled={selectedRows.length === 0}
+//                 >
+//                     <DownloadIcon className="text-white text-lg mx-1" />
+//                     Download Selected
+//                 </Button>
+//             </div>
 //             <Paper sx={{ width: "100%", overflow: "hidden" }}>
 //                 <TableContainer sx={{ maxHeight: 700 }}>
 //                     <MuiTable stickyHeader aria-label="sticky table">
 //                         <TableHead>
 //                             <TableRow>
+//                                 <TableCell padding="checkbox">
+//                                     <Checkbox
+//                                         indeterminate={selectedRows.length > 0 && selectedRows.length < rows.length}
+//                                         checked={rows.length > 0 && selectedRows.length === rows.length}
+//                                         onChange={(event) => {
+//                                             if (event.target.checked) {
+//                                                 setSelectedRows(rows.map((row) => row.id));
+//                                             } else {
+//                                                 setSelectedRows([]);
+//                                             }
+//                                         }}
+//                                     />
+//                                 </TableCell>
 //                                 {columns.map((column) => (
 //                                     <TableCell
 //                                         key={column.id}
@@ -40,8 +300,14 @@
 //                         <TableBody>
 //                             {rows
 //                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-//                                 .map((row) => (
+//                                 .map((row, index) => (
 //                                     <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+//                                         <TableCell padding="checkbox">
+//                                             <Checkbox
+//                                                 checked={selectedRows.includes(row.id)}
+//                                                 onChange={(event) => handleCheckboxClick(event, row.id)}
+//                                             />
+//                                         </TableCell>
 //                                         {columns.map((column) => {
 //                                             const value = row[column.id];
 //                                             return (
@@ -54,19 +320,21 @@
 //                                                             <Button
 //                                                                 variant="contained"
 //                                                                 color="primary"
-//                                                                 onClick={() => handleDownloadClick(row.id, 'pdf')}
-//                                                                 sx={{ marginRight: "5px" }}
+//                                                                 onClick={(event) => handleMenuOpen(event, row)}
 //                                                             >
-//                                                                 PDF
+//                                                                 Download
 //                                                             </Button>
-//                                                             <Button
-//                                                                 variant="contained"
-//                                                                 color="primary"
-//                                                                 onClick={() => handleDownloadClick(row.id, 'doc')}
+//                                                             <Menu
+//                                                                 anchorEl={anchorEl}
+//                                                                 open={Boolean(anchorEl)}
+//                                                                 onClose={handleMenuClose}
 //                                                             >
-//                                                                 DOC
-//                                                             </Button>
+//                                                                 <MenuItem onClick={() => handleDownloadClick("pdf")}>PDF</MenuItem>
+//                                                                 <MenuItem onClick={() => handleDownloadClick("word")}>Word</MenuItem>
+//                                                             </Menu>
 //                                                         </div>
+//                                                     ) : column.id.endsWith('Date') && value ? (
+//                                                         formatDate(value)
 //                                                     ) : (
 //                                                         value
 //                                                     )}
@@ -105,8 +373,12 @@
 //     page: PropTypes.number.isRequired,
 //     rowsPerPage: PropTypes.number.isRequired,
 //     handleChangePage: PropTypes.func.isRequired,
+//     selectedRows: PropTypes.array.isRequired,
+//     setSelectedRows: PropTypes.func.isRequired, 
 //     handleChangeRowsPerPage: PropTypes.func.isRequired,
-//     handleDownloadClick: PropTypes.func.isRequired,
+//     handleDownloadSelected: PropTypes.func.isRequired,
+//     projectName: PropTypes.string.isRequired,
+//     handleDownload: PropTypes.func.isRequired,
 // };
 
 // CompletedTable.defaultProps = {
@@ -117,7 +389,7 @@
 
 
 
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
@@ -129,8 +401,10 @@ import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import MuiTable from "@mui/material/Table";
 import Checkbox from "@mui/material/Checkbox";
-// import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import DownloadIcon from '@mui/icons-material/Download';
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -147,9 +421,12 @@ function CompletedTable({
     selectedRows,
     setSelectedRows,
     handleDownloadSelected,
-    handleEditClick,
+    handleDownload,
     projectName,
 }) {
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [currentFile, setCurrentFile] = useState(null);
+    const [selectedAnchorEl, setSelectedAnchorEl] = useState(null);
 
     const handleCheckboxClick = (event, id) => {
         if (event.target.checked) {
@@ -157,6 +434,36 @@ function CompletedTable({
         } else {
             setSelectedRows(selectedRows.filter(rowId => rowId !== id));
         }
+    };
+
+    const handleMenuOpen = (event, file) => {
+        setAnchorEl(event.currentTarget);
+        setCurrentFile(file);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+        setCurrentFile(null);
+    };
+
+    const handleSelectedMenuOpen = (event) => {
+        setSelectedAnchorEl(event.currentTarget);
+    };
+
+    const handleSelectedMenuClose = () => {
+        setSelectedAnchorEl(null);
+    };
+
+    const handleDownloadClick = (format) => {
+        if (currentFile) {
+            handleDownload(currentFile.projectId, currentFile.id, format);
+        }
+        handleMenuClose();
+    };
+
+    const handleDownloadSelectedClick = (format) => {
+        handleDownloadSelected(format);
+        handleSelectedMenuClose();
     };
 
     return (
@@ -172,16 +479,23 @@ function CompletedTable({
                 {projectName}
             </h2>
             <div className="flex justify-between items-center mb-4 px-4">
-
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={handleDownloadSelected}
+                    onClick={handleSelectedMenuOpen}
                     disabled={selectedRows.length === 0}
                 >
-                    <DownloadIcon  className="text-white text-lg mx-1"/>
+                    <DownloadIcon className="text-white text-lg mx-1" />
                     Download Selected
                 </Button>
+                <Menu
+                    anchorEl={selectedAnchorEl}
+                    open={Boolean(selectedAnchorEl)}
+                    onClose={handleSelectedMenuClose}
+                >
+                    <MenuItem onClick={() => handleDownloadSelectedClick("pdf")}>Download as PDF</MenuItem>
+                    <MenuItem onClick={() => handleDownloadSelectedClick("word")}>Download as Word</MenuItem>
+                </Menu>
             </div>
             <Paper sx={{ width: "100%", overflow: "hidden" }}>
                 <TableContainer sx={{ maxHeight: 700 }}>
@@ -232,17 +546,21 @@ function CompletedTable({
                                                 >
                                                     {column.id === "download" ? (
                                                         <div>
-
                                                             <Button
                                                                 variant="contained"
                                                                 color="primary"
-                                                                onClick={() =>
-                                                                    handleEditClick &&
-                                                                    handleEditClick(row.projectId, row.id, row.name)
-                                                                }
+                                                                onClick={(event) => handleMenuOpen(event, row)}
                                                             >
                                                                 Download
                                                             </Button>
+                                                            <Menu
+                                                                anchorEl={anchorEl}
+                                                                open={Boolean(anchorEl)}
+                                                                onClose={handleMenuClose}
+                                                            >
+                                                                <MenuItem onClick={() => handleDownloadClick("pdf")}>PDF</MenuItem>
+                                                                <MenuItem onClick={() => handleDownloadClick("word")}>Word</MenuItem>
+                                                            </Menu>
                                                         </div>
                                                     ) : column.id.endsWith('Date') && value ? (
                                                         formatDate(value)
@@ -285,14 +603,15 @@ CompletedTable.propTypes = {
     rowsPerPage: PropTypes.number.isRequired,
     handleChangePage: PropTypes.func.isRequired,
     selectedRows: PropTypes.array.isRequired,
-    setSelectedRows: PropTypes.func.isRequired, handleChangeRowsPerPage: PropTypes.func.isRequired,
+    setSelectedRows: PropTypes.func.isRequired,
+    handleChangeRowsPerPage: PropTypes.func.isRequired,
     handleDownloadSelected: PropTypes.func.isRequired,
     projectName: PropTypes.string.isRequired,
+    handleDownload: PropTypes.func.isRequired,
 };
 
 CompletedTable.defaultProps = {
     rows: [],
-    handleEditClick: null,
 };
 
 export default CompletedTable;
