@@ -51,11 +51,11 @@ const App = () => {
               <DashboardWrapper />
             </PrivateRoute>} />
           <Route path="/kyro/:companyId/*" element={
-            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin']}>
+            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin','superAdmin']}>
               <KyroInstance role={role} />
             </PrivateRoute>} />
           <Route path="/company/:companyId/*" element={
-            <PrivateRoute user={user} role={role} allowedRoles={['user','admin']}>
+            <PrivateRoute user={user} role={role} allowedRoles={['user','admin','superAdmin']}>
               <CompanyInstance role={role} />
             </PrivateRoute>} />
           <Route path="/editor/:projectId/:documentId" element={
