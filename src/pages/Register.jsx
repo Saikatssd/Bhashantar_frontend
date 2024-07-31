@@ -144,7 +144,7 @@ import { server } from '../main';
 import { handleSendVerificationEmail, handleSignUp } from '../utils/auth';
 import Sidebar from '../components/ClientCompany/Sidebar';
 
-const Register = () => {
+const Register = (instanceCompanyId) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -303,7 +303,7 @@ const Register = () => {
 
   return (
     <div className='flex w-full  '>
-      <Sidebar />
+      {/* <Sidebar role='superAdmin'/> */}
 
       {/* Main content */}
       <div className='w-full flex justify-center bg-slate-200'>
@@ -394,7 +394,7 @@ const Register = () => {
                   className="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-500 focus:border-indigo-500"
                 >
                   <option value="" disabled>Select a company</option>
-                  {companies.map(company => (
+                  {companies.filter(doc => doc.data().id !== instanceCompanyId ).map(company => (
                     <option key={company.id} value={company.id}>{company.name}</option>
                   ))}
                 </select>

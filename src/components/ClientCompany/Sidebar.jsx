@@ -111,8 +111,8 @@ export default function Sidebar({ companyId, role }) {
             {role === "superAdmin" && (
               <li>
                 <Link
-                  to="/register"
-                  className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive("/register")
+                  to={`/company/${companyId}/register`}
+                  className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/register`)
                       ? "bg-[#e3d2fa] text-gray-700"
                       : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
                     }`}

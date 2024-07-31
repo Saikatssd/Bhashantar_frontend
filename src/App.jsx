@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { auth } from './utils/firebase';
 import Login from './pages/Login';
-import Register from './pages/Register';
 import DashboardWrapper from './components/DashboardWrapper';
 import FileStatusManager from './components/FileStatusManager';
 import KyroInstance from './components/KyroInstance';
@@ -44,8 +43,6 @@ const App = () => {
         <Routes>
         <Route path="*" element={<Navigate to="/" />} />
           <Route path="/" element={<Login />} />
-          <Route path="/register" element={<PrivateRoute user={user} role={role} allowedRoles={['superAdmin']}><Register /></PrivateRoute>} />
-
           <Route path="/home" element={
             <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'superAdmin']}>
               <DashboardWrapper />
