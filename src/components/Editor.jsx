@@ -1,12 +1,20 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Editor as TinyMCEEditor } from "@tinymce/tinymce-react";
-import { fetchDocumentUrl, updateDocumentContent, updateFileStatus } from "../utils/firestoreUtil";
+import {
+  fetchDocumentUrl,
+  updateDocumentContent,
+  updateFileStatus,
+} from "../utils/firestoreUtil";
 import useDebounce from "../hooks/useDebounce";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
-import { auth } from '../utils/firebase';
+import { auth } from "../utils/firebase";
 import ConfirmationDialog from "./ConfirmationDialog";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import DownloadIcon from "@mui/icons-material/Download";
+import Tooltip from "@mui/material/Tooltip";
+import { server } from "../main";
+import axios from "axios";
 
 const Editor = () => {
   const { projectId, documentId } = useParams();
@@ -48,12 +56,15 @@ const Editor = () => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const { htmlUrl, pdfUrl } = await fetchDocumentUrl(projectId, documentId);
+        const { htmlUrl, pdfUrl } = await fetchDocumentUrl(
+          projectId,
+          documentId
+        );
         const response = await fetch(htmlUrl);
         const text = await response.text();
         setHtmlContent(text);
         setPdfUrl(pdfUrl);
-        const extractedFileName = pdfUrl.split('/').pop();
+        const extractedFileName = pdfUrl.split("/").pop();
         setFileName(extractedFileName);
         setIsInitialContentSet(true);
       } catch (err) {
@@ -71,7 +82,9 @@ const Editor = () => {
       if (!debouncedHtmlContent) return;
 
       try {
-        const blob = new Blob([debouncedHtmlContent], { type: "text/html; charset=utf-8" });
+        const blob = new Blob([debouncedHtmlContent], {
+          type: "text/html; charset=utf-8",
+        });
         await updateDocumentContent(projectId, documentId, blob);
       } catch (err) {
         console.error("Error saving document (debounced save):", err);
@@ -83,18 +96,58 @@ const Editor = () => {
 
   const handleSave = async () => {
     try {
-      if (companyId === 'cvy2lr5H0CUVH8o2vsVk') {
-        await updateFileStatus(projectId, documentId, { status: 4, kyro_completedDate: new Date().toISOString() });
+      if (companyId === "cvy2lr5H0CUVH8o2vsVk") {
+        await updateFileStatus(projectId, documentId, {
+          status: 4,
+          kyro_completedDate: new Date().toISOString(),
+        });
       } else {
-        await updateFileStatus(projectId, documentId, { status: 7, client_completedDate: new Date().toISOString() });
+        await updateFileStatus(projectId, documentId, {
+          status: 7,
+          client_completedDate: new Date().toISOString(),
+        });
       }
       navigate(-1);
-      console.log('Document status updated to 4 or 7');
+      console.log("Document status updated to 4 or 7");
     } catch (err) {
-      console.error('Error updating document status:', err);
+      console.error("Error updating document status:", err);
     }
   };
 
+  const handleDownload = async () => {
+    setError(null); // Clear any previous error
+  
+    try {
+      const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
+      const response = await axios.get(endpoint, {
+        responseType: "blob",
+      });
+  
+      // Extract filename from headers or use a fallback
+      const contentDisposition = response.headers["content-disposition"];
+      const filename = contentDisposition
+        ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+        : "document.zip";
+  
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+  
+      // Optionally, update the file status
+      await updateFileStatus(projectId, documentId, {
+        status: 8,
+        client_downloadedDate: new Date().toISOString(),
+      });
+    } catch (err) {
+      setError("An error occurred while downloading the document."); // Set a descriptive error message
+      console.error("Error during document download:", err); // Log the actual error
+    }
+  };
+  
   const handleBack = () => {
     navigate(-1);
   };
@@ -104,38 +157,38 @@ const Editor = () => {
       return (
         <TinyMCEEditor
           key={documentId} // Force reinitialization on documentId change
-          apiKey='b49qe47leuw15e45amyl6s8hh2wojjif4ka6kfptu0tt0v1w'
+          apiKey="b49qe47leuw15e45amyl6s8hh2wojjif4ka6kfptu0tt0v1w"
           value={htmlContent}
           init={{
-            height: 'calc(100vh)',
+            height: "calc(100vh)",
             plugins:
               "anchor fullscreen autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown pagebreak",
             toolbar:
               "bold italic underline | fontfamily fontsize | align lineheight | checklist numlist bullist indent outdent | paragraphSpacing fullscreen",
             tinycomments_mode: "embedded",
             pagebreak_split_block: true,
-            pagebreak_separator: '<!-- my page break -->',
+            pagebreak_separator: "<!-- my page break -->",
             tinycomments_author: "Author name",
             fullscreen_native: true,
             mergetags_list: [
               { value: "First.Name", title: "First Name" },
-              { value: "Email", title: "Email" }
+              { value: "Email", title: "Email" },
             ],
             setup: (editor) => {
-              editor.ui.registry.addButton('paragraphSpacing', {
-                text: 'Paragraph Spacing',
+              editor.ui.registry.addButton("paragraphSpacing", {
+                text: "Paragraph Spacing",
                 onAction: () => {
-                  editor.execCommand('FormatBlock', false, 'p');
-                  editor.getBody().querySelectorAll('p').forEach((paragraph) => {
-                    paragraph.style.textIndent = '80px'; // Set the first line indentation
-                  });
+                  editor.execCommand("FormatBlock", false, "p");
+                  editor
+                    .getBody()
+                    .querySelectorAll("p")
+                    .forEach((paragraph) => {
+                      paragraph.style.textIndent = "80px"; // Set the first line indentation
+                    });
                 },
               });
             },
-            
-          }
-        }
-
+          }}
           onInit={(evt, editor) => {
             editorRef.current = editor;
           }}
@@ -145,6 +198,8 @@ const Editor = () => {
     }
     return null;
   }, [htmlContent, isInitialContentSet, documentId]);
+
+  
 
   useEffect(() => {
     return () => {
@@ -183,16 +238,31 @@ const Editor = () => {
           size="large"
           sx={{
             position: "fixed",
-            bottom: 25,
-            left: 16,
-            width: "100px",
-            height: "55px",
-            fontSize: "18px",
+            top: 15,
+            right: 110,
+            width: "80px",
+            height: "36px",
+            fontSize: "14px",
+            zIndex: 10,
           }}
         >
           <ArrowBackIcon sx={{ marginRight: "3px" }} />
           Back
         </Button>
+
+        <Tooltip title="Download">
+          <DownloadIcon
+            onClick={handleDownload}
+            sx={{
+              position: "fixed",
+              top: 26,
+              right: 430,
+              fontSize: "20px",
+              zIndex: 10,
+            }}
+            className="text-gray-600 hover:text-blue-600 hover:scale-125 cursor-pointer "
+          />
+        </Tooltip>
       </div>
       <div style={{ flex: 1, padding: "10px" }}>
         {initializeEditor()}
@@ -208,7 +278,7 @@ const Editor = () => {
             width: "80px",
             height: "36px",
             fontSize: "14px",
-            zIndex:10
+            zIndex: 10,
           }}
         >
           Submit
@@ -226,5 +296,3 @@ const Editor = () => {
 };
 
 export default Editor;
-
-
