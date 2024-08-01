@@ -12,19 +12,32 @@ import UserFileFlow from "./ClientCompany/UserFileFlow";
 import UserFileAssign from "./ClientCompany/UserFileAssign";
 import PrivateRoute from "./PrivateRoute";
 import Register from "../pages/Register";
+import KyroSidebar from "./Kyrotics/KyroSidebar";
 
 const CompanyInstance = ({ role }) => {
   const { companyId } = useParams();
 
   return (
     <div className="flex">
+      {companyId === 'cvy2lr5H0CUVH8o2vsVk' ? <KyroSidebar companyId={companyId} role={role}/> : <Sidebar companyId={companyId} role={role} />}
+      {/* if (companyId === 'cvy2lr5H0CUVH8o2vsVk') {
+        <KyroSidebar companyId={companyId} role={role}/>
+
+    }
+    else{
       <Sidebar companyId={companyId} role={role} />
+    } */}
       <div className="flex-grow">
         <Routes>
           <Route path="/profile" element={<Profile />} />
           <Route path="/myWork" element={<UserFileFlow />} />
 
-          <Route path="/register" element={<Register companyId={companyId}/>} />
+          {role === "superAdmin" && (
+            <Route
+              path="/register"
+              element={<Register instanceCompanyId={companyId} />}
+            />
+          )}
 
           <Route path="project" element={<ProjectList />} />
           {role === "user" && (
