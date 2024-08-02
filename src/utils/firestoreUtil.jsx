@@ -423,6 +423,35 @@ export const fetchProjectName = async (projectId) => {
   }
 };
 
+
+// Fetch project details including file counts and statuses
+export const fetchProjectDetails = async (companyId) => {
+  try {
+    const projects = await fetchCompanyProjects(companyId);
+    const projectDetails = await Promise.all(projects.map(async (project) => {
+      const files = await fetchProjectFiles(project.id);
+      const totalFiles = files.length;
+      const completedFiles = files.filter(file => file.status >= 5).length;
+      const ReadyForWorkFiles=files.filter(file => file.status == 2 ).length
+      const inProgressFiles=files.filter(file => (file.status == 3) || (file.status == 4) ).length
+     
+    //  console.log(inProgressFiles) // const inProgressFiles = totalFiles - completedFiles;
+
+      return {
+        id: project.id,
+        name: project.name,
+        totalFiles,
+        ReadyForWorkFiles,
+        inProgressFiles,
+        completedFiles,
+      };
+    }));
+    return projectDetails;
+  } catch (error) {
+    console.error('Error fetching project details:', error);
+    throw new Error('Error fetching project details');
+  }
+};
 // --- Company Operations ---
 
 // Fetch all companies
