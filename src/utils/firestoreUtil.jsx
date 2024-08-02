@@ -304,13 +304,14 @@ export const fetchProjectFilesCount = async (status, projectId) => {
     const q = query(collection(db, 'projects', projectId, 'files'), where('status', '==', status));
     const filesSnapshot = await getDocs(q);
     const fileCount = filesSnapshot.size; // The 'size' property gives the number of documents in the snapshot
-    console.log(fileCount);
     return fileCount;
   } catch (error) {
     console.error(`Error fetching project files count with status ${status}:`, error);
     throw new Error('Error fetching project files count');
   }
 };
+
+
 
 
 // Update the content of a specific document
