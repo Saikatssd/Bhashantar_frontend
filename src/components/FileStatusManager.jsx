@@ -24,7 +24,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from '@mui/material';
-
+import Tooltip from "@mui/material/Tooltip";
 const statusLabels = {
   0: 'Delete Upload files(Client)-0',
   1: 'ML Processing - 1',
@@ -248,15 +248,17 @@ const FileStatusManager = () => {
                 />
                 <div className="flex space-x-2">
                   {Object.keys(statusLabels).map((status) => (
-                    <Button
-                      key={status}
-                      variant={
-                        file.status === Number(status) ? 'contained' : 'outlined'
-                      }
-                      onClick={() => handleStatusChange(file.id, Number(status))}
-                    >
-                      {status}
-                    </Button>
+                    <Tooltip key={status} title={statusLabels[status]}>
+                      <Button
+                        key={status}
+                        variant={
+                          file.status === Number(status) ? 'contained' : 'outlined'
+                        }
+                        onClick={() => handleStatusChange(file.id, Number(status))}
+                      >
+                        {status}
+                      </Button>
+                    </Tooltip>
                   ))}
                 </div>
               </ListItem>
