@@ -12,15 +12,24 @@ import RoomPreferencesIcon from "@mui/icons-material/RoomPreferences";
 import TaskIcon from "@mui/icons-material/Task";
 import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import PersonAddAltRoundedIcon from '@mui/icons-material/PersonAddAltRounded';
+import ConfirmationDialog from "../ConfirmationDialog";
 
 export default function KyroSidebar({ companyId, role }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const location = useLocation();
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -190,7 +199,7 @@ export default function KyroSidebar({ companyId, role }) {
                         )} */}
             <li>
               <button
-                onClick={handleSignOut}
+                onClick={handleOpenDialog}
                 className="w-full rounded-lg px-4 py-3 text-md font-medium text-gray-500 [text-align:_inherit] bg-[#fffff] hover:bg-[#d00000] hover:text-white"
               >
                 <LogoutIcon className="mr-5" />
@@ -199,6 +208,14 @@ export default function KyroSidebar({ companyId, role }) {
             </li>
           </ul>
         </div>
+
+        <ConfirmationDialog
+          open={dialogOpen}
+          handleClose={handleCloseDialog}
+          handleConfirm={handleSignOut}
+          title="Confirm Logout"
+          message="Are you sure you want to logout?"
+        />
       </div>
       <div className="md:hidden">
         <button className="bg-[#e3d2fa] text-white" onClick={toggleSidebar}>

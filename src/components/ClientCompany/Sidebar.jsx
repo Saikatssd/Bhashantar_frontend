@@ -10,13 +10,23 @@ import StorageTwoToneIcon from "@mui/icons-material/StorageTwoTone";
 import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import UploadIcon from "@mui/icons-material/Upload";
 import PersonAddAltRoundedIcon from '@mui/icons-material/PersonAddAltRounded';
+import ConfirmationDialog from "../ConfirmationDialog";
 
 export default function Sidebar({ companyId, role }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const location = useLocation();
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
   };
 
   const isActive = (path) => location.pathname === path;
@@ -138,7 +148,7 @@ export default function Sidebar({ companyId, role }) {
             )}
             <li>
               <button
-                onClick={handleSignOut}
+                onClick={handleOpenDialog}
                 className="w-full rounded-lg px-4 py-4 text-md font-medium text-gray-500 [text-align:_inherit] bg-[#fffff] hover:bg-[#d00000] hover:text-white"
               >
                 <LogoutIcon className="mr-5" />
@@ -153,6 +163,13 @@ export default function Sidebar({ companyId, role }) {
           Toggle
         </button>
       </div>
+      <ConfirmationDialog
+          open={dialogOpen}
+          handleClose={handleCloseDialog}
+          handleConfirm={handleSignOut}
+          title="Confirm Logout"
+          message="Are you sure you want to logout?"
+        />
     </div>
   );
 }

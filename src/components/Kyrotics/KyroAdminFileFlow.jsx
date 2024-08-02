@@ -217,7 +217,7 @@ const KyroAdminFileFlow = () => {
           <Tab label="Ready for Work" />
           <Tab label="Work in Progress" />
           <Tab label="Completed" />
-          <Tab label="Quality Assured" />
+          <Tab label="Delivered" />
         </Tabs>
       </Box>
 
@@ -231,6 +231,8 @@ const KyroAdminFileFlow = () => {
           handleEditClick={handleOpenModal}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           projectName={projectName}
+          projectId={projectId}
+          status={2}
         />
       </TabPanel>
 
@@ -243,6 +245,9 @@ const KyroAdminFileFlow = () => {
           handleChangePage={handleChangePage}
           // projectId={projectId}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
+          projectName={projectName}
+          projectId={projectId}
+          status={3}
         />
       </TabPanel>
 
@@ -258,6 +263,9 @@ const KyroAdminFileFlow = () => {
           handleSendSelected={handleSendSelected}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
+          projectName={projectName}
+          projectId={projectId}
+          status={4}
         />
       </TabPanel>
 
@@ -269,6 +277,9 @@ const KyroAdminFileFlow = () => {
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
+          projectName={projectName}
+          projectId={projectId}
+          status={5}
         />
       </TabPanel>
       <UserSelectModal

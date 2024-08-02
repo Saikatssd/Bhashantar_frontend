@@ -158,12 +158,21 @@ function Table({
         console.log('Navigating to editor with document ID:', documentId);
         navigate(`/editor/${projectId}/${documentId}`);
     };
-
+    
+    const calculateTotalPages = (rows) => {
+        return rows.reduce((total, row) => {
+            return total + (row.pageCount || 0);
+        }, 0);
+    };
     return (
         <div>
             <h2 style={{ textAlign: "center", padding: "16px", fontWeight: "bold", fontSize: "24px" }}>
                 {projectName}
+                <span className="ml-4 text-lg font-normal text-gray-600">
+            ({rows.length} files, {calculateTotalPages(rows)} pages)
+          </span>
             </h2>
+        
             <Paper sx={{ width: '100%', overflow: 'hidden' }}>
                 <TableContainer sx={{ maxHeight: 700 }}>
                     <MuiTable stickyHeader aria-label="sticky table">

@@ -280,6 +280,38 @@ export const fetchFilesByStatus = async (status, projectId) => {
     throw new Error(`Error fetching files by status ${status} for project ${projectId}`);
   }
 };
+export const fetchTotalPagesInProject = async (status, projectId) => {
+  try {
+    const q = query(collection(db, 'projects', projectId, 'files'), where('status', '==', status));
+    const filesSnapshot = await getDocs(q);
+    
+    let totalPages = 0;
+    filesSnapshot.forEach(doc => {
+      const data = doc.data();
+      totalPages += data.pageCount || 0; // Safeguard against undefined pageCount
+    });
+
+    return totalPages;
+  } catch (error) {
+    console.error(`Error fetching total pages in project with status ${status}:`, error);
+    throw new Error('Error fetching total pages in project');
+  }
+};
+
+
+export const fetchProjectFilesCount = async (status, projectId) => {
+  try {
+    const q = query(collection(db, 'projects', projectId, 'files'), where('status', '==', status));
+    const filesSnapshot = await getDocs(q);
+    const fileCount = filesSnapshot.size; // The 'size' property gives the number of documents in the snapshot
+    console.log(fileCount);
+    return fileCount;
+  } catch (error) {
+    console.error(`Error fetching project files count with status ${status}:`, error);
+    throw new Error('Error fetching project files count');
+  }
+};
+
 
 // Update the content of a specific document
 export const updateDocumentContent = async (projectId, fileId, blob) => {
@@ -315,6 +347,23 @@ export const fetchAllProjects = async () => {
     throw new Error('Error fetching projects');
   }
 };
+
+export const fetchProjectFilesByDate = async (projectId, startDate, endDate) => {
+  try {
+    const q = query(
+      collection(db, 'projects', projectId, 'files'),
+      where('uploadedDate', '>=', startDate),
+      where('uploadedDate', '<=', endDate)
+    );
+    const filesSnapshot = await getDocs(q);
+    const files = filesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return files;
+  } catch (error) {
+    console.error('Error fetching project files by date:', error);
+    throw new Error('Error fetching project files by date');
+  }
+};
+
 
 // Fetch all projects for a specific company
 export const fetchCompanyProjects = async (companyId) => {
