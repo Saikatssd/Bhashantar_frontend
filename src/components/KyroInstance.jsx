@@ -13,6 +13,7 @@ import KyroUserFileAssign from "./Kyrotics/KyroUserFileAssign";
 import KyroUserWorkspace from "./Kyrotics/KyroUserWorkspace";
 import QAWorkspace from "../pages/QA/QAWorkspace";
 import FileStatusManager from "./FileStatusManager";
+import Register from "../pages/Register";
 
 export default function KyroInstance({ role }) {
   const [userCompanyId, setUserCompanyId] = useState("");
