@@ -126,7 +126,14 @@ import {
   fetchAllCompanies,
   fetchProjectDetails,
 } from "../../utils/firestoreUtil";
-import { Button, MenuItem, Select, CircularProgress, FormControl, InputLabel } from "@mui/material";
+import {
+  Button,
+  MenuItem,
+  Select,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
 import { exportToExcel } from "../../utils/exportExcel";
 import KyroSidebar from "../../components/Kyrotics/KyroSidebar";
 
@@ -182,74 +189,94 @@ const KyroAdminHome = ({ companyId }) => {
     <div className="flex">
       <KyroSidebar companyId={companyId} role={"admin"} />
       <div className="p-8">
-        <div className="mb-4 flex space-x-14">
-        <FormControl sx={{width:'30%'}}>
-    <InputLabel id="select-company-label">Select a Company</InputLabel>
-    <Select
-      labelId="select-company-label"
-      id="select-company"
-      value={selectedCompany}
-      label="Select a Company"
-      onChange={handleCompanyChange}
-    >
-      <MenuItem value="" disabled>
-        Select a Company
-      </MenuItem>
-      {companies.map((company) => (
-        <MenuItem key={company.id} value={company.id}>
-          {company.name}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
+        <div className="mb-4 flex justify-between space-x-14">
+          <FormControl sx={{ width: "30%",}}>
+            <InputLabel id="select-company-label">Select a Company</InputLabel>
+            <Select
+              labelId="select-company-label"
+              id="select-company"
+              value={selectedCompany}
+              label="Select a Company"
+              onChange={handleCompanyChange}
+            >
+              <MenuItem value="" disabled>
+                Select a Company
+              </MenuItem>
+              {companies.map((company) => (
+                <MenuItem key={company.id} value={company.id}>
+                  {company.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <div className="mt-4">
-              <Button
-                variant="contained"
-                
-                onClick={() => exportToExcel(projectDetails)}
-                sx={{backgroundColor: '#5b68c7'}}
-              >
-                Export to XLS
-              </Button>
-            </div>
+            <Button
+              variant="outlined"
+              onClick={() => exportToExcel(projectDetails)}
+              sx={{ color: "#5b68c7" }}
+            >
+              Export to XLS
+            </Button>
+          </div>
         </div>
-        
 
         {isLoading ? (
           <CircularProgress />
         ) : (
-          <div>
-            <div className="rounded-lg border border-gray-200">
-  <div className="overflow-x-auto rounded-t-lg rounded-b-lg">
-    <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-      <thead className="">
-        <tr className="bg-[#6c7ae0] text-white">
-          <th className="whitespace-nowrap px-6 py-2 font-medium">Sl No</th>
-          <th className="whitespace-nowrap px-6 py-2 font-medium">Project Name</th>
-          <th className="whitespace-nowrap px-6 py-2 font-medium">File Count</th>
-          <th className="whitespace-nowrap px-6 py-2 font-medium">Not Started</th>
-          <th className="whitespace-nowrap px-6 py-2 font-medium">In Progress</th>
-          <th className="whitespace-nowrap px-6 py-2 font-medium">Completed Files</th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-200 ">
-        {projectDetails.map((project, index) => (
-          <tr key={project.id} className="even:bg-[#f0f2ff] odd:bg-white hover:bg-[#b6bffa]">
-            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">{index + 1}</td>
-            <td className="whitespace-nowrap px-6 py-2 text-left text-gray-900">{project.name}</td>
-            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">{project.totalFiles}</td>
-            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">{project.ReadyForWorkFiles}</td>
-            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">{project.inProgressFiles}</td>
-            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">{project.completedFiles}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-
-            
+          <div className="rounded-lg border border-gray-200">
+            <div className="overflow-x-auto rounded-t-lg rounded-b-lg">
+              <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+                <thead className="">
+                  <tr className="bg-[#6c7ae0] text-white">
+                    <th className="whitespace-nowrap px-6 py-2 font-medium">
+                      Sl No
+                    </th>
+                    <th className="whitespace-nowrap px-6 py-2 font-medium">
+                      Project Name
+                    </th>
+                    <th className="whitespace-nowrap px-6 py-2 font-medium">
+                      File Count
+                    </th>
+                    <th className="whitespace-nowrap px-6 py-2 font-medium">
+                      Not Started
+                    </th>
+                    <th className="whitespace-nowrap px-6 py-2 font-medium">
+                      In Progress
+                    </th>
+                    <th className="whitespace-nowrap px-6 py-2 font-medium">
+                      Completed Files
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 ">
+                  {projectDetails.map((project, index) => (
+                    <tr
+                      key={project.id}
+                      className="even:bg-[#f0f2ff] odd:bg-white hover:bg-[#b6bffa]"
+                    >
+                      <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">
+                        {index + 1}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-2 text-left text-gray-900">
+                        {project.name}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                        {project.totalFiles}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                        {project.ReadyForWorkFiles}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                        {project.inProgressFiles}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                        {project.completedFiles}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
