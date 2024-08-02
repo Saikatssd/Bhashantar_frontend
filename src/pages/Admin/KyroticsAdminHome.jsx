@@ -200,8 +200,9 @@ const KyroAdminHome = ({ companyId }) => {
                                     <th className="py-2 px-4 border">Sl No</th>
                                     <th className="py-2 px-4 border">Project Name</th>
                                     <th className="py-2 px-4 border">File Count</th>
-                                    <th className="py-2 px-4 border">Completed Files</th>
+                                    <th className="py-2 px-4 border">Not Started</th>
                                     <th className="py-2 px-4 border">In Progress</th>
+                                    <th className="py-2 px-4 border">Completed Files</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -210,8 +211,9 @@ const KyroAdminHome = ({ companyId }) => {
                                         <td className="py-2 px-4 border">{index + 1}</td>
                                         <td className="py-2 px-4 border">{project.name}</td>
                                         <td className="py-2 px-4 border">{project.totalFiles}</td>
-                                        <td className="py-2 px-4 border">{project.completedFiles}</td>
+                                        <td className="py-2 px-4 border">{project.ReadyForWorkFiles}</td>
                                         <td className="py-2 px-4 border">{project.inProgressFiles}</td>
+                                        <td className="py-2 px-4 border">{project.completedFiles}</td>
                                     </tr>
                                 ))}
                             </tbody>

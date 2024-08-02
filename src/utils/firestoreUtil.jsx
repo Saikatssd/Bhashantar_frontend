@@ -431,14 +431,18 @@ export const fetchProjectDetails = async (companyId) => {
       const files = await fetchProjectFiles(project.id);
       const totalFiles = files.length;
       const completedFiles = files.filter(file => file.status >= 5).length;
-      const inProgressFiles = totalFiles - completedFiles;
+      const ReadyForWorkFiles=files.filter(file => file.status == 2 ).length
+      const inProgressFiles=files.filter(file => (file.status == 3) || (file.status == 4) ).length
+     
+    //  console.log(inProgressFiles) // const inProgressFiles = totalFiles - completedFiles;
 
       return {
         id: project.id,
         name: project.name,
         totalFiles,
-        completedFiles,
+        ReadyForWorkFiles,
         inProgressFiles,
+        completedFiles,
       };
     }));
     return projectDetails;
