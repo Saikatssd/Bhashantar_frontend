@@ -3,14 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { TextField, Button, CircularProgress } from '@mui/material';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-// import { fetchReportDetails } from './fetchReportDetails';
 import * as XLSX from 'xlsx';
 
 const Report = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [reportDetails, setReportDetails] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
@@ -52,6 +51,7 @@ const Report = () => {
 
   return (
     <div className="p-6">
+      <h1 className='p-4 text-2xl font-bold font-serif text-center tracking-wider leading-6'>DAILY REPORT</h1>
       <div className="mb-4">
         <label htmlFor="company" className="block text-sm font-medium text-gray-700">Select Company</label>
         <select
@@ -67,21 +67,23 @@ const Report = () => {
         </select>
       </div>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Start Date</label>
-        <DatePicker
-          selected={startDate}
-          onChange={(date) => setStartDate(date)}
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">End Date</label>
-        <DatePicker
-          selected={endDate}
-          onChange={(date) => setEndDate(date)}
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-        />
+      <div className='flex space-x-4'>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Start Date</label>
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">End Date</label>
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          />
+        </div>
       </div>
 
       {isLoading ? (
