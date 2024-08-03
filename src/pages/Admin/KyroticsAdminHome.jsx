@@ -264,13 +264,13 @@ const KyroAdminHome = ({ companyId }) => {
                         {project.totalFiles}
                       </td>
                       <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                        {project.ReadyForWorkFiles}
+                        {project.readyForWorkFiles}
                       </td>
                       <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
                         {project.inProgressFiles}
                       </td>
                       <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                        {project.completedFiles}
+                        {project.completedFileCount}
                       </td>
                     </tr>
                   ))}

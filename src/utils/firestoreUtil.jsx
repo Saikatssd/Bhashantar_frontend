@@ -284,7 +284,7 @@ export const fetchTotalPagesInProject = async (status, projectId) => {
   try {
     const q = query(collection(db, 'projects', projectId, 'files'), where('status', '==', status));
     const filesSnapshot = await getDocs(q);
-    
+
     let totalPages = 0;
     filesSnapshot.forEach(doc => {
       const data = doc.data();
@@ -425,31 +425,102 @@ export const fetchProjectName = async (projectId) => {
 
 
 // Fetch project details including file counts and statuses
+// export const fetchProjectDetails = async (companyId) => {
+//   try {
+//     const projects = await fetchCompanyProjects(companyId);
+//     const projectDetails = await Promise.all(projects.map(async (project) => {
+//       const files = await fetchProjectFiles(project.id);
+//       const totalFiles = files.length;
+//       const completedFiles = files.filter(file => file.status >= 5).length;
+//       const ReadyForWorkFiles=files.filter(file => file.status == 2 ).length
+//       const inProgressFiles=files.filter(file => (file.status == 3) || (file.status == 4) ).length
+//       const kyro_completedDate = files.kyro_completedDate;
+//       console.log(kyro_completedDate)
+//     //  console.log(inProgressFiles) // const inProgressFiles = totalFiles - completedFiles;
+
+//       return {
+//         id: project.id,
+//         name: project.name,
+//         totalFiles,
+//         ReadyForWorkFiles,
+//         inProgressFiles,
+//         completedFiles,
+//         kyro_completedDate
+
+//       };
+//     }));
+//     return projectDetails;
+//   } catch (error) {
+//     console.error('Error fetching project details:', error);
+//     throw new Error('Error fetching project details');
+//   }
+// };
+
+
 export const fetchProjectDetails = async (companyId) => {
   try {
     const projects = await fetchCompanyProjects(companyId);
     const projectDetails = await Promise.all(projects.map(async (project) => {
       const files = await fetchProjectFiles(project.id);
       const totalFiles = files.length;
-      const completedFiles = files.filter(file => file.status >= 5).length;
-      const ReadyForWorkFiles=files.filter(file => file.status == 2 ).length
-      const inProgressFiles=files.filter(file => (file.status == 3) || (file.status == 4) ).length
-     
-    //  console.log(inProgressFiles) // const inProgressFiles = totalFiles - completedFiles;
+      const completedFiles = files.filter(file => file.status >= 5);
+      const completedFileCount = completedFiles.length;
+      const readyForWorkFiles = files.filter(file => file.status == 2).length;
+
+      const inProgressFiles = files.filter(file => (file.status == 3) || (file.status == 4)).length;
+      const kyroCompletedDates = completedFiles.map(file => file.kyro_completedDate);
+      const completedFilePageCount = completedFiles.map(file => file.pageCount);
+      // const completedFilePageCount = completedFiles.reduce((total, file) => total + (file.pageCount || 0), 0);
 
       return {
         id: project.id,
         name: project.name,
         totalFiles,
-        ReadyForWorkFiles,
+        readyForWorkFiles,
         inProgressFiles,
-        completedFiles,
+        completedFileCount,
+        kyroCompletedDates,
+        completedFilePageCount
       };
     }));
     return projectDetails;
   } catch (error) {
     console.error('Error fetching project details:', error);
     throw new Error('Error fetching project details');
+  }
+};
+
+
+export const fetchReportDetails = async (companyId, startDate, endDate) => {
+  try {
+    const projects = await fetchCompanyProjects(companyId);
+    const allDetails = [];
+
+    for (const project of projects) {
+      const files = await fetchProjectFiles(project.id);
+
+      const filteredFiles = files.filter(file => {
+        const completedDate = new Date(file.kyro_completedDate);
+        return completedDate >= startDate && completedDate <= endDate;
+      });
+
+      const dateMap = filteredFiles.reduce((acc, file) => {
+        const date = new Date(file.kyro_completedDate).toLocaleDateString();
+        if (!acc[date]) {
+          acc[date] = { date, fileCount: 0, pageCount: 0 };
+        }
+        acc[date].fileCount += 1;
+        acc[date].pageCount += file.pageCount || 0; // Assuming each file has a pageCount attribute
+        return acc;
+      }, {});
+
+      allDetails.push(...Object.values(dateMap));
+    }
+
+    return allDetails;
+  } catch (error) {
+    console.error('Error fetching report details:', error);
+    throw new Error('Error fetching report details');
   }
 };
 // --- Company Operations ---
