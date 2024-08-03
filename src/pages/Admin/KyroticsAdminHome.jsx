@@ -210,7 +210,7 @@ const KyroAdminHome = ({ companyId }) => {
               </div>
             </div>
             {/* Daily Report */}
-            <div className="backdrop-blur-sm shadow-xl bg-white/30 rounded-xl mb-20">
+            <div className="backdrop-blur-sm shadow-2xl bg-white/30 rounded-xl mb-20">
               <div className="flex justify-between p-6 pb-3">
                 <div className="flex">
                   <div className="w-16 h-16 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center">
