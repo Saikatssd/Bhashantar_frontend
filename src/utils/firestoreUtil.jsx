@@ -188,7 +188,8 @@ export const fetchProjectFiles = async (projectId) => {
   try {
     const filesCollection = collection(db, "projects", projectId, "files");
     const filesSnapshot = await getDocs(filesCollection);
-
+   
+    // return filesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     const files = filesSnapshot.docs.map((doc) => {
       const data = doc.data();
       return {
@@ -207,7 +208,7 @@ export const fetchProjectFiles = async (projectId) => {
         kyro_completedDate: data.kyro_completedDate
           ? data.kyro_completedDate
           : null,
-          kyro_deliveredDate: data.kyro_deliveredDate
+        kyro_deliveredDate: data.kyro_deliveredDate
           ? data.kyro_deliveredDate
           : null,
 
@@ -563,6 +564,66 @@ export const fetchProjectDetails = async (companyId) => {
   }
 };
 
+
+// New function for detailed file report
+
+// export const fetchDetailedFileReport = async (companyId) => {
+//   try {
+//     const projects = await fetchCompanyProjects(companyId);
+//     const detailedFileReport = await Promise.all(
+//       projects.map(async (project) => {
+//         const files = await fetchProjectFiles(project.id);
+//         return Promise.all(
+//           files.map(async (file) => ({
+//             projectName: project.name,
+//             fileName: file.name,
+//             status: file.status,
+//             pageCount: file.pageCount,
+//             uploadedDate: file.uploadedDate,
+//             assignedDate: file.kyro_assignedDate,
+//             deliveryDate: file.kyro_deliveredDate,
+//             assigneeName: file.kyro_assignedTo ? await fetchUserNameById(file.kyro_assignedTo) : 'N/A',
+//           }))
+//         );
+//       })
+//     );
+//     return detailedFileReport.flat();
+//   } catch (error) {
+//     console.error("Error fetching detailed file report:", error);
+//     throw new Error("Error fetching detailed file report");
+//   }
+// };
+
+export const fetchDetailedFileReport = async (companyId) => {
+  try {
+    const projects = await fetchCompanyProjects(companyId);
+    const detailedFileReport = await Promise.all(
+      projects.map(async (project) => {
+        const files = await fetchProjectFiles(project.id);
+        const filesWithAssigneeNames = await Promise.all(files.map(async (file) => {
+          const assigneeName = file.kyro_assignedTo ? await fetchUserNameById(file.kyro_assignedTo) : 'N/A';
+          return {
+            projectName: project.name,
+            fileName: file.name,
+            status: file.status,
+            pageCount: file.pageCount,
+            uploadedDate: file.uploadedDate,
+            assignedDate: file.kyro_assignedDate,
+            deliveryDate: file.kyro_deliveredDate,
+            assigneeName,
+          };
+        }));
+        return filesWithAssigneeNames;
+      })
+    );
+    return detailedFileReport.flat();
+  } catch (error) {
+    console.error('Error fetching detailed file report:', error);
+    throw new Error('Error fetching detailed file report');
+  }
+};
+
+
 export const fetchReportDetails = async (companyId, startDate, endDate) => {
   try {
     const projects = await fetchCompanyProjects(companyId);
@@ -583,7 +644,7 @@ export const fetchReportDetails = async (companyId, startDate, endDate) => {
           acc[date] = { date, fileCount: 0, pageCount: 0 };
         }
         acc[date].fileCount += 1;
-        acc[date].pageCount += file.pageCount || 0; 
+        acc[date].pageCount += file.pageCount || 0;
         return acc;
       }, {});
 

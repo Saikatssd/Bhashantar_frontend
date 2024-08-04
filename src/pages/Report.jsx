@@ -1,17 +1,40 @@
-import { fetchAllCompanies, fetchReportDetails } from '../utils/firestoreUtil';
+import { fetchAllCompanies, fetchDetailedFileReport } from '../utils/firestoreUtil';
+import { formatDate } from '../utils/formatDate'
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, CircularProgress } from '@mui/material';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import * as XLSX from 'xlsx';
+import { exportToExcel } from '../utils/exportExcel';
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  MenuItem,
+  FormControl,
+  Select,
+  InputLabel,
+  TextField,
+} from '@mui/material';
+
+
 
 const Report = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const [companies, setCompanies] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState("");
-  const [reportDetails, setReportDetails] = useState([]);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [fileDetails, setFileDetails] = useState([]);
+  const [filteredDetails, setFilteredDetails] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [filters, setFilters] = useState({
+    fileName: '',
+    assignedDate: '',
+    status: '',
+    assignedName: '',
+    deliveryDate: '',
+    projectName: '',
+  });
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -19,102 +42,165 @@ const Report = () => {
         const companies = await fetchAllCompanies();
         setCompanies(companies);
       } catch (error) {
-        console.error("Error fetching companies:", error);
+        console.error('Error fetching companies:', error);
       }
     };
     fetchCompanies();
   }, []);
 
   useEffect(() => {
-    if (selectedCompany && startDate && endDate) {
+    if (selectedCompany) {
       const fetchDetails = async () => {
         setIsLoading(true);
         try {
-          const details = await fetchReportDetails(selectedCompany, startDate, endDate);
-          setReportDetails(details);
+          const details = await fetchDetailedFileReport(selectedCompany);
+          setFileDetails(details);
+          setFilteredDetails(details);
         } catch (error) {
-          console.error("Error fetching report details:", error);
+          console.error('Error fetching detailed file report:', error);
         } finally {
           setIsLoading(false);
         }
       };
       fetchDetails();
     }
-  }, [selectedCompany, startDate, endDate]);
+  }, [selectedCompany]);
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(reportDetails);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-    XLSX.writeFile(workbook, "report.xlsx");
+  useEffect(() => {
+    applyFilters();
+  }, [filters, fileDetails]);
+
+  const applyFilters = () => {
+    const filtered = fileDetails.filter((file) => {
+      return (
+        (filters.fileName ? file.fileName.toLowerCase().includes(filters.fileName.toLowerCase()) : true) &&
+        (filters.assignedDate ? formatDate(file.assignedDate) === formatDate(filters.assignedDate) : true) &&
+        (filters.status ? file.status === Number(filters.status) : true) &&
+        (filters.assignedName ? file.assigneeName.toLowerCase().includes(filters.assignedName.toLowerCase()) : true) &&
+        (filters.deliveryDate ? formatDate(file.deliveryDate) === formatDate(filters.deliveryDate) : true) &&
+        (filters.projectName ? file.projectName.toLowerCase().includes(filters.projectName.toLowerCase()) : true)
+      );
+    });
+    setFilteredDetails(filtered);
+  };
+
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
   };
 
   return (
-    <div className="p-6">
-      <h1 className='p-4 text-2xl font-bold font-serif text-center tracking-wider leading-6'>DAILY REPORT</h1>
-      <div className="mb-4">
-        <label htmlFor="company" className="block text-sm font-medium text-gray-700">Select Company</label>
-        <select
-          id="company"
+    <div className="p-4">
+      <FormControl fullWidth className="mb-4">
+        <InputLabel>Select Company</InputLabel>
+        <Select
           value={selectedCompany}
           onChange={(e) => setSelectedCompany(e.target.value)}
-          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
         >
-          <option value="">Select a company</option>
-          {companies.map(company => (
-            <option key={company.id} value={company.id}>{company.name}</option>
+          {companies.map((company) => (
+            <MenuItem key={company.id} value={company.id}>
+              {company.name}
+            </MenuItem>
           ))}
-        </select>
+        </Select>
+      </FormControl>
+
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <TextField
+          label="File Name"
+          name="fileName"
+          value={filters.fileName}
+          onChange={handleFilterChange}
+          fullWidth
+        />
+        <TextField
+          label="Assigned Date"
+          name="assignedDate"
+          type="date"
+          value={filters.assignedDate}
+          onChange={handleFilterChange}
+          fullWidth
+          InputLabelProps={{ shrink: true }}
+        />
+        <TextField
+          label="Status"
+          name="status"
+          value={filters.status}
+          onChange={handleFilterChange}
+          fullWidth
+        />
+        <TextField
+          label="Assignee Name"
+          name="assignedName"
+          value={filters.assignedName}
+          onChange={handleFilterChange}
+          fullWidth
+        />
+        <TextField
+          label="Delivery Date"
+          name="deliveryDate"
+          type="date"
+          value={filters.deliveryDate}
+          onChange={handleFilterChange}
+          fullWidth
+          InputLabelProps={{ shrink: true }}
+        />
+        <TextField
+          label="Project Name"
+          name="projectName"
+          value={filters.projectName}
+          onChange={handleFilterChange}
+          fullWidth
+        />
       </div>
 
-      <div className='flex space-x-4'>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Start Date</label>
-          <DatePicker
-            selected={startDate}
-            onChange={(date) => setStartDate(date)}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">End Date</label>
-          <DatePicker
-            selected={endDate}
-            onChange={(date) => setEndDate(date)}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-          />
-        </div>
-      </div>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() =>
+          exportToExcel(filteredDetails, "detailed_file_report")
+        }
+        className="mb-4"
+      >
+        Export to Excel
+      </Button>
 
       {isLoading ? (
-        <div className="flex justify-center">
-          <CircularProgress />
-        </div>
+        <div>Loading...</div>
       ) : (
-        <>
-          <table className="min-w-full divide-y divide-gray-200 mb-4">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completed Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File Count</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Page Count</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {reportDetails.map((detail, index) => (
-                <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap">{detail.date}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{detail.fileCount}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{detail.pageCount}</td>
-                </tr>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Sl No</TableCell>
+                <TableCell>File Name</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Page Count</TableCell>
+                <TableCell>Uploaded Date</TableCell>
+                <TableCell>Assigned Date</TableCell>
+                <TableCell>Delivery Date</TableCell>
+                <TableCell>Assignee Name</TableCell>
+                <TableCell>Project Name</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredDetails.map((file, index) => (
+                <TableRow key={index}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{file.fileName}</TableCell>
+                  <TableCell>{file.status}</TableCell>
+                  <TableCell>{file.pageCount}</TableCell>
+                  <TableCell>{formatDate(file.uploadedDate)}</TableCell>
+                  <TableCell>{formatDate(file.assignedDate)}</TableCell>
+                  <TableCell>{formatDate(file.deliveryDate)}</TableCell>
+                  <TableCell>{file.assigneeName}</TableCell>
+                  <TableCell>{file.projectName}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-
-          <Button variant="contained" color="primary" onClick={exportToExcel}>
-            Export to XLS
-          </Button>
-        </>
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
     </div>
   );
