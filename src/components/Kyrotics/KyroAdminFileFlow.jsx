@@ -46,7 +46,7 @@ const columnsQA = [
   { id: 'name', label: 'File Name', minWidth: 100 },
   { id: 'pageCount', label: 'Page Count', minWidth: 100 },
   // { id: 'projectName', label: 'Project Name', minWidth: 150 },
-  { id: 'kyro_completedDate', label: 'Completed Date', minWidth: 100 },
+  { id: 'kyro_deliveredDate', label: 'Delivered Date', minWidth: 100 },
   { id: 'kyro_assignedToName', label: 'Completed By', minWidth: 150 },
 ];
 
@@ -97,7 +97,7 @@ const KyroAdminFileFlow = () => {
         const projectFiles = await fetchProjectFiles(projectId);
         const projectName = await fetchProjectName(projectId);
 
-        
+
         const fetchFileUsers = async (files) => {
           return await Promise.all(files.map(async (file) => {
             try {
@@ -178,22 +178,23 @@ const KyroAdminFileFlow = () => {
     }
   };
 
-  const handleSend = async (projectId, selectedFileId) => {
-    try {
+  // const handleSend = async (projectId, selectedFileId) => {
+  //   try {
 
-      await updateFileStatus(projectId, selectedFileId, { status: 5, kyro_completedDate: new Date().toISOString() });
+  //     await updateFileStatus(projectId, selectedFileId, { status: 5, kyro_completedDate: new Date().toISOString() });
 
-      navigate(-1);
-      console.log('Document status updated to 5');
-    } catch (err) {
-      console.error('Error updating document status:', err);
-    }
-  };
+  //     navigate(-1);
+  //     console.log('Document status updated to 5');
+  //   } catch (err) {
+  //     console.error('Error updating document status:', err);
+  //   }
+  // };
 
 
   const handleSendSelected = async () => {
     for (const fileId of selectedRows) {
-      await updateFileStatus(projectId, fileId, { status: 5, kyro_completedDate: new Date().toISOString() });
+      // await updateFileStatus(projectId, fileId, { status: 5, kyro_completedDate: new Date().toISOString() });
+      await updateFileStatus(projectId, fileId, { status: 5, kyro_deliveredDate: new Date().toISOString() });
     }
     setSelectedRows([]);
     const updatedFiles = await fetchProjectFiles(projectId);

@@ -13,6 +13,7 @@ import MuiTable from "@mui/material/Table";
 import { useNavigate } from 'react-router-dom';
 import { TextField, MenuItem } from '@mui/material';
 import { fetchProjectFilesCount, fetchTotalPagesInProject, fetchUserNameById } from "../../utils/firestoreUtil";
+import ConfirmationDialog from "../ConfirmationDialog";
 
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -30,6 +31,7 @@ function KyroCompletedTable({
     selectedRows,
     setSelectedRows,
     handleSendSelected,
+    handleRevertBackSelected,
     projectName,
     projectId,
     status,
@@ -39,30 +41,41 @@ function KyroCompletedTable({
     const [assignedToFilter, setAssignedToFilter] = useState('');
     const [assignedToNames, setAssignedToNames] = useState([]);
     const [fileCount, setFileCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(true);
+    const [totalPages, setTotalPages] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [count, pages] = await Promise.all([
-          fetchProjectFilesCount(status, projectId),
-          fetchTotalPagesInProject(status, projectId)
-        ]);
-        setFileCount(count);
-        setTotalPages(pages);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
+
+
+    const handleOpenDialog = () => {
+        setDialogOpen(true);
     };
-
-    if (projectId && status) {
-      fetchData();
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
     }
-  }, [projectId, status]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const [count, pages] = await Promise.all([
+                    fetchProjectFilesCount(status, projectId),
+                    fetchTotalPagesInProject(status, projectId)
+                ]);
+                setFileCount(count);
+                setTotalPages(pages);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (projectId && status) {
+            fetchData();
+        }
+    }, [projectId, status]);
 
     useEffect(() => {
         const fetchUserNames = async () => {
@@ -106,13 +119,13 @@ function KyroCompletedTable({
     return (
         <div>
             <h2 className="text-center py-4 font-bold text-2xl">
-        {projectName}
-        {!loading && (
-          <span className="ml-4 text-lg font-normal text-gray-600">
-            ({fileCount} files, {totalPages} pages)
-          </span>
-        )}
-      </h2>
+                {projectName}
+                {!loading && (
+                    <span className="ml-4 text-lg font-normal text-gray-600">
+                        ({fileCount} files, {totalPages} pages)
+                    </span>
+                )}
+            </h2>
             <div className="flex justify-between items-center mb-4 px-4">
                 <TextField
                     select
@@ -132,14 +145,25 @@ function KyroCompletedTable({
                         </MenuItem>
                     ))}
                 </TextField>
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleSendSelected}
-                    disabled={selectedRows.length === 0}
-                >
-                    Send Selected
-                </Button>
+                <div className="flex space-x-4">
+                    <Button
+                        variant="contained"
+                        color="warning"
+                        onClick={handleRevertBackSelected}
+                        disabled={selectedRows.length === 0}
+                    >
+                        Revert Back
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={handleOpenDialog}
+                        disabled={selectedRows.length === 0}
+                    >
+                        Send Selected
+                    </Button>
+                </div>
+
             </div>
             <Paper sx={{ width: "100%", overflow: "hidden" }}>
                 <TableContainer sx={{ maxHeight: 700 }}>
@@ -223,6 +247,14 @@ function KyroCompletedTable({
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
+            <ConfirmationDialog
+                open={dialogOpen}
+                handleClose={handleCloseDialog}
+                handleConfirm={handleSendSelected}
+                title="Confirm Send"
+                message="Are you sure you want to send?"
+            />
+
         </div>
     );
 }
@@ -244,6 +276,7 @@ KyroCompletedTable.propTypes = {
     selectedRows: PropTypes.array.isRequired,
     setSelectedRows: PropTypes.func.isRequired,
     handleSendSelected: PropTypes.func.isRequired,
+    handleRevertBackSelected: PropTypes.func.isRequired,
     projectName: PropTypes.string.isRequired,
 };
 

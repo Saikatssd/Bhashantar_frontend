@@ -5,7 +5,7 @@ import Tab from '@mui/material/Tab';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import TabPanel from '../../components/TabPanel';
-import { fetchProjectFiles, fetchProjectName, fetchUserNameById, updateFileStatus } from '../../utils/firestoreUtil';
+import { fetchProjectFiles, fetchProjectName, fetchUserNameById, updateFileStatus, updateFileStatusNumber } from '../../utils/firestoreUtil';
 import { auth } from '../../utils/firebase';
 import { useNavigate, useParams } from 'react-router-dom';
 import Table from '../../components/Table/Table';
@@ -26,7 +26,7 @@ const columnsQA = [
     { id: 'slNo', label: 'Sl. No.', minWidth: 50 },
     { id: 'name', label: 'File Name', minWidth: 100 },
     { id: 'pageCount', label: 'Page Count', minWidth: 100 },
-    { id: 'kyro_completedDate', label: 'Completed Date', minWidth: 100 },
+    { id: 'kyro_deliveredDate', label: 'Delivered Date', minWidth: 100 },
     { id: 'kyro_assignedToName', label: 'Completed By', minWidth: 150 },
 ];
 
@@ -123,7 +123,21 @@ const QAWorkspace = () => {
 
     const handleSendSelected = async () => {
         for (const fileId of selectedRows) {
-            await updateFileStatus(projectId, fileId, { status: 5, kyro_completedDate: new Date().toISOString() });
+            // await updateFileStatus(projectId, fileId, { status: 5, kyro_completedDate: new Date().toISOString() });
+            await updateFileStatus(projectId, fileId, { status: 5, kyro_deliveredDate: new Date().toISOString() });
+            // setCompletedFiles(files.filter(file => file.id !== fileId));
+        }
+        setSelectedRows([]);
+        const updatedFiles = await fetchProjectFiles(projectId);
+        setFiles(updatedFiles);
+
+        navigate(-1);
+
+    };
+
+    const handleRevertBackSelected = async () => {
+        for (const fileId of selectedRows) {
+            await updateFileStatusNumber(projectId, fileId, 3);
             // setCompletedFiles(files.filter(file => file.id !== fileId));
         }
         setSelectedRows([]);
@@ -147,7 +161,7 @@ const QAWorkspace = () => {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs example" centered>
                     <Tab label="Completed" />
-                    <Tab label="Quality Assured" />
+                    <Tab label="Delivered" />
                 </Tabs>
             </Box>
             <TabPanel value={tabValue} index={0}>
@@ -160,6 +174,7 @@ const QAWorkspace = () => {
                     selectedRows={selectedRows}
                     setSelectedRows={setSelectedRows}
                     handleSendSelected={handleSendSelected}
+                    handleRevertBackSelected={handleRevertBackSelected}
                     handleChangePage={handleChangePage}
                     handleChangeRowsPerPage={handleChangeRowsPerPage}
                 />

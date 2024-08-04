@@ -207,6 +207,9 @@ export const fetchProjectFiles = async (projectId) => {
         kyro_completedDate: data.kyro_completedDate
           ? data.kyro_completedDate
           : null,
+          kyro_deliveredDate: data.kyro_deliveredDate
+          ? data.kyro_deliveredDate
+          : null,
 
         // client_uploadedDate: data.client_uploadedDate ? data.client_uploadedDate : null,
         client_assignedDate: data.client_assignedDate
@@ -569,17 +572,18 @@ export const fetchReportDetails = async (companyId, startDate, endDate) => {
       const files = await fetchProjectFiles(project.id);
 
       const filteredFiles = files.filter((file) => {
-        const completedDate = new Date(file.kyro_completedDate);
+        const completedDate = new Date(file.kyro_deliveredDate);
+        // console.log(file.kyro_completedDate)
         return completedDate >= startDate && completedDate <= endDate;
       });
 
       const dateMap = filteredFiles.reduce((acc, file) => {
-        const date = new Date(file.kyro_completedDate).toLocaleDateString();
+        const date = new Date(file.kyro_deliveredDate).toLocaleDateString();
         if (!acc[date]) {
           acc[date] = { date, fileCount: 0, pageCount: 0 };
         }
         acc[date].fileCount += 1;
-        acc[date].pageCount += file.pageCount || 0; // Assuming each file has a pageCount attribute
+        acc[date].pageCount += file.pageCount || 0; 
         return acc;
       }, {});
 
