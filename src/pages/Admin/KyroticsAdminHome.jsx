@@ -5,7 +5,7 @@ import {
   fetchReportDetails,
 } from "../../utils/firestoreUtil";
 import DatePicker from "react-datepicker";
-import 'react-datepicker/dist/react-datepicker.css';
+import "react-datepicker/dist/react-datepicker.css";
 import {
   Button,
   MenuItem,
@@ -13,8 +13,10 @@ import {
   CircularProgress,
   FormControl,
   InputLabel,
+  Fab,
 } from "@mui/material";
 import { CalendarToday } from "@mui/icons-material";
+import NavigationIcon from "@mui/icons-material/Navigation";
 import { exportToExcel } from "../../utils/exportExcel";
 import KyroSidebar from "../../components/Kyrotics/KyroSidebar";
 import Report from "../Report";
@@ -32,8 +34,13 @@ const KyroAdminHome = ({ companyId }) => {
   const [reportDetails, setReportDetails] = useState([]);
   const [startDate, setStartDate] = useState(defaultStartDate);
   const [endDate, setEndDate] = useState(new Date());
+  const [showDetailedReport, setShowDetailedReport] = useState(false);
 
   // const [startDate, setStartDate] = useState(defaultStartDate);
+  const toggleReport = () => {
+    setShowDetailedReport((prevState) => !prevState);
+    // alert(showDetailedReport);
+  };
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -99,206 +106,228 @@ const KyroAdminHome = ({ companyId }) => {
   };
 
   return (
-    <div className="flex h-screen overflow-y-auto">
+    <div className="flex w-screen">
       <KyroSidebar companyId={companyId} role={"admin"} />
-      <div className="p-8 w-screen">
-        <div className="mb-4 flex justify-between space-x-14">
-          <FormControl sx={{ width: "30%" }}>
-            <InputLabel id="select-company-label">Select a Company</InputLabel>
-            <Select
-              labelId="select-company-label"
-              id="select-company"
-              value={selectedCompany}
-              label="Select a Company"
-              onChange={handleCompanyChange}
-            >
-              <MenuItem value="" disabled>
-                Select a Company
-              </MenuItem>
-              {companies.map((company) => (
-                <MenuItem key={company.id} value={company.id}>
-                  {company.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
+      <div className="p-2 h-screen w-full overflow-y-auto">
+        {/* <div class="animated-border-box-glow"></div>
+        <div class="animated-border-box"></div> */}
 
-        {isLoading ? (
-          <CircularProgress />
+        <button
+          className="fixed right-6 top-11 p-4 bg-[#E0E0E0] text-black rounded-full flex items-center animate-bounce shadow-lg  cursor-pointer"
+          onClick={toggleReport}
+        >
+          {showDetailedReport ? "Project Overview" : "Detailed Report"}
+        </button>
+
+        {showDetailedReport ? (
+          <div className="p-8 w-full">
+            <Report />
+          </div>
         ) : (
-          <div>
-            <div className="backdrop-blur-sm shadow-xl bg-white/30 rounded-xl mb-20">
-              <div className="p-6">
-                <div className="flex justify-between pb-3">
-                  <div className="flex">
-                    <div className="w-16 h-16 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center">
-                      <ContentPasteSearchIcon sx={{ fontSize: "35px" }} />
-                    </div>
-                    <h1 className="p-4 text-2xl font-bold font-mono tracking-wider leading-6">
-                      PROJECT OVERVIEW
-                    </h1>
-                  </div>
-                  <div className="mt-4 my-auto">
-                    <Button
-                      variant="outlined"
-                      onClick={() =>
-                        exportToExcel(projectDetails, "projectOverview")
-                      }
-                      sx={{ color: "#5b68c7" }}
-                      className="my-auto"
-                    >
-                      Export to XLS
-                    </Button>
-                  </div>
-                </div>
-                <div className="rounded-lg border border-gray-200">
-                  <div className="overflow-x-auto rounded-t-lg rounded-b-lg">
-                    <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                      <thead className="">
-                        <tr className="bg-[#6c7ae0] text-white">
-                          <th className="whitespace-nowrap px-6 py-2 font-medium">
-                            Sl No
-                          </th>
-                          <th className="whitespace-nowrap px-6 py-2 font-medium">
-                            Project Name
-                          </th>
-                          <th className="whitespace-nowrap px-6 py-2 font-medium">
-                            File Count
-                          </th>
-                          <th className="whitespace-nowrap px-6 py-2 font-medium">
-                            Not Started
-                          </th>
-                          <th className="whitespace-nowrap px-6 py-2 font-medium">
-                            In Progress
-                          </th>
-                          <th className="whitespace-nowrap px-6 py-2 font-medium">
-                            Completed Files
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200 ">
-                        {projectDetails.map((project, index) => (
-                          <tr
-                            key={project.id}
-                            className="even:bg-[#f0f2ff] odd:bg-white hover:bg-[#b6bffa]"
-                          >
-                            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">
-                              {index + 1}
-                            </td>
-                            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">
-                              {project.name}
-                            </td>
-                            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                              {project.totalFiles}
-                            </td>
-                            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                              {project.readyForWorkFiles}
-                            </td>
-                            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                              {project.inProgressFiles}
-                            </td>
-                            <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                              {project.completedFileCount}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
+          <div className="p-8 w-full">
+            <div className="mb-4 flex justify-between space-x-14">
+              <FormControl sx={{ width: "30%" }}>
+                <InputLabel id="select-company-label">
+                  Select a Company
+                </InputLabel>
+                <Select
+                  labelId="select-company-label"
+                  id="select-company"
+                  value={selectedCompany}
+                  label="Select a Company"
+                  onChange={handleCompanyChange}
+                >
+                  <MenuItem value="" disabled>
+                    Select a Company
+                  </MenuItem>
+                  {companies.map((company) => (
+                    <MenuItem key={company.id} value={company.id}>
+                      {company.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </div>
-            {/* Daily Report */}
-            <div className="backdrop-blur-sm shadow-2xl bg-white/30 rounded-xl mb-20">
-              <div className="flex justify-between p-6 pb-3">
-                <div className="flex">
-                  <div className="w-16 h-16 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center">
-                    <CalendarMonthIcon sx={{ fontSize: "35px" }} />
-                  </div>
-                  <h1 className="p-4 text-2xl font-bold font-mono tracking-wider leading-6">
-                    DAILY REPORT
-                  </h1>
-                </div>
 
-                <div className="mb-4 p-4 ">
-                  <label className="block text-sm font-medium text-gray-700 mb-2 items-center">
-                    <CalendarToday className="text-indigo-600 mr-2" />
-                    Start Date
-                  </label>
-                  <DatePicker
-                    selected={startDate}
-                    onChange={(date) => setStartDate(date)}
-                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md transition-all duration-200"
-                  />
-                </div>
-
-                <div className="mb-4 p-4 ">
-                  <label className="block text-sm font-medium text-gray-700 mb-2  items-center">
-                    <CalendarToday className="text-indigo-600 mr-2" />
-                    End Date
-                  </label>
-                  <DatePicker
-                    selected={endDate}
-                    onChange={(date) => setEndDate(date)}
-                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md transition-all duration-200"
-                  />
-                </div>
-                <div className="mt-4 my-auto">
-                  <Button
-                    variant="outlined"
-                    onClick={() => exportToExcel(reportDetails, "dailyReport")}
-                    sx={{ color: "#5b68c7" }}
-                    className="my-auto"
-                  >
-                    Export to XLS
-                  </Button>
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="overflow-x-auto rounded-t-lg rounded-b-lg">
-                  <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                    <thead>
-                      <tr className="bg-[#6c7ae0] text-white">
-                        <th className="whitespace-nowrap px-6 py-2 font-medium">
-                          Sl No
-                        </th>
-                        <th className="whitespace-nowrap px-6 py-2 font-medium">
-                          Completed Date
-                        </th>
-                        <th className="whitespace-nowrap px-6 py-2 font-medium">
-                          File Count
-                        </th>
-                        <th className="whitespace-nowrap px-6 py-2 font-medium">
-                          Page Count
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {reportDetails.map((detail, index) => (
-                        <tr
-                          key={index}
-                          className="even:bg-[#f0f2ff] odd:bg-white hover:bg-[#b6bffa]"
+            {isLoading ? (
+              <CircularProgress />
+            ) : (
+              <div>
+                <div className="backdrop-blur-sm shadow-xl bg-white/30 rounded-xl mb-20">
+                  <div className="p-6">
+                    <div className="flex justify-between pb-3">
+                      <div className="flex">
+                        <div className="w-16 h-16 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center">
+                          <ContentPasteSearchIcon sx={{ fontSize: "35px" }} />
+                        </div>
+                        <h1 className="p-4 text-2xl font-bold font-mono tracking-wider leading-6">
+                          PROJECT OVERVIEW
+                        </h1>
+                      </div>
+                      <div className="mt-4 my-auto">
+                        <Button
+                          variant="outlined"
+                          onClick={() =>
+                            exportToExcel(projectDetails, "projectOverview")
+                          }
+                          sx={{ color: "#5b68c7" }}
+                          className="my-auto"
                         >
-                          <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">
-                            {index + 1}
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">
-                            {detail.date}
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                            {detail.fileCount}
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                            {detail.pageCount}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          Export to XLS
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="rounded-lg border border-gray-200">
+                      <div className="overflow-x-auto rounded-t-lg rounded-b-lg">
+                        <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+                          <thead className="">
+                            <tr className="bg-[#6c7ae0] text-white">
+                              <th className="whitespace-nowrap px-6 py-2 font-medium">
+                                Sl No
+                              </th>
+                              <th className="whitespace-nowrap px-6 py-2 font-medium">
+                                Project Name
+                              </th>
+                              <th className="whitespace-nowrap px-6 py-2 font-medium">
+                                File Count
+                              </th>
+                              <th className="whitespace-nowrap px-6 py-2 font-medium">
+                                Not Started
+                              </th>
+                              <th className="whitespace-nowrap px-6 py-2 font-medium">
+                                In Progress
+                              </th>
+                              <th className="whitespace-nowrap px-6 py-2 font-medium">
+                                Completed Files
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200 ">
+                            {projectDetails.map((project, index) => (
+                              <tr
+                                key={project.id}
+                                className="even:bg-[#f0f2ff] odd:bg-white hover:bg-[#b6bffa]"
+                              >
+                                <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">
+                                  {index + 1}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">
+                                  {project.name}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                                  {project.totalFiles}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                                  {project.readyForWorkFiles}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                                  {project.inProgressFiles}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                                  {project.completedFileCount}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Daily Report */}
+                <div className="backdrop-blur-sm shadow-2xl bg-white/30 rounded-xl mb-20">
+                  <div className="flex justify-between p-6">
+                    <div className="flex">
+                      <div className="w-16 h-16 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center">
+                        <CalendarMonthIcon sx={{ fontSize: "35px" }} />
+                      </div>
+                      <h1 className="p-4 text-2xl font-bold font-mono tracking-wider leading-6">
+                        DAILY REPORT
+                      </h1>
+                    </div>
+
+                    <div className="p-4 ">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 items-center">
+                        <CalendarToday className="text-indigo-600 mr-2" />
+                        Start Date
+                      </label>
+                      <DatePicker
+                        selected={startDate}
+                        onChange={(date) => setStartDate(date)}
+                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md transition-all duration-200"
+                      />
+                    </div>
+
+                    <div className="p-4 ">
+                      <label className="block text-sm font-medium text-gray-700 mb-2  items-center">
+                        <CalendarToday className="text-indigo-600 mr-2" />
+                        End Date
+                      </label>
+                      <DatePicker
+                        selected={endDate}
+                        onChange={(date) => setEndDate(date)}
+                        className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md transition-all duration-200"
+                      />
+                    </div>
+                    <div className="mt-4 my-auto">
+                      <Button
+                        variant="outlined"
+                        onClick={() =>
+                          exportToExcel(reportDetails, "dailyReport")
+                        }
+                        sx={{ color: "#5b68c7" }}
+                        className="my-auto"
+                      >
+                        Export to XLS
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <div className="overflow-x-auto rounded-t-lg rounded-b-lg">
+                      <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+                        <thead>
+                          <tr className="bg-[#6c7ae0] text-white">
+                            <th className="whitespace-nowrap px-6 py-2 font-medium">
+                              Sl No
+                            </th>
+                            <th className="whitespace-nowrap px-6 py-2 font-medium">
+                              Completed Date
+                            </th>
+                            <th className="whitespace-nowrap px-6 py-2 font-medium">
+                              File Count
+                            </th>
+                            <th className="whitespace-nowrap px-6 py-2 font-medium">
+                              Page Count
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {reportDetails.map((detail, index) => (
+                            <tr
+                              key={index}
+                              className="even:bg-[#f0f2ff] odd:bg-white hover:bg-[#b6bffa]"
+                            >
+                              <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">
+                                {index + 1}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">
+                                {detail.date}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                                {detail.fileCount}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                                {detail.pageCount}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
