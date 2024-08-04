@@ -22,6 +22,7 @@ import KyroSidebar from "../../components/Kyrotics/KyroSidebar";
 import Report from "../Report";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { Description, Dashboard } from '@mui/icons-material';
 
 const defaultStartDate = new Date();
 defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
@@ -112,12 +113,30 @@ const KyroAdminHome = ({ companyId }) => {
         {/* <div class="animated-border-box-glow"></div>
         <div class="animated-border-box"></div> */}
 
-        <button
+        {/* <button
           className="fixed right-6 top-11 p-4 bg-[#E0E0E0] text-black rounded-full flex items-center animate-bounce shadow-lg  cursor-pointer"
           onClick={toggleReport}
         >
           {showDetailedReport ? "Project Overview" : "Detailed Report"}
+        </button> */}
+
+        <button
+          className="fixed animate-bounce right-6 top-11 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer"
+          onClick={toggleReport}
+        >
+          {showDetailedReport ? (
+            <>
+              <Dashboard className="mr-2" />
+              Project Overview
+            </>
+          ) : (
+            <>
+              <Description className="mr-2" />
+              Detailed Report
+            </>
+          )}
         </button>
+        
 
         {showDetailedReport ? (
           <div className="p-8 w-full">

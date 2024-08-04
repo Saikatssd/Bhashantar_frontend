@@ -145,31 +145,6 @@ const Report = () => {
       </FormControl>
 
       <div className="grid grid-cols-2 gap-4 mb-4 pt-5">
-        {/* <TextField
-          label="Assigned Date"
-          name="assignedDate"
-          type="date"
-          value={filters.assignedDate}
-          onChange={handleFilterChange}
-          fullWidth
-          InputLabelProps={{ shrink: true }}
-        /> */}
-        {/* <TextField
-          label="Status"
-          name="status"
-          value={filters.status}
-          onChange={handleFilterChange}
-          fullWidth
-        /> */}
-        {/* <TextField
-          label="Delivery Date"
-          name="deliveryDate"
-          type="date"
-          value={filters.deliveryDate}
-          onChange={handleFilterChange}
-          fullWidth
-          InputLabelProps={{ shrink: true }}
-        /> */}
       </div>
 
       <div className="flex justify-between pb-10">
@@ -225,8 +200,7 @@ const Report = () => {
       </div>
 
         <Button
-          variant="contained"
-          color="primary"
+          variant="outlined"
           onClick={() => exportToExcel(filteredDetails, "detailed_file_report")}
           className="mb-4"
         >
