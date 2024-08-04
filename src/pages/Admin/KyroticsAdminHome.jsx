@@ -5,7 +5,7 @@ import {
   fetchReportDetails,
 } from "../../utils/firestoreUtil";
 import DatePicker from "react-datepicker";
-// import 'react-datepicker/dist/react-datepicker.css';
+import 'react-datepicker/dist/react-datepicker.css';
 import {
   Button,
   MenuItem,
@@ -220,10 +220,9 @@ const KyroAdminHome = ({ companyId }) => {
                     DAILY REPORT
                   </h1>
                 </div>
-             
 
                 <div className="mb-4 p-4 ">
-                  <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 items-center">
                     <CalendarToday className="text-indigo-600 mr-2" />
                     Start Date
                   </label>
@@ -235,7 +234,7 @@ const KyroAdminHome = ({ companyId }) => {
                 </div>
 
                 <div className="mb-4 p-4 ">
-                  <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+                  <label className="block text-sm font-medium text-gray-700 mb-2  items-center">
                     <CalendarToday className="text-indigo-600 mr-2" />
                     End Date
                   </label>
