@@ -11,8 +11,9 @@ import StorageTwoToneIcon from "@mui/icons-material/StorageTwoTone";
 import RoomPreferencesIcon from "@mui/icons-material/RoomPreferences";
 import TaskIcon from "@mui/icons-material/Task";
 import FolderCopyIcon from "@mui/icons-material/FolderCopy";
-import PersonAddAltRoundedIcon from '@mui/icons-material/PersonAddAltRounded';
+import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
 import ConfirmationDialog from "../ConfirmationDialog";
+import { Description, Dashboard } from "@mui/icons-material";
 
 export default function KyroSidebar({ companyId, role }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -70,7 +71,7 @@ export default function KyroSidebar({ companyId, role }) {
                 Profile
               </Link>
             </li>
-            
+
             {(role === "admin" || role === "superAdmin") && (
               <>
                 <li>
@@ -127,7 +128,7 @@ export default function KyroSidebar({ companyId, role }) {
                 </li>
               </>
             )}
-            
+
             {/* {role === 'admin' && ( */}
             <li>
               <Link
@@ -139,23 +140,38 @@ export default function KyroSidebar({ companyId, role }) {
                 }`}
               >
                 <FolderCopyIcon className="mr-5" />
-                Go to Projects
+                Projects
               </Link>
             </li>
             {role === "superAdmin" && (
-              <li>
-                <Link
-                  to={`/company/${companyId}/register`}
-                  className={`block rounded-lg px-4 py-3 text-md font-medium ${
-                    isActive(`/company/${companyId}/register`)
-                      ? "bg-[#e3d2fa] text-gray-700"
-                      : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                  }`}
-                >
-                  <PersonAddAltRoundedIcon className="mr-5" />
-                  Register
-                </Link>
-              </li>
+              <>
+                <li>
+                  <Link
+                    to={`/company/${companyId}/register`}
+                    className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                      isActive(`/company/${companyId}/register`)
+                        ? "bg-[#e3d2fa] text-gray-700"
+                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                    }`}
+                  >
+                    <PersonAddAltRoundedIcon className="mr-5" />
+                    Register
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to={`/kyro/${companyId}/report`}
+                    className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                      isActive(`/kyro/${companyId}/report`)
+                        ? "bg-[#e3d2fa] text-gray-700"
+                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                    }`}
+                  >
+                    <Dashboard className="mr-5" />
+                    Report
+                  </Link>
+                </li>
+              </>
             )}
             {/* )} */}
             {role === "user" && (

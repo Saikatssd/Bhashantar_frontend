@@ -14,6 +14,7 @@ import KyroUserWorkspace from "./Kyrotics/KyroUserWorkspace";
 import QAWorkspace from "../pages/QA/QAWorkspace";
 import FileStatusManager from "./FileStatusManager";
 import Register from "../pages/Register";
+import KyroAdminHome from "../pages/Admin/KyroticsAdminHome";
 
 export default function KyroInstance({ role }) {
   const [userCompanyId, setUserCompanyId] = useState("");
@@ -76,10 +77,16 @@ export default function KyroInstance({ role }) {
             </>
           )}
           {role === "superAdmin" && (
-            <Route
-              path="/register"
-              element={<Register instanceCompanyId={companyId} />}
-            />
+            <>
+              <Route
+                path="/register"
+                element={<Register instanceCompanyId={companyId} />}
+              />
+              <Route
+                path="/report"
+                element={<KyroAdminHome instanceCompanyId={companyId} />}
+              />
+            </>
           )}
         </Routes>
       </div>
