@@ -167,7 +167,7 @@ export default function KyroSidebar({ companyId, role }) {
                         : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
                     }`}
                   >
-                    <Dashboard className="mr-5" />
+                    <Description className="mr-5" />
                     Report
                   </Link>
                 </li>

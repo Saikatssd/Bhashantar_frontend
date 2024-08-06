@@ -166,7 +166,14 @@ const KyroAdminFileFlow = () => {
 
   const handleAssignToUser = async (userId) => {
     try {
-      await updateFileStatus(projectId, selectedFileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: new Date().toISOString() });
+      if (selectedRows.length != 0) {
+        for (const fileId of selectedRows) {
+          await updateFileStatus(projectId, fileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: new Date().toISOString() });
+        }
+      }
+      else {
+        await updateFileStatus(projectId, selectedFileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: new Date().toISOString() });
+      }
 
       // await updateFileStatus(projectId, selectedFileId, 3, userId);
       setReadyForWorkFiles(files.filter(file => file.id !== selectedFileId));
@@ -178,18 +185,17 @@ const KyroAdminFileFlow = () => {
     }
   };
 
-  // const handleSend = async (projectId, selectedFileId) => {
-  //   try {
 
-  //     await updateFileStatus(projectId, selectedFileId, { status: 5, kyro_completedDate: new Date().toISOString() });
+  const handleAssignSelected = async () => {
+    for (const fileId of selectedRows) {
+      await updateFileStatus(projectId, fileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: new Date().toISOString() });
+    }
+    setSelectedRows([]);
+    const updatedFiles = await fetchProjectFiles(projectId);
+    setFiles(updatedFiles);
+    navigate(-1);
 
-  //     navigate(-1);
-  //     console.log('Document status updated to 5');
-  //   } catch (err) {
-  //     console.error('Error updating document status:', err);
-  //   }
-  // };
-
+  };
 
   const handleSendSelected = async () => {
     for (const fileId of selectedRows) {
@@ -231,6 +237,8 @@ const KyroAdminFileFlow = () => {
           handleChangePage={handleChangePage}
           handleEditClick={handleOpenModal}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
+          selectedRows={selectedRows}
+          setSelectedRows={setSelectedRows}
           projectName={projectName}
           projectId={projectId}
           status={2}
@@ -244,7 +252,6 @@ const KyroAdminFileFlow = () => {
           page={page}
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
-          // projectId={projectId}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           projectName={projectName}
           projectId={projectId}

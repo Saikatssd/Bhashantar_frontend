@@ -116,19 +116,19 @@ const Editor = () => {
 
   const handleDownload = async () => {
     setError(null); // Clear any previous error
-  
+
     try {
       const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
       const response = await axios.get(endpoint, {
         responseType: "blob",
       });
-  
+
       // Extract filename from headers or use a fallback
       const contentDisposition = response.headers["content-disposition"];
       const filename = contentDisposition
         ? contentDisposition.split("filename=")[1].replace(/"/g, "")
         : "document.zip";
-  
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -136,18 +136,13 @@ const Editor = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-  
-      // Optionally, update the file status
-      await updateFileStatus(projectId, documentId, {
-        status: 8,
-        client_downloadedDate: new Date().toISOString(),
-      });
+
     } catch (err) {
       setError("An error occurred while downloading the document."); // Set a descriptive error message
       console.error("Error during document download:", err); // Log the actual error
     }
   };
-  
+
   const handleBack = () => {
     navigate(-1);
   };
@@ -156,24 +151,23 @@ const Editor = () => {
     if (isInitialContentSet) {
       return (
         <TinyMCEEditor
-          key={documentId} // Force reinitialization on documentId change
+          key={documentId}
           apiKey="b49qe47leuw15e45amyl6s8hh2wojjif4ka6kfptu0tt0v1w"
           value={htmlContent}
           init={{
             height: "calc(100vh)",
+            menubar: 'edit insert view format table tools',
             plugins:
-              "anchor fullscreen autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown pagebreak",
+              "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown pagebreak",
             toolbar:
-              "bold italic underline | fontfamily fontsize | align lineheight | checklist numlist bullist indent outdent | paragraphSpacing fullscreen",
+              "bold italic underline | fontfamily fontsize fontselect fontsizeselect | align lineheight | numlist bullist indent outdent | paragraphSpacing ",
             tinycomments_mode: "embedded",
             pagebreak_split_block: true,
             pagebreak_separator: "<!-- my page break -->",
+            fontsize_formats: "8pt 9pt 10pt 11pt 12pt 13pt 14pt 15pt 16pt 18pt 20pt 22pt 24pt 26pt 28pt 30pt 32pt 36pt 38pt 40pt 42pt 44pt 48pt 50pt 52pt 54pt 56pt 58pt 60pt 64pt 68pt 72pt 76pt 80pt 84pt 88pt 92pt 96pt",
             tinycomments_author: "Author name",
             fullscreen_native: true,
-            mergetags_list: [
-              { value: "First.Name", title: "First Name" },
-              { value: "Email", title: "Email" },
-            ],
+
             setup: (editor) => {
               editor.ui.registry.addButton("paragraphSpacing", {
                 text: "Paragraph Spacing",
@@ -183,7 +177,7 @@ const Editor = () => {
                     .getBody()
                     .querySelectorAll("p")
                     .forEach((paragraph) => {
-                      paragraph.style.textIndent = "80px"; // Set the first line indentation
+                      paragraph.style.textIndent = "80px";
                     });
                 },
               });
@@ -199,7 +193,7 @@ const Editor = () => {
     return null;
   }, [htmlContent, isInitialContentSet, documentId]);
 
-  
+
 
   useEffect(() => {
     return () => {
@@ -256,7 +250,7 @@ const Editor = () => {
             sx={{
               position: "fixed",
               top: 26,
-              right: 430,
+              right: 350,
               fontSize: "20px",
               zIndex: 10,
             }}

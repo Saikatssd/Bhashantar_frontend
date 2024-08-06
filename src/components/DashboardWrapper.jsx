@@ -51,7 +51,7 @@ const DashboardWrapper = () => {
             return <KyroticsUserHome userCompanyId={companyId} />;
         }
         if (role === 'admin') {
-            return <KyroticsAdminHome companyId={companyId} />;
+            return <KyroticsAdminHome companyId={companyId} role={role} />;
         }
         if (role === 'QA') {
             return <QAHome companyId={companyId} />;

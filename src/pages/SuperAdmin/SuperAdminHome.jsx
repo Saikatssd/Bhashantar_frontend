@@ -52,11 +52,10 @@ const SuperAdminHome = () => {
             {!isLoading && !error && (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-4 p-4">
                     {companies.map((company) => (
-                        <Link to={`/company/${company.id}`} key={company.id}>
+                        <Link to={`/company/${company.id}/profile`} key={company.id}>
                             <div
-                                className="company-box relative p-6 max-w-sm bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-500 rounded-lg shadow-lg transition-transform transform hover:scale-105"
+                                className="company-box relative p-6 w-60 bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-500 rounded-lg shadow-lg transition-transform transform hover:scale-105"
                             >
-                                <div className="folder-tab bg-white p-2 rounded-t-lg absolute -top-3 -left-3"></div>
                                 <div className="p-4 text-center text-white text-lg font-semibold">
                                     {company.name}
                                 </div>

@@ -23,11 +23,12 @@ import Report from "../Report";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { Description, Dashboard } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const defaultStartDate = new Date();
 defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
 
-const KyroAdminHome = ({ companyId }) => {
+const KyroAdminHome = ({ companyId, role }) => {
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [projectDetails, setProjectDetails] = useState([]);
@@ -37,10 +38,8 @@ const KyroAdminHome = ({ companyId }) => {
   const [endDate, setEndDate] = useState(new Date());
   const [showDetailedReport, setShowDetailedReport] = useState(false);
 
-  // const [startDate, setStartDate] = useState(defaultStartDate);
   const toggleReport = () => {
-    setShowDetailedReport((prevState) => !prevState);
-    // alert(showDetailedReport);
+    setShowDetailedReport(!showDetailedReport);
   };
 
   useEffect(() => {
@@ -108,19 +107,12 @@ const KyroAdminHome = ({ companyId }) => {
 
   return (
     <div className="flex w-screen">
-      <KyroSidebar companyId={companyId} role={"admin"} />
+      {role == 'admin' && (<>
+        <KyroSidebar companyId={companyId} role={"admin"} />
+      </>)}
       <div className="p-2 h-screen w-full overflow-y-auto">
-        {/* <div class="animated-border-box-glow"></div>
-        <div class="animated-border-box"></div> */}
 
         {/* <button
-          className="fixed right-6 top-11 p-4 bg-[#E0E0E0] text-black rounded-full flex items-center animate-bounce shadow-lg  cursor-pointer"
-          onClick={toggleReport}
-        >
-          {showDetailedReport ? "Project Overview" : "Detailed Report"}
-        </button> */}
-
-        <button
           className="fixed animate-bounce right-6 top-11 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer"
           onClick={toggleReport}
         >
@@ -135,8 +127,30 @@ const KyroAdminHome = ({ companyId }) => {
               Detailed Report
             </>
           )}
+        </button> */}
+
+        <button
+          className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${showDetailedReport
+              ? 'bg-gradient-to-l from-blue-500 to-purple-500'
+              // : 'bg-green-500 border border-green-700'
+              : 'bg-gradient-to-r from-blue-500 to-purple-500'
+            }`}
+          onClick={toggleReport}
+        >
+          {showDetailedReport ? (
+            <>
+              <Visibility className="mr-2" />
+              {/* <Dashboard className="mr-2" /> */}
+              Project Overview
+            </>
+          ) : (
+            <>
+              <VisibilityOff className="mr-2" />
+              {/* <Description className="mr-2" /> */}
+              Detailed Report
+            </>
+          )}
         </button>
-        
 
         {showDetailedReport ? (
           <div className="p-8 w-full">

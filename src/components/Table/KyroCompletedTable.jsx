@@ -276,7 +276,6 @@ KyroCompletedTable.propTypes = {
     selectedRows: PropTypes.array.isRequired,
     setSelectedRows: PropTypes.func.isRequired,
     handleSendSelected: PropTypes.func.isRequired,
-    handleRevertBackSelected: PropTypes.func.isRequired,
     projectName: PropTypes.string.isRequired,
 };
 

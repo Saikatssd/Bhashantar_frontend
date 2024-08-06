@@ -44,7 +44,7 @@ const App = () => {
         <Routes>
         <Route path="*" element={<Navigate to="/" />} />
           <Route path="/" element={<Login />} />
-          <Route path="/report" element={<Report />} />
+          {/* <Route path="/report" element={<Report />} /> */}
           <Route path="/home" element={
             <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'superAdmin','QA']}>
               <DashboardWrapper />
