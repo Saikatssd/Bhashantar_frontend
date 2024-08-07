@@ -197,7 +197,7 @@ function TableAdmin({
   handleChangePage,
   handleChangeRowsPerPage,
   handleEditClick,
-  handleAssignSelected,
+  // handleAssignSelected,
   selectedRows,
   setSelectedRows,
   projectName,
@@ -341,7 +341,7 @@ function TableAdmin({
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
-          count={rows.length}
+          count={selectedRows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

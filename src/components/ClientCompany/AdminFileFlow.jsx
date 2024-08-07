@@ -4,6 +4,8 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
+import { useNavigate } from 'react-router-dom';
+
 import TabPanel from "../TabPanel.jsx";
 import {
   fetchProjectFiles,
@@ -76,6 +78,8 @@ const AdminFileFlow = () => {
   const [selectedRows, setSelectedRows] = useState([]);
 
   const [role, setRole] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -179,15 +183,26 @@ const AdminFileFlow = () => {
 
   const handleAssignToUser = async (userId) => {
     try {
-      await updateFileStatus(projectId, selectedFileId, {
-        status: 6,
-        client_assignedTo: userId,
-        client_assignedDate: new Date().toISOString(),
-      });
+      if (selectedRows.length != 0) {
+        for (const fileId of selectedRows) {
+          await updateFileStatus(projectId, fileId, {
+            status: 6,
+            client_assignedTo: userId,
+            client_assignedDate: new Date().toISOString(),
+          });
+        }
+      } else {
+        await updateFileStatus(projectId, selectedFileId, {
+          status: 6,
+          client_assignedTo: userId,
+          client_assignedDate: new Date().toISOString(),
+        });
+      }
 
       // await updateFileStatus(projectId, selectedFileId, 5, userId);
       setReadyForWorkFiles(files.filter((file) => file.id !== selectedFileId));
       handleCloseModal();
+      navigate(-1);
     } catch (err) {
       console.error("Error updating file status:", err);
       setError(err);
@@ -270,6 +285,8 @@ const AdminFileFlow = () => {
           columns={columnsReadyForWork}
           rows={readyForWorkFiles}
           page={page}
+          selectedRows={selectedRows}
+          setSelectedRows={setSelectedRows}
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleEditClick={handleOpenModal}
@@ -317,6 +334,8 @@ const AdminFileFlow = () => {
           columns={columnsDownloaded}
           rows={downloadedFiles}
           page={page}
+          selectedRows={selectedRows}
+          setSelectedRows={setSelectedRows}
           projectName={projectName}
           projectId={projectId}
           status={8}
