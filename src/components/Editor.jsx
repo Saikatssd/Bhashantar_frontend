@@ -157,8 +157,10 @@ const Editor = () => {
           init={{
             height: "calc(100vh)",
             menubar: 'edit insert view format table tools',
+            // plugins:
+            // "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount linkchecker tableofcontents mergetags autocorrect typography inlinecss markdown pagebreak",
             plugins:
-              "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown pagebreak",
+              "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount linkchecker pagebreak",
             toolbar:
               "bold italic underline | fontfamily fontsize fontselect fontsizeselect | align lineheight | numlist bullist indent outdent | paragraphSpacing ",
             tinycomments_mode: "embedded",

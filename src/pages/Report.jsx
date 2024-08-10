@@ -25,6 +25,7 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
+import FilterAltRoundedIcon from '@mui/icons-material/FilterAltRounded';
 
 const columns = [
   { id: "slNo", label: "Sl No", minWidth: 10 },
@@ -121,20 +122,20 @@ const Report = () => {
       return (
         (filters.searchQuery
           ? file.fileName
-              .toLowerCase()
-              .includes(filters.searchQuery.toLowerCase()) ||
-            file.assigneeName
-              .toLowerCase()
-              .includes(filters.searchQuery.toLowerCase()) ||
-            file.projectName
-              .toLowerCase()
-              .includes(filters.searchQuery.toLowerCase())
+            .toLowerCase()
+            .includes(filters.searchQuery.toLowerCase()) ||
+          file.assigneeName
+            .toLowerCase()
+            .includes(filters.searchQuery.toLowerCase()) ||
+          file.projectName
+            .toLowerCase()
+            .includes(filters.searchQuery.toLowerCase())
           : true) &&
         (assignedStartDate && assignedEndDate
           ? new Date(assignedDate).setHours(0, 0, 0, 0) >=
-              new Date(assignedStartDate).setHours(0, 0, 0, 0) &&
-            new Date(assignedDate).setHours(0, 0, 0, 0) <=
-              new Date(assignedEndDate).setHours(0, 0, 0, 0)
+          new Date(assignedStartDate).setHours(0, 0, 0, 0) &&
+          new Date(assignedDate).setHours(0, 0, 0, 0) <=
+          new Date(assignedEndDate).setHours(0, 0, 0, 0)
           : true) &&
         (filters.status
           ? filters.status == 5.5
@@ -143,9 +144,9 @@ const Report = () => {
           : true) &&
         (deliveryStartDate && deliveryEndDate
           ? new Date(deliveryDate).setHours(0, 0, 0, 0) >=
-              new Date(deliveryStartDate).setHours(0, 0, 0, 0) &&
-            new Date(deliveryDate).setHours(0, 0, 0, 0) <=
-              new Date(deliveryEndDate).setHours(0, 0, 0, 0)
+          new Date(deliveryStartDate).setHours(0, 0, 0, 0) &&
+          new Date(deliveryDate).setHours(0, 0, 0, 0) <=
+          new Date(deliveryEndDate).setHours(0, 0, 0, 0)
           : true)
       );
     });
@@ -223,6 +224,10 @@ const Report = () => {
               <option value="5.5">Delivered</option>
             </select>
           </div>
+          <IconButton onClick={() => setShowFilters(!showFilters)}>
+            {/* <FilterListIcon /> */}
+            <FilterAltRoundedIcon />
+          </IconButton>
         </div>
 
         <div className="flex space-x-6">
@@ -235,9 +240,7 @@ const Report = () => {
             Export to XLS
           </Button>
 
-          <IconButton onClick={() => setShowFilters(!showFilters)}>
-            <FilterListIcon />
-          </IconButton>
+
         </div>
       </div>
 

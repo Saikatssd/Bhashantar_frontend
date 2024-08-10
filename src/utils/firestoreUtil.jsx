@@ -23,6 +23,7 @@ import {
   getDownloadURL,
   deleteObject,
 } from "firebase/storage";
+import { formatDate } from "./formatDate";
 
 import JSZip from "jszip";
 import PizZip from "pizzip";
@@ -188,7 +189,7 @@ export const fetchProjectFiles = async (projectId) => {
   try {
     const filesCollection = collection(db, "projects", projectId, "files");
     const filesSnapshot = await getDocs(filesCollection);
-   
+
     // return filesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     const files = filesSnapshot.docs.map((doc) => {
       const data = doc.data();
@@ -690,6 +691,138 @@ export const fetchCompanyNameByCompanyId = async (companyId) => {
 };
 
 // --- User Operations ---
+
+
+// Function to group data by date (ignoring hour and seconds)
+export const groupByDate = (data, dateKey) => {
+  return data.reduce((acc, item) => {
+    const formattedDate = formatDate(item[dateKey]);
+    if (!acc[formattedDate]) {
+      acc[formattedDate] = [];
+    }
+    acc[formattedDate].push(item);
+    return acc;
+  }, {});
+};
+
+// export const fetchUserReportData = async (companyId) => {
+//   try {
+//     const projects = await fetchCompanyProjects(companyId);
+//     const allFiles = [];
+
+//     for (const project of projects) {
+//       const projectFiles = await fetchProjectFiles(project.id);
+//       allFiles.push(...projectFiles);
+//     }
+
+//     const assignedGrouped = groupByDate(allFiles, 'kyro_assignedDate');
+//     const completedGrouped = groupByDate(allFiles, 'kyro_completedDate');
+
+//     const reportData = [];
+
+//     for (const [assignedDate, assignedFiles] of Object.entries(assignedGrouped)) {
+//       const completedFiles = completedGrouped[assignedDate] || [];
+
+
+//       for (const file of assignedFiles) {
+//         const userId = file.kyro_assignedTo;
+
+//         if (userId) {
+//           const userName = await fetchUserNameById(userId);
+//           reportData.push({
+//             userName,
+//             AssignedDate: assignedDate,
+//             AssignedFiles: assignedFiles.length,
+//             AssignedPages: assignedFiles.reduce((sum, file) => sum + (file.pageCount || 0), 0),
+//             CompletedDate: assignedDate,
+//             CompletedFiles: completedFiles.length,
+//             CompletedPages: completedFiles.reduce((sum, file) => sum + (file.pageCount || 0), 0),
+//           });
+//         } else {
+//           // console.error("Invalid user ID found in file:", file);
+//         }
+//       }
+
+//     }
+
+//     return reportData;
+//   } catch (error) {
+//     console.error("Error fetching user report data:", error);
+//     throw new Error("Error fetching user report data");
+//   }
+// };
+
+export const fetchUserReportData = async (companyId) => {
+  try {
+    // Step 1: Fetch all projects for the company
+    const projects = await fetchCompanyProjects(companyId);
+
+    const allFiles = [];
+
+    // Step 2: Fetch files for each project
+    for (const project of projects) {
+      const projectFiles = await fetchProjectFiles(project.id);
+      allFiles.push(...projectFiles);
+    }
+
+    const reportData = {};
+
+    // Helper function to add files and pages to the group
+    const addToGroup = (groupKey, file) => {
+      if (!reportData[groupKey]) {
+        reportData[groupKey] = {
+          AssignedDate: 'N/A',
+          AssignedFiles: 0,
+          AssignedPages: 0,
+          CompletedDate: 'N/A',
+          CompletedFiles: 0,
+          CompletedPages: 0,
+        };
+      }
+      if (file.kyro_assignedDate) {
+        reportData[groupKey].AssignedDate = formatDate(file.kyro_assignedDate);
+        reportData[groupKey].AssignedFiles += 1;
+        reportData[groupKey].AssignedPages += file.pageCount || 0;
+      }
+      if (file.kyro_completedDate) {
+        reportData[groupKey].CompletedDate = formatDate(file.kyro_completedDate);
+        reportData[groupKey].CompletedFiles += 1;
+        reportData[groupKey].CompletedPages += file.pageCount || 0;
+      }
+    };
+
+    // Step 3: Iterate over each file and group by date
+    allFiles.forEach((file) => {
+      const assignedKey = file.kyro_assignedDate ? formatDate(file.kyro_assignedDate) : null;
+      const completedKey = file.kyro_completedDate ? formatDate(file.kyro_completedDate) : null;
+
+      // Create group keys
+      const groupKey = `${assignedKey || 'N/A'}-${completedKey || 'N/A'}`;
+
+      // Add file to the appropriate group
+      addToGroup(groupKey, file);
+    });
+
+    // Convert the grouped data object into an array
+    const groupedReportData = Object.keys(reportData).map((key) => {
+      const data = reportData[key];
+      return {
+        AssignedDate: data.AssignedDate,
+        AssignedFiles: data.AssignedFiles,
+        AssignedPages: data.AssignedPages,
+        CompletedDate: data.CompletedDate,
+        CompletedFiles: data.CompletedFiles,
+        CompletedPages: data.CompletedPages,
+      };
+    });
+
+    return groupedReportData;
+  } catch (error) {
+    console.error("Error fetching company report data:", error);
+    throw new Error("Error fetching company report data");
+  }
+};
+
 
 // Fetch the user's name by their ID
 export const fetchUserNameById = async (userId) => {
