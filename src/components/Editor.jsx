@@ -147,6 +147,57 @@ const Editor = () => {
     navigate(-1);
   };
 
+  // const initializeEditor = useCallback(() => {
+  //   if (isInitialContentSet) {
+  //     return (
+  //       <TinyMCEEditor
+  //         key={documentId}
+  //         apiKey="b49qe47leuw15e45amyl6s8hh2wojjif4ka6kfptu0tt0v1w"
+  //         value={htmlContent}
+  //         init={{
+  //           height: "calc(100vh)",
+  //           menubar: 'edit insert view format table tools',
+  //           // content_css: [ 'editor.css', 'mycontent2.css' ],
+            
+  //           // plugins:
+  //           // "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount linkchecker tableofcontents mergetags autocorrect typography inlinecss markdown pagebreak",
+  //           plugins:
+  //             "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount linkchecker pagebreak",
+  //           toolbar:
+  //             "bold italic underline fontfamily| fontsizeinput | align lineheight | numlist bullist |indent outdent | paragraphSpacing ",
+  //           tinycomments_mode: "embedded",
+  //           pagebreak_split_block: true,
+  //           pagebreak_separator: "<!-- my page break -->",
+  //           fontsize_formats:
+  //             "8pt 9pt 10pt 11pt 12pt 14pt 18pt 24pt 30pt 36pt 48pt 60pt 72pt 96pt",
+  //           tinycomments_author: "Author name",
+  //           fullscreen_native: true,
+
+  //           setup: (editor) => {
+  //             editor.ui.registry.addButton("paragraphSpacing", {
+  //               text: "Paragraph Spacing",
+  //               onAction: () => {
+  //                 editor.execCommand("FormatBlock", false, "p");
+  //                 editor
+  //                   .getBody()
+  //                   .querySelectorAll("p")
+  //                   .forEach((paragraph) => {
+  //                     paragraph.style.textIndent = "80px";
+  //                   });
+  //               },
+  //             });
+  //           },
+  //         }}
+  //         onInit={(evt, editor) => {
+  //           editorRef.current = editor;
+  //         }}
+  //         onEditorChange={(content, editor) => setHtmlContent(content)}
+  //       />
+  //     );
+  //   }
+  //   return null;
+  // }, [htmlContent, isInitialContentSet, documentId]);
+
   const initializeEditor = useCallback(() => {
     if (isInitialContentSet) {
       return (
@@ -157,19 +208,31 @@ const Editor = () => {
           init={{
             height: "calc(100vh)",
             menubar: 'edit insert view format table tools',
-            // plugins:
-            // "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount linkchecker tableofcontents mergetags autocorrect typography inlinecss markdown pagebreak",
+            content_css: [
+              // Load default content CSS and include the custom font
+              "https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/skins/content/default/content.min.css",
+              "https://fonts.googleapis.com/css2?family=Nirmala+UI&display=swap",
+            ],
             plugins:
               "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount linkchecker pagebreak",
             toolbar:
-              "bold italic underline | fontfamily fontsize fontselect fontsizeselect | align lineheight | numlist bullist indent outdent | paragraphSpacing ",
+              "bold italic underline fontfamily| fontsizeinput | align lineheight | numlist bullist |indent outdent | paragraphSpacing ",
             tinycomments_mode: "embedded",
             pagebreak_split_block: true,
             pagebreak_separator: "<!-- my page break -->",
-            fontsize_formats: "8pt 9pt 10pt 11pt 12pt 13pt 14pt 15pt 16pt 18pt 20pt 22pt 24pt 26pt 28pt 30pt 32pt 36pt 38pt 40pt 42pt 44pt 48pt 50pt 52pt 54pt 56pt 58pt 60pt 64pt 68pt 72pt 76pt 80pt 84pt 88pt 92pt 96pt",
+            fontsize_formats:
+              "8pt 9pt 10pt 11pt 12pt 14pt 18pt 24pt 30pt 36pt 48pt 60pt 72pt 96pt",
             tinycomments_author: "Author name",
             fullscreen_native: true,
-
+            
+            font_family_formats:
+              "Nirmala UI=nirmala ui, sans-serif;" +
+              "Arial=arial,helvetica,sans-serif;" +
+              "Courier New=courier new,courier,monospace;" +
+              "Georgia=georgia,palatino,serif;" +
+              "Tahoma=tahoma,arial,helvetica,sans-serif;" +
+              "Verdana=verdana,geneva,sans-serif;",
+  
             setup: (editor) => {
               editor.ui.registry.addButton("paragraphSpacing", {
                 text: "Paragraph Spacing",
@@ -194,8 +257,7 @@ const Editor = () => {
     }
     return null;
   }, [htmlContent, isInitialContentSet, documentId]);
-
-
+  
 
   useEffect(() => {
     return () => {

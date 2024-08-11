@@ -44,7 +44,7 @@ export default function KyroSidebar({ companyId, role }) {
           <div className="flex justify-center mb-6">
             <img src={logo} alt="Logo" className="h-20 w-auto" />
           </div>
-          <ul className="mt-16 space-y-3  ">
+          <ul className="mt-12 space-y-3  ">
             <li>
               <Link
                 to="/home"
@@ -100,7 +100,7 @@ export default function KyroSidebar({ companyId, role }) {
                     Manage Roles
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link
                     to={`/kyro/${companyId}/permissionManage`}
                     className={`block rounded-lg px-4 py-3 text-md font-medium ${
@@ -112,7 +112,7 @@ export default function KyroSidebar({ companyId, role }) {
                     <RoomPreferencesIcon className="mr-3" />
                     Manage Permissions
                   </Link>
-                </li>
+                </li> */}
                 <li>
                   <Link
                     to={`/kyro/${companyId}/fileStatus`}
