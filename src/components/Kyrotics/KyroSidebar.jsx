@@ -14,6 +14,8 @@ import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
 import ConfirmationDialog from "../ConfirmationDialog";
 import { Description, Dashboard } from "@mui/icons-material";
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+
 
 export default function KyroSidebar({ companyId, role }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -60,6 +62,19 @@ export default function KyroSidebar({ companyId, role }) {
             </li>
             <li>
               <Link
+                to={`/kyro/${companyId}/clientCompanies`}
+                className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                  isActive(`/kyro/${companyId}/clientCompanies`)
+                    ? "bg-[#e3d2fa] text-gray-700"
+                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                }`}
+              >
+                <FolderCopyIcon className="mr-5" />
+                Projects
+              </Link>
+            </li>
+            <li>
+              <Link
                 to={`/kyro/${companyId}/profile`}
                 className={`block rounded-lg px-4 py-3 text-md font-medium ${
                   isActive(`/kyro/${companyId}/profile`)
@@ -100,6 +115,19 @@ export default function KyroSidebar({ companyId, role }) {
                     Manage Roles
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    to={`/kyro/${companyId}/userReport`}
+                    className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                      isActive(`/kyro/${companyId}/roleManage`)
+                        ? "bg-[#e3d2fa] text-gray-700"
+                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                    }`}
+                  >
+                    <AssignmentTurnedInIcon className="mr-5" />
+                    User Report
+                  </Link>
+                </li>
                 {/* <li>
                   <Link
                     to={`/kyro/${companyId}/permissionManage`}
@@ -130,19 +158,7 @@ export default function KyroSidebar({ companyId, role }) {
             )}
 
             {/* {role === 'admin' && ( */}
-            <li>
-              <Link
-                to={`/kyro/${companyId}/clientCompanies`}
-                className={`block rounded-lg px-4 py-3 text-md font-medium ${
-                  isActive(`/kyro/${companyId}/clientCompanies`)
-                    ? "bg-[#e3d2fa] text-gray-700"
-                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                }`}
-              >
-                <FolderCopyIcon className="mr-5" />
-                Projects
-              </Link>
-            </li>
+            
             {role === "superAdmin" && (
               <>
                 <li>

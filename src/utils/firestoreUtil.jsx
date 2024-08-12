@@ -566,6 +566,42 @@ export const fetchProjectDetails = async (companyId) => {
 };
 
 
+export const fetchClientProjectDetails = async (companyId) => {
+  try {
+    const projects = await fetchCompanyProjects(companyId);
+    const projectDetails = await Promise.all(
+      projects.map(async (project) => {
+        const files = await fetchProjectFiles(project.id);
+        const totalFiles = files.length;
+        const completedFiles = files.filter((file) => file.status == 7);
+        const completedFileCount = completedFiles.length;
+        const readyForWorkFiles = files.filter(
+          (file) => file.status == 5
+        ).length;
+
+        const inProgressFiles = files.filter(
+          (file) => file.status == 6
+        ).length;
+       
+        return {
+          // id: project.id,
+          name: project.name,
+          totalFiles,
+          readyForWorkFiles,
+          inProgressFiles,
+          completedFileCount,
+          // kyroCompletedDates,
+          // completedFilePageCount
+        };
+      })
+    );
+    return projectDetails;
+  } catch (error) {
+    console.error("Error fetching project details:", error);
+    throw new Error("Error fetching project details");
+  }
+};
+
 // New function for detailed file report
 
 // export const fetchDetailedFileReport = async (companyId) => {
@@ -641,6 +677,40 @@ export const fetchReportDetails = async (companyId, startDate, endDate) => {
 
       const dateMap = filteredFiles.reduce((acc, file) => {
         const date = new Date(file.kyro_deliveredDate).toLocaleDateString();
+        if (!acc[date]) {
+          acc[date] = { date, fileCount: 0, pageCount: 0 };
+        }
+        acc[date].fileCount += 1;
+        acc[date].pageCount += file.pageCount || 0;
+        return acc;
+      }, {});
+
+      allDetails.push(...Object.values(dateMap));
+    }
+
+    return allDetails;
+  } catch (error) {
+    console.error("Error fetching report details:", error);
+    throw new Error("Error fetching report details");
+  }
+};
+
+export const fetchClientReportDetails = async (companyId, startDate, endDate) => {
+  try {
+    const projects = await fetchCompanyProjects(companyId);
+    const allDetails = [];
+
+    for (const project of projects) {
+      const files = await fetchProjectFiles(project.id);
+
+      const filteredFiles = files.filter((file) => {
+        const completedDate = new Date(file.client_completedDate);
+       
+        return completedDate >= startDate && completedDate <= endDate;
+      });
+
+      const dateMap = filteredFiles.reduce((acc, file) => {
+        const date = new Date(file.client_completedDate).toLocaleDateString();
         if (!acc[date]) {
           acc[date] = { date, fileCount: 0, pageCount: 0 };
         }

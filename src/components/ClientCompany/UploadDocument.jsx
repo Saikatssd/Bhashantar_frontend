@@ -221,7 +221,7 @@ const UploadDocument = () => {
             </Button>
           </div>
         )}
-        <Fab
+        {/* <Fab
           variant="extended"
           color="primary"
           size="large"
@@ -230,9 +230,9 @@ const UploadDocument = () => {
         >
           <AddIcon sx={{ mr: 1 }} />
           New Project
-        </Fab>
+        </Fab> */}
 
-        {isModalOpen && (
+        {/* {isModalOpen && (
           <Dialog className="relative z-10" open={isModalOpen} onClose={() => setIsModalOpen(false)}>
             <DialogBackdrop
               transition
@@ -283,7 +283,7 @@ const UploadDocument = () => {
               </div>
             </div>
           </Dialog>
-        )}
+        )} */}
       </div>
     </div>
   );

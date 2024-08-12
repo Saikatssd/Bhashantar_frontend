@@ -15,6 +15,8 @@ import QAWorkspace from "../pages/QA/QAWorkspace";
 import FileStatusManager from "./FileStatusManager";
 import Register from "../pages/Register";
 import KyroAdminHome from "../pages/Admin/KyroticsAdminHome";
+import UserReport from "../pages/UserReport";
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 export default function KyroInstance({ role }) {
   const [userCompanyId, setUserCompanyId] = useState("");
@@ -70,10 +72,12 @@ export default function KyroInstance({ role }) {
               <Route path="permissionManage" element={<PermissionsManage />} />
               <Route path="roleManage" element={<RoleManage />} />
               <Route path="fileStatus" element={<FileStatusManager />} />
+              <Route path="userReport" element={<UserReport />} />
               <Route
                 path="userManage"
                 element={<UserManage companyId={userCompanyId} />}
               />
+
             </>
           )}
           {role === "superAdmin" && (
