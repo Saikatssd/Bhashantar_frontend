@@ -262,7 +262,7 @@ const AdminHome = ({ companyId, role }) => {
                         <CalendarMonthIcon sx={{ fontSize: "35px" }} />
                       </div>
                       <h1 className="p-4 text-2xl font-bold font-mono tracking-wider leading-6">
-                        DAILY REPORT
+                        REPORT
                       </h1>
                     </div>
 

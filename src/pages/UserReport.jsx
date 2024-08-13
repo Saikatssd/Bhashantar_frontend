@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { fetchCompanyProjects, fetchProjectFiles, fetchUserNameById, fetchAllCompanies } from '../utils/firestoreUtil';
-import { MenuItem, Select, Button, TextField } from '@mui/material';
+import { MenuItem, IconButton, Select, Button, Collapse, TextField, FormControl, InputLabel } from '@mui/material';
 import { formatDate } from '../utils/formatDate';
 import { exportToExcel } from '../utils/exportExcel';
+import FilterAltRoundedIcon from '@mui/icons-material/FilterAltRounded';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import FileReportUser from './FileReportUser';
 
 const UserReport = () => {
   const [companies, setCompanies] = useState([]);
@@ -13,7 +16,12 @@ const UserReport = () => {
   const [error, setError] = useState('');
   const [assignedDateRange, setAssignedDateRange] = useState({ start: '', end: '' });
   const [completedDateRange, setCompletedDateRange] = useState({ start: '', end: '' });
+  const [showFilters, setShowFilters] = useState(false);
+  const [showDetailedReport, setShowDetailedReport] = useState(true);
 
+  const toggleReport = () => {
+    setShowDetailedReport(!showDetailedReport);
+  };
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -123,100 +131,182 @@ const UserReport = () => {
     setFilteredData(filtered);
   };
 
- 
+
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">User Report</h1>
+      <button
+        className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${showDetailedReport
+          ? 'bg-gradient-to-l from-blue-500 to-purple-500'
+          // : 'bg-green-500 border border-green-700'
+          : 'bg-gradient-to-r from-blue-500 to-purple-500'
+          }`}
+        onClick={toggleReport}
+      >
+        {showDetailedReport ? (
+          <>
+            <VisibilityOff className="mr-2" />
 
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+            {/* <Dashboard className="mr-2" /> */}
+            User Detailed Report
 
-      <div className="mb-4">
-        <Select
-          fullWidth
-          value={selectedCompany}
-          onChange={handleCompanyChange}
-          displayEmpty
-          variant="outlined"
-          className="mb-4"
-        >
-          <MenuItem value="" disabled>Select a Company</MenuItem>
-          {companies.map(company => (
-            <MenuItem key={company.id} value={company.id}>{company.name}</MenuItem>
-          ))}
-        </Select>
-      </div>
+          </>
+        ) : (
+          <>
+            <Visibility className="mr-2" />
 
-      <div className="mb-4 grid grid-cols-2 gap-4">
-        <TextField
-          label="Assigned Date Range Start"
-          type="date"
-          InputLabelProps={{ shrink: true }}
-          value={assignedDateRange.start}
-          onChange={(e) => setAssignedDateRange({ ...assignedDateRange, start: e.target.value })}
-          fullWidth
-        />
-        <TextField
-          label="Assigned Date Range End"
-          type="date"
-          InputLabelProps={{ shrink: true }}
-          value={assignedDateRange.end}
-          onChange={(e) => setAssignedDateRange({ ...assignedDateRange, end: e.target.value })}
-          fullWidth
-        />
-        <TextField
-          label="Completed Date Range Start"
-          type="date"
-          InputLabelProps={{ shrink: true }}
-          value={completedDateRange.start}
-          onChange={(e) => setCompletedDateRange({ ...completedDateRange, start: e.target.value })}
-          fullWidth
-        />
-        <TextField
-          label="Completed Date Range End"
-          type="date"
-          InputLabelProps={{ shrink: true }}
-          value={completedDateRange.end}
-          onChange={(e) => setCompletedDateRange({ ...completedDateRange, end: e.target.value })}
-          fullWidth
-        />
-      </div>
-
-      <Button variant="contained" color="primary" onClick={handleDateFilterChange} className="mb-4">Apply Filters</Button>
-
-      <Button variant="contained" color="secondary" onClick={() =>
-        exportToExcel(filteredData, "User_Report")
-      } className="mb-4 ml-4">Export to Excel</Button>
-
-      {isLoading ? (
-        <div>Loading...</div>
+            {/* <Description className="mr-2" /> */}
+            User Detailed Report
+          </>
+        )}
+      </button>
+      {showDetailedReport ? (
+        <div className="w-full">
+          <FileReportUser />
+        </div>
       ) : (
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">Assigned Date</th>
-              <th className="py-2 px-4 border-b">Assigned Files Count</th>
-              <th className="py-2 px-4 border-b">Assigned Page Count</th>
-              <th className="py-2 px-4 border-b">Completed Date</th>
-              <th className="py-2 px-4 border-b">Completed Files Count</th>
-              <th className="py-2 px-4 border-b">Completed Page Count</th>
-              <th className="py-2 px-4 border-b">User Name</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map((data, index) => (
-              <tr key={index}>
-                <td className="py-2 px-4 border-b">{data.assignedDate}</td>
-                <td className="py-2 px-4 border-b">{data.assignedFilesCount}</td>
-                <td className="py-2 px-4 border-b">{data.assignedPageCount}</td>
-                <td className="py-2 px-4 border-b">{data.completedDate}</td>
-                <td className="py-2 px-4 border-b">{data.completedFilesCount}</td>
-                <td className="py-2 px-4 border-b">{data.completedPageCount}</td>
-                <td className="py-2 px-4 border-b">{data.userName}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className='p-4'>
+          <h1 className="text-2xl font-bold mb-4">Detailed User Report</h1>
+
+          {error && <div className="text-red-500 mb-4">{error}</div>}
+          <div className="mb-4 flex justify-between w-full mt-8">
+            <div className='flex w-3/4 '>
+              <FormControl sx={{ width: "30%" }}>
+                <InputLabel id="select-company-label">
+                  Select a Company
+                </InputLabel>
+                <Select
+                  labelId="select-company-label"
+                  id="select-company"
+                  value={selectedCompany}
+                  label="Select a Company"
+                  onChange={handleCompanyChange}
+                >
+                  <MenuItem value="" disabled>
+                    Select a Company
+                  </MenuItem>
+                  {companies.map((company) => (
+                    <MenuItem key={company.id} value={company.id}>
+                      {company.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <IconButton onClick={() => setShowFilters(!showFilters)}>
+                {/* <FilterListIcon /> */}
+                <FilterAltRoundedIcon sx={{ fontSize: "30px" }} />
+              </IconButton>
+            </div>
+
+            <Button
+              variant="outlined"
+              onClick={() =>
+                exportToExcel(filteredData, "detailed_user_Report")
+              }
+            >
+              Export to XLS
+            </Button>
+
+          </div>
+
+
+
+
+          <Collapse in={showFilters} timeout="auto" unmountOnExit>
+            <div className="grid grid-cols-1 gap-4 mb-4 py-3">
+              <div className="flex flex-wrap space-x-16 justify-center">
+                <div className="flex flex-col">
+                  <label
+                    className="block text-gray-700 text-sm font-bold mb-2 text-center"
+                    htmlFor="assignedDateRange"
+                  >
+                    Assigned Date Range
+                  </label>
+                  <div className="flex space-x-2">
+                    <input
+                      type="date"
+                      name="assignedStartDate"
+                      value={assignedDateRange.start}
+                      onChange={(e) => setAssignedDateRange({ ...assignedDateRange, start: e.target.value })}
+                      className="block w-full pl-3 pr-3 py-2 border border-dashed border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/30 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                    <input
+                      type="date"
+                      name="assignedEndDate"
+                      value={assignedDateRange.end}
+                      onChange={(e) => setAssignedDateRange({ ...assignedDateRange, end: e.target.value })}
+                      className="block w-full pl-3 pr-3 py-2 border border-dashed border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/30 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col">
+                  <label
+                    className="block text-gray-700 text-sm font-bold mb-2 text-center"
+                    htmlFor="deliveryDateRange"
+                  >
+                    Delivery Date Range
+                  </label>
+                  <div className="flex space-x-2">
+                    <input
+                      type="date"
+                      name="deliveryStartDate"
+                      value={completedDateRange.start}
+                      onChange={(e) => setCompletedDateRange({ ...completedDateRange, start: e.target.value })}
+                      className="block w-full pl-3 pr-3 py-2 border border-dashed border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/30 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                    <input
+                      type="date"
+                      name="deliveryEndDate"
+                      value={completedDateRange.end}
+                      onChange={(e) => setCompletedDateRange({ ...completedDateRange, end: e.target.value })}
+                      className="block w-full pl-3 pr-3 py-2 border border-dashed border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/30 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Collapse>
+
+
+
+          <Button variant="contained" color="primary" onClick={handleDateFilterChange} className="mb-4">Apply Filters</Button>
+
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : (
+            <div className="rounded-lg border border-gray-200">
+              <div className="overflow-x-auto rounded-t-lg rounded-b-lg">
+                <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+                  <thead>
+                    <tr className="bg-[#6c7ae0] text-white">
+                      <th className="whitespace-nowrap px-6 py-2 font-medium">Assigned Date</th>
+                      <th className="whitespace-nowrap px-6 py-2 font-medium">Assigned Files Count</th>
+                      <th className="whitespace-nowrap px-6 py-2 font-medium">Assigned Page Count</th>
+                      <th className="whitespace-nowrap px-6 py-2 font-medium">Completed Date</th>
+                      <th className="whitespace-nowrap px-6 py-2 font-medium">Completed Files Count</th>
+                      <th className="whitespace-nowrap px-6 py-2 font-medium">Completed Page Count</th>
+                      <th className="whitespace-nowrap px-6 py-2 font-medium">User Name</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 ">
+                    {filteredData.map((data, index) => (
+                      <tr key={index} className="even:bg-[#f0f2ff] odd:bg-white hover:bg-[#b6bffa]">
+                        <td className="whitespace-nowrap px-6 py-2 font-medium">{data.assignedDate}</td>
+                        <td className="whitespace-nowrap px-6 py-2 font-medium">{data.assignedFilesCount}</td>
+                        <td className="whitespace-nowrap px-6 py-2 font-medium">{data.assignedPageCount}</td>
+                        <td className="whitespace-nowrap px-6 py-2 font-medium">{data.completedDate}</td>
+                        <td className="whitespace-nowrap px-6 py-2 font-medium">{data.completedFilesCount}</td>
+                        <td className="whitespace-nowrap px-6 py-2 font-medium">{data.completedPageCount}</td>
+                        <td className="whitespace-nowrap px-6 py-2 font-medium">{data.userName}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

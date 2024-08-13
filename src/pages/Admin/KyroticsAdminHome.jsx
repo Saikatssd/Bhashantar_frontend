@@ -231,7 +231,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                                 In Progress
                               </th>
                               <th className="whitespace-nowrap px-6 py-2 font-medium">
-                                Completed Files
+                                Delivered Files
                               </th>
                             </tr>
                           </thead>
@@ -275,7 +275,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                         <CalendarMonthIcon sx={{ fontSize: "35px" }} />
                       </div>
                       <h1 className="p-4 text-2xl font-bold font-mono tracking-wider leading-6">
-                        DAILY REPORT
+                        DELIVERED REPORT
                       </h1>
                     </div>
 
@@ -324,7 +324,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                               Sl No
                             </th>
                             <th className="whitespace-nowrap px-6 py-2 font-medium">
-                              Completed Date
+                            Delivered Date
                             </th>
                             <th className="whitespace-nowrap px-6 py-2 font-medium">
                               File Count

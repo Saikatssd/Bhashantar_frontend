@@ -700,17 +700,22 @@ export const fetchClientReportDetails = async (companyId, startDate, endDate) =>
     const projects = await fetchCompanyProjects(companyId);
     const allDetails = [];
 
+    // Ensure startDate and endDate are properly formatted as Date objects
+    startDate = new Date(startDate);
+    endDate = new Date(endDate);
+
     for (const project of projects) {
       const files = await fetchProjectFiles(project.id);
 
       const filteredFiles = files.filter((file) => {
         const completedDate = new Date(file.client_completedDate);
-       
         return completedDate >= startDate && completedDate <= endDate;
       });
 
       const dateMap = filteredFiles.reduce((acc, file) => {
-        const date = new Date(file.client_completedDate).toLocaleDateString();
+        // Format date to YYYY-MM-DD
+        const date = new Date(file.client_completedDate).toISOString().split('T')[0];
+
         if (!acc[date]) {
           acc[date] = { date, fileCount: 0, pageCount: 0 };
         }
@@ -728,6 +733,7 @@ export const fetchClientReportDetails = async (companyId, startDate, endDate) =>
     throw new Error("Error fetching report details");
   }
 };
+
 // --- Company Operations ---
 
 // Fetch all companies
