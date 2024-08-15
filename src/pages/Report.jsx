@@ -338,13 +338,13 @@ const Report = () => {
                     <TableCell>{statusMapping[file.status]}</TableCell>
                     <TableCell align="center">{file.pageCount}</TableCell>
                     <TableCell align="center">
-                      {formatDate(file.uploadedDate)}
+                      {file.uploadedDate}
                     </TableCell>
                     <TableCell align="center">
-                      {formatDate(file.assignedDate)}
+                      {file.assignedDate}
                     </TableCell>
                     <TableCell align="center">
-                      {formatDate(file.deliveryDate)}
+                      {file.deliveryDate}
                     </TableCell>
                     <TableCell>{file.assigneeName}</TableCell>
                     <TableCell>{file.projectName}</TableCell>

@@ -15,11 +15,7 @@ import { TextField, MenuItem } from '@mui/material';
 import { fetchProjectFilesCount, fetchTotalPagesInProject, fetchUserNameById } from "../../utils/firestoreUtil";
 import ConfirmationDialog from "../ConfirmationDialog";
 
-const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return !isNaN(date.getTime()) ? date.toLocaleDateString() : 'Invalid Date';
-};
+
 
 function KyroCompletedTable({
     columns,
@@ -224,11 +220,7 @@ function KyroCompletedTable({
                                                                 Edit
                                                             </Button>
                                                         </div>
-                                                    ) : column.id.endsWith('Date') && value ? (
-                                                        formatDate(value)
-                                                    ) : (
-                                                        value
-                                                    )}
+                                                    ) : value}
                                                 </TableCell>
                                             );
                                         })}

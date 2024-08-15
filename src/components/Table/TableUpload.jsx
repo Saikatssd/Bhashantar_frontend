@@ -11,17 +11,6 @@ import Paper from "@mui/material/Paper";
 import MuiTable from "@mui/material/Table";
 
 
-// const formatDate = (dateString) => {
-//   const date = new Date(dateString);
-//   return date.toString() !== 'Invalid Date' ? date.toLocaleDateString() : 'Invalid Date';
-// };
-
-// const formatDate = (dateString) => {
-//   if (!dateString) return 'N/A';
-//   const date = new Date(dateString);
-//   return !isNaN(date.getTime()) ? date.toLocaleDateString() : 'Invalid Date';
-// };
-
 const calculateTotalPages = (rows) => {
   return rows.reduce((total, row) => {
       return total + (row.pageCount || 0);

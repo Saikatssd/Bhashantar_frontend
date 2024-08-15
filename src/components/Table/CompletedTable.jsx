@@ -15,11 +15,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { fetchProjectFilesCount, fetchTotalPagesInProject } from "../../utils/firestoreUtil";
 
-const formatDate = (dateString) => {
-  if (!dateString) return "N/A";
-  const date = new Date(dateString);
-  return !isNaN(date.getTime()) ? date.toLocaleDateString() : "Invalid Date";
-};
+
 
 function CompletedTable({
   columns,
@@ -214,11 +210,7 @@ function CompletedTable({
                                 </MenuItem>
                               </Menu>
                             </div>
-                          ) : column.id.endsWith("Date") && value ? (
-                            formatDate(value)
-                          ) : (
-                            value
-                          )}
+                          ) : value}
                         </TableCell>
                       );
                     })}

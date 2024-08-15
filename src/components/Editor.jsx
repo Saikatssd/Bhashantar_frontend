@@ -15,6 +15,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import Tooltip from "@mui/material/Tooltip";
 import { server } from "../main";
 import axios from "axios";
+import {formatDate} from '../utils/formatDate';
 
 const Editor = () => {
   const { projectId, documentId } = useParams();
@@ -99,12 +100,12 @@ const Editor = () => {
       if (companyId === "cvy2lr5H0CUVH8o2vsVk") {
         await updateFileStatus(projectId, documentId, {
           status: 4,
-          kyro_completedDate: new Date().toISOString(),
+          kyro_completedDate: formatDate(new Date()),
         });
       } else {
         await updateFileStatus(projectId, documentId, {
           status: 7,
-          client_completedDate: new Date().toISOString(),
+          client_completedDate: formatDate(new Date()),
         });
       }
       navigate(-1);

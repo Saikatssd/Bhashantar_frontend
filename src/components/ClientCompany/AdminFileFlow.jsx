@@ -23,6 +23,7 @@ import Table from "../Table/Table.jsx";
 import CompletedTable from "../Table/CompletedTable.jsx";
 import { server } from "../../main.jsx";
 import axios from "axios";
+import { formatDate } from '../../utils/formatDate.jsx';
 
 const columnsReadyForWork = [
   { id: "slNo", label: "Sl. No", minWidth: 50 },
@@ -188,14 +189,14 @@ const AdminFileFlow = () => {
           await updateFileStatus(projectId, fileId, {
             status: 6,
             client_assignedTo: userId,
-            client_assignedDate: new Date().toISOString(),
+            client_assignedDate: formatDate(new Date()),
           });
         }
       } else {
         await updateFileStatus(projectId, selectedFileId, {
           status: 6,
           client_assignedTo: userId,
-          client_assignedDate: new Date().toISOString(),
+          client_assignedDate: formatDate(new Date()),
         });
       }
 
@@ -236,7 +237,7 @@ const AdminFileFlow = () => {
       link.click();
       link.remove();
       // Optionally, update the file status
-      // await updateFileStatus(projectId, documentId, { status: 8, client_downloadedDate: new Date().toISOString() });
+      await updateFileStatus(projectId, documentId, { status: 8, client_downloadedDate: formatDate(new Date()) });
     } catch (err) {
       setError(err);
     }

@@ -14,6 +14,8 @@ import Table from '../Table/Table';
 import TableAdmin from '../Table/TableAdmin';
 import KyroCompletedTable from '../Table/KyroCompletedTable';
 import { useNavigate } from 'react-router-dom';
+import {formatDate} from '../../utils/formatDate'
+
 
 const columnsReadyForWork = [
   { id: 'slNo', label: 'Sl. No.', minWidth: 50 },
@@ -168,11 +170,11 @@ const KyroAdminFileFlow = () => {
     try {
       if (selectedRows.length != 0) {
         for (const fileId of selectedRows) {
-          await updateFileStatus(projectId, fileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: new Date().toISOString() });
+          await updateFileStatus(projectId, fileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: formatDate(new Date()) });
         }
       }
       else {
-        await updateFileStatus(projectId, selectedFileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: new Date().toISOString() });
+        await updateFileStatus(projectId, selectedFileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: formatDate(new Date()) });
       }
 
       // await updateFileStatus(projectId, selectedFileId, 3, userId);
@@ -188,7 +190,7 @@ const KyroAdminFileFlow = () => {
 
   const handleAssignSelected = async () => {
     for (const fileId of selectedRows) {
-      await updateFileStatus(projectId, fileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: new Date().toISOString() });
+      await updateFileStatus(projectId, fileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: formatDate(new Date()) });
     }
     setSelectedRows([]);
     const updatedFiles = await fetchProjectFiles(projectId);
@@ -199,8 +201,8 @@ const KyroAdminFileFlow = () => {
 
   const handleSendSelected = async () => {
     for (const fileId of selectedRows) {
-      // await updateFileStatus(projectId, fileId, { status: 5, kyro_completedDate: new Date().toISOString() });
-      await updateFileStatus(projectId, fileId, { status: 5, kyro_deliveredDate: new Date().toISOString() });
+      // await updateFileStatus(projectId, fileId, { status: 5, kyro_completedDate: formatDate(new Date()) });
+      await updateFileStatus(projectId, fileId, { status: 5, kyro_deliveredDate: formatDate(new Date()) });
     }
     setSelectedRows([]);
     const updatedFiles = await fetchProjectFiles(projectId);
@@ -258,6 +260,7 @@ const KyroAdminFileFlow = () => {
           status={3}
         />
       </TabPanel>
+
 
       <TabPanel value={tabValue} index={2}>
         <KyroCompletedTable
