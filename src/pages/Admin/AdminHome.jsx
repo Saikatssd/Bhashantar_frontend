@@ -27,6 +27,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { Description, Dashboard } from '@mui/icons-material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import Sidebar from "../../components/ClientCompany/Sidebar";
+import ClientFileDetailedReport from "../../components/ClientCompany/ClientFileDetailedReport";
 
 const defaultStartDate = new Date();
 defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
@@ -141,7 +142,7 @@ const AdminHome = ({ companyId, role }) => {
 
         {showDetailedReport ? (
           <div className="p-8 w-full">
-            <Report />
+            <ClientFileDetailedReport companyId={companyId} />
           </div>
         ) : (
           <div className="p-8 w-full">

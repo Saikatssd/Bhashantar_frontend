@@ -232,8 +232,8 @@ const FileReportUser = () => {
           <thead>
             <tr className="bg-[#6c7ae0] text-white">
               <th className="whitespace-nowrap px-6 py-2 font-medium">User Name</th>
-              <th className="whitespace-nowrap px-6 py-2 font-medium">File Count</th>
-              <th className="whitespace-nowrap px-6 py-2 font-medium">Total Pages</th>
+              <th className="whitespace-nowrap px-6 py-2 font-medium">Completed Files</th>
+              <th className="whitespace-nowrap px-6 py-2 font-medium">Completed Pages</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 ">

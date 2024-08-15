@@ -223,7 +223,7 @@ const KyroAdminFileFlow = () => {
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs example" centered>
           <Tab label="Ready for Work" />
           <Tab label="Work in Progress" />
-          <Tab label="Completed" />
+          <Tab label="Completed (QA)" />
           <Tab label="Delivered" />
         </Tabs>
       </Box>
