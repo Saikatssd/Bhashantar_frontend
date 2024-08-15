@@ -64,7 +64,7 @@ export const uploadFile = async (projectId, file) => {
         name: file.name,
         pdfUrl: pdfDownloadURL,
         htmlUrl: htmlDownloadURL,
-        uploadedDate: new Date().toISOString(),
+        uploadedDate: formatDate(new Date()),
         status: 0,
         projectId: projectId,
         pageCount: pageCount, // Store the number of pages
@@ -76,7 +76,7 @@ export const uploadFile = async (projectId, file) => {
       name: file.name,
       pdfUrl: pdfDownloadURL,
       htmlUrl: htmlDownloadURL,
-      uploadedDate: new Date().toISOString(),
+      uploadedDate: formatDate(new Date()),
       status: 0,
       pageCount: pageCount, // Include the number of pages in the return object
     };

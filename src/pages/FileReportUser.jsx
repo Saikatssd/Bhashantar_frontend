@@ -14,7 +14,6 @@ const FileReportUser = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [completedDateRange, setCompletedDateRange] = useState({ start: '', end: '' });
-  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -81,58 +80,6 @@ const FileReportUser = () => {
   }, [selectedCompany]);
 
 
-  // useEffect(() => {
-  //   if (selectedCompany) {
-  //     const fetchDetails = async () => {
-  //       setIsLoading(true);
-  //       try {
-  //         const projects = await fetchCompanyProjects(selectedCompany);
-  //         setProjects(projects);
-
-  //         let allFiles = [];
-  //         for (const project of projects) {
-  //           const projectFiles = await fetchProjectFiles(project.id);
-  //           allFiles = [...allFiles, ...projectFiles];
-  //         }
-
-  //         const userFiles = {};
-  //         for (const file of allFiles) {
-  //           const completedDate = file.kyro_completedDate ? formatDate(file.kyro_completedDate) : null;
-  //           const userName = file.kyro_assignedTo ? await fetchUserNameById(file.kyro_assignedTo) : 'Unknown';
-
-  //           // if(userName=='unknown')
-  //           // {
-  //           //   continue;
-  //           // }
-
-  //           if (!userFiles[userName]) {
-  //             userFiles[userName] = { fileCount: 0, pageCount: 0 };
-  //           }
-
-  //           if (completedDate) {
-  //             userFiles[userName].fileCount += 1;
-  //             userFiles[userName].pageCount += file.pageCount || 0;
-  //           }
-  //         }
-
-  //         const formattedData = Object.keys(userFiles).map(userName => ({
-  //           userName,
-  //           fileCount: userFiles[userName].fileCount,
-  //           totalPages: userFiles[userName].pageCount,
-  //         }));
-
-  //         setFileDetails(formattedData);
-  //         setFilteredDetails(formattedData);
-  //       } catch (error) {
-  //         setError(error.message);
-  //       } finally {
-  //         setIsLoading(false);
-  //       }
-  //     };
-  //     fetchDetails();
-  //   }
-  // }, [selectedCompany]);
-
   const handleCompanyChange = (event) => {
     setSelectedCompany(event.target.value);
   };
@@ -155,9 +102,7 @@ const FileReportUser = () => {
       <h1 className="text-2xl font-bold mb-4">User Report</h1>
 
       {error && <div className="text-red-500 mb-4">{error}</div>}
-      <div className="mb-4 flex justify-between w-full mt-8">
-        <div className='flex w-3/4 '>
-
+      <div className="mb-4 flex justify-between items-center w-full mt-14">
           <FormControl sx={{ width: "30%" }} className="mb-4">
             <InputLabel id="select-company-label">Select a Company</InputLabel>
             <Select
@@ -175,27 +120,7 @@ const FileReportUser = () => {
               ))}
             </Select>
           </FormControl>
-          <IconButton onClick={() => setShowFilters(!showFilters)}>
-            {/* <FilterListIcon /> */}
-            <FilterAltRoundedIcon sx={{ fontSize: "30px" }} />
-          </IconButton>
-        </div>
-        <Button
-          variant="outlined"
-          onClick={() =>
-            exportToExcel(filteredDetails, "User_Report")
-          }
-        >
-          Export to XLS
-        </Button>
-      </div>
-
-
-
-      <Collapse in={showFilters} timeout="auto" unmountOnExit>
-        <div className="grid grid-cols-1 gap-4 mb-4 py-3">
-          <div className="flex flex-wrap space-x-16 justify-center">
-
+          <div className="flex flex-wrap space-x-8 justify-center -mt-6">
             <div className="flex flex-col">
               <label
                 className="block text-gray-700 text-sm font-bold mb-2 text-center"
@@ -220,9 +145,17 @@ const FileReportUser = () => {
                 />
               </div>
             </div>
-          </div>
         </div>
-      </Collapse>
+        <Button
+          variant="outlined"
+          onClick={() =>
+            exportToExcel(filteredDetails, "User_Report")
+          }
+        >
+          Export to XLS
+        </Button>
+      </div>
+
       <Button variant="contained" color="primary" onClick={handleDateFilterChange} className="mb-4">Apply Filters</Button>
 
       {isLoading ? (

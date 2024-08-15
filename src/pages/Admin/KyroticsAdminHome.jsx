@@ -16,14 +16,12 @@ import {
   Fab,
 } from "@mui/material";
 import { CalendarToday } from "@mui/icons-material";
-import NavigationIcon from "@mui/icons-material/Navigation";
 import { exportToExcel } from "../../utils/exportExcel";
 import KyroSidebar from "../../components/Kyrotics/KyroSidebar";
 import Report from "../Report";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { Description, Dashboard } from '@mui/icons-material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import ReplyIcon from '@mui/icons-material/Reply';
 
 const defaultStartDate = new Date();
 defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
@@ -139,15 +137,16 @@ const KyroAdminHome = ({ companyId, role }) => {
         >
           {showDetailedReport ? (
             <>
-              <Visibility className="mr-2" />
+              <ReplyIcon className="mr-2" />
               {/* <Dashboard className="mr-2" /> */}
               Project Overview
             </>
           ) : (
             <>
-              <VisibilityOff className="mr-2" />
+              
               {/* <Description className="mr-2" /> */}
               Detailed Report
+              <ReplyIcon className="ml-2 scale-x-[-1]"  />
             </>
           )}
         </button>
@@ -287,6 +286,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                       <DatePicker
                         selected={startDate}
                         onChange={(date) => setStartDate(date)}
+                        dateFormat="dd/MM/yyyy"
                         className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md transition-all duration-200"
                       />
                     </div>
@@ -299,6 +299,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                       <DatePicker
                         selected={endDate}
                         onChange={(date) => setEndDate(date)}
+                        dateFormat="dd/MM/yyyy"
                         className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md transition-all duration-200"
                       />
                     </div>

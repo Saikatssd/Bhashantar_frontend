@@ -16,11 +16,11 @@ import MuiTable from "@mui/material/Table";
 //   return date.toString() !== 'Invalid Date' ? date.toLocaleDateString() : 'Invalid Date';
 // };
 
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return !isNaN(date.getTime()) ? date.toLocaleDateString() : 'Invalid Date';
-};
+// const formatDate = (dateString) => {
+//   if (!dateString) return 'N/A';
+//   const date = new Date(dateString);
+//   return !isNaN(date.getTime()) ? date.toLocaleDateString() : 'Invalid Date';
+// };
 
 const calculateTotalPages = (rows) => {
   return rows.reduce((total, row) => {
@@ -96,11 +96,7 @@ function TableUpload({
                                 Delete
                               </Button>
                             </div>
-                           ) : column.id.endsWith('Date') && value ? (
-                            formatDate(value)
-                        ) : (
-                            value
-                        )}
+                           ) : value}
                         </TableCell>
                       );
                     })}
