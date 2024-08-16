@@ -18,7 +18,7 @@ import {
 import { CalendarToday } from "@mui/icons-material";
 import { exportToExcel } from "../../utils/exportExcel";
 import KyroSidebar from "../../components/Kyrotics/KyroSidebar";
-import Report from "../Report";
+import DetailedFileReport from "../../components/reports/DetailedFileReport";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ReplyIcon from '@mui/icons-material/Reply';
@@ -129,9 +129,9 @@ const KyroAdminHome = ({ companyId, role }) => {
 
         <button
           className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${showDetailedReport
-              ? 'bg-gradient-to-l from-blue-500 to-purple-500'
-              // : 'bg-green-500 border border-green-700'
-              : 'bg-gradient-to-r from-blue-500 to-purple-500'
+            ? 'bg-gradient-to-l from-blue-500 to-purple-500'
+            // : 'bg-green-500 border border-green-700'
+            : 'bg-gradient-to-r from-blue-500 to-purple-500'
             }`}
           onClick={toggleReport}
         >
@@ -143,17 +143,17 @@ const KyroAdminHome = ({ companyId, role }) => {
             </>
           ) : (
             <>
-              
+
               {/* <Description className="mr-2" /> */}
               Detailed Report
-              <ReplyIcon className="ml-2 scale-x-[-1]"  />
+              <ReplyIcon className="ml-2 scale-x-[-1]" />
             </>
           )}
         </button>
 
         {showDetailedReport ? (
           <div className="p-8 w-full">
-            <Report />
+            <DetailedFileReport />
           </div>
         ) : (
           <div className="p-8 w-full">
@@ -325,7 +325,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                               Sl No
                             </th>
                             <th className="whitespace-nowrap px-6 py-2 font-medium">
-                            Delivered Date
+                              Delivered Date
                             </th>
                             <th className="whitespace-nowrap px-6 py-2 font-medium">
                               File Count

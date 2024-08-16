@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import {
   fetchAllCompanies,
   fetchDetailedFileReport,
-} from "../utils/firestoreUtil";
-import { formatDate } from "../utils/formatDate";
-import { exportToExcel } from "../utils/exportExcel";
+} from "../../utils/firestoreUtil";
+import { formatDate } from "../../utils/formatDate";
+import { exportToExcel } from "../../utils/exportExcel";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import {
@@ -50,7 +50,7 @@ const statusMapping = {
   8: "Delivered",
 };
 
-const Report = () => {
+const DetailedFileReport = () => {
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [fileDetails, setFileDetails] = useState([]);
@@ -367,4 +367,4 @@ const Report = () => {
   );
 };
 
-export default Report;
+export default DetailedFileReport;

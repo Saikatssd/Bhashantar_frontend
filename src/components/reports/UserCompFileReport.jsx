@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button, TextField, FormControl, InputLabel, Select, MenuItem, Collapse, IconButton } from '@mui/material';
-import { fetchAllCompanies, fetchCompanyProjects, fetchProjectFiles, fetchUserNameById } from '../utils/firestoreUtil';
-import { formatDate } from '../utils/formatDate';
+import { fetchAllCompanies, fetchCompanyProjects, fetchProjectFiles, fetchUserNameById } from '../../utils/firestoreUtil';
+import { formatDate } from '../../utils/formatDate';
 import FilterAltRoundedIcon from '@mui/icons-material/FilterAltRounded';
-import { exportToExcel } from '../utils/exportExcel';
+import { exportToExcel } from '../../utils/exportExcel';
 
-const FileReportUser = () => {
+const UserCompFileReport = () => {
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [projects, setProjects] = useState([]);
@@ -184,4 +184,4 @@ const FileReportUser = () => {
   );
 };
 
-export default FileReportUser;
+export default UserCompFileReport;

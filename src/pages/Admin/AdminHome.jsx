@@ -21,7 +21,7 @@ import { CalendarToday } from "@mui/icons-material";
 import NavigationIcon from "@mui/icons-material/Navigation";
 import { exportToExcel } from "../../utils/exportExcel";
 import KyroSidebar from "../../components/Kyrotics/KyroSidebar";
-import Report from "../Report";
+import Report from "../../components/reports/DetailedFileReport";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { Description, Dashboard } from '@mui/icons-material';

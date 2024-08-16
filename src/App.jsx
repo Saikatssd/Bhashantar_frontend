@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { auth } from './utils/firebase';
-import Login from './pages/Login';
+import Login from './pages/auth/Login';
 import DashboardWrapper from './components/DashboardWrapper';
 import FileStatusManager from './components/FileStatusManager';
-import KyroInstance from './components/KyroInstance';
-import CompanyInstance from './components/CompanyInstance';
+import KyroInstance from './components/Kyrotics/KyroInstance';
+import CompanyInstance from './components/ClientCompany/CompanyInstance';
 import Editor from './components/Editor';
 import UserWorkspace from './components/ClientCompany/UserFileFlow';
 import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
-import PrivateRoute from './components/PrivateRoute';
-import Report from './pages/Report';
-import UserReport from './pages/UserReport';
-import FileReportUser from './pages/FileReportUser';
+import PrivateRoute from './components/common/PrivateRoute';
+import FileReportUser from './components/reports/UserCompFileReport';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -44,19 +42,19 @@ const App = () => {
     <AuthProvider>
       <Router>
         <Routes>
-        <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<Navigate to="/" />} />
           <Route path="/" element={<Login />} />
-          <Route path="/report" element={<FileReportUser/>} />
+          <Route path="/report" element={<FileReportUser />} />
           <Route path="/home" element={
-            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'superAdmin','QA']}>
+            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'superAdmin', 'QA']}>
               <DashboardWrapper />
             </PrivateRoute>} />
           <Route path="/kyro/:companyId/*" element={
-            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin','superAdmin','QA']}>
+            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'superAdmin', 'QA']}>
               <KyroInstance role={role} />
             </PrivateRoute>} />
           <Route path="/company/:companyId/*" element={
-            <PrivateRoute user={user} role={role} allowedRoles={['user','admin','superAdmin']}>
+            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'superAdmin']}>
               <CompanyInstance role={role} />
             </PrivateRoute>} />
           <Route path="/editor/:projectId/:documentId" element={
@@ -68,7 +66,7 @@ const App = () => {
               <UserWorkspace />
             </PrivateRoute>} />
           <Route path="/status" element={
-            <PrivateRoute user={user} role={role} allowedRoles={['admin','superAdmin']}>
+            <PrivateRoute user={user} role={role} allowedRoles={['admin', 'superAdmin']}>
               <FileStatusManager />
             </PrivateRoute>} />
         </Routes>

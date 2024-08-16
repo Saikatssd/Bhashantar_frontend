@@ -4,7 +4,7 @@ import {
   fetchProjectFiles,
   fetchUserNameById,
   fetchAllCompanies,
-} from "../utils/firestoreUtil";
+} from "../../utils/firestoreUtil";
 import {
   MenuItem,
   IconButton,
@@ -16,10 +16,10 @@ import {
   InputLabel,
 } from "@mui/material";
 
-import { exportToExcel } from "../utils/exportExcel";
+import { exportToExcel } from "../../utils/exportExcel";
 import FilterAltRoundedIcon from "@mui/icons-material/FilterAltRounded";
 import ReplyIcon from "@mui/icons-material/Reply";
-import FileReportUser from "./FileReportUser";
+import UserCompFileReport from "./UserCompFileReport";
 
 const UserReport = () => {
   const [companies, setCompanies] = useState([]);
@@ -162,9 +162,9 @@ const UserReport = () => {
     <div className="container mx-auto p-4">
       <button
         className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${showDetailedReport
-            ? "bg-gradient-to-l from-blue-500 to-purple-500"
-            : // : 'bg-green-500 border border-green-700'
-            "bg-gradient-to-r from-blue-500 to-purple-500"
+          ? "bg-gradient-to-l from-blue-500 to-purple-500"
+          : // : 'bg-green-500 border border-green-700'
+          "bg-gradient-to-r from-blue-500 to-purple-500"
           }`}
         onClick={toggleReport}
       >
@@ -184,7 +184,7 @@ const UserReport = () => {
       </button>
       {showDetailedReport ? (
         <div className="w-full">
-          <FileReportUser />
+          <UserCompFileReport />
         </div>
       ) : (
         <div className="p-4">
