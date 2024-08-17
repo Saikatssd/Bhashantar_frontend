@@ -248,11 +248,11 @@ const ProjectList = () => {
       {isLoading && <p>Loading projects...</p>}
       {error && <p>Error fetching projects: {error.message}</p>}
       {!isLoading && !error && (
-        <div className="flex flex-wrap gap-10">
+        <div className="flex flex-wrap gap-20">
           {projects.map((project) => (
             <div key={project.id} className="relative flex flex-col items-center">
-              <Link to={`/company/${companyId}/project/${project.id}`}>
-                <FolderIcon color="info" sx={{ fontSize: 130 }} className='hover:text-sky-500 hover:scale-110 transition ease-in duration-300' />
+              <Link to={`/company/${companyId}/project/${project.id}`} className='flex flex-col items-center'>
+                <FolderIcon color="info" sx={{ fontSize: 130 }} className='hover:text-sky-500 hover:scale-110 transition ease-in duration-300'  />
                 <div className="text-center text-lg font-medium mt-2">
                   {project.name}
                 </div>

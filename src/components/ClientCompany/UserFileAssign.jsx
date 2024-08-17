@@ -83,7 +83,7 @@ const UserFileAssign = () => {
 
   const handleFileAssign = async (id) => {
     try {
-      await updateFileStatus(projectId, id, { status: 6, client_assignedTo: currentUser.uid, client_assignedDate: new Date().toISOString() });
+      await updateFileStatus(projectId, id, { status: 6, client_assignedTo: currentUser.uid, client_assignedDate: formatDate(new Date()) });
 
       // await updateFileStatus(projectId, id, 5, currentUser.uid);
       setFiles(files.filter(file => file.id !== id));

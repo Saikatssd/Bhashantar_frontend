@@ -10,7 +10,7 @@ import { auth } from '../../utils/firebase';
 import { useNavigate, useParams } from 'react-router-dom';
 import Table from '../../components/Table/Table';
 import KyroCompletedTable from '../../components/Table/KyroCompletedTable';
-
+import {formatDate} from '../../utils/formatDate'
 
 
 
@@ -124,7 +124,7 @@ const QAWorkspace = () => {
     const handleSendSelected = async () => {
         for (const fileId of selectedRows) {
             // await updateFileStatus(projectId, fileId, { status: 5, kyro_completedDate: new Date().toISOString() });
-            await updateFileStatus(projectId, fileId, { status: 5, kyro_deliveredDate: new Date().toISOString() });
+            await updateFileStatus(projectId, fileId, { status: 5, kyro_deliveredDate: formatDate(new Date()) });
             // setCompletedFiles(files.filter(file => file.id !== fileId));
         }
         setSelectedRows([]);
@@ -160,7 +160,7 @@ const QAWorkspace = () => {
         <Box>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs example" centered>
-                    <Tab label="Completed" />
+                    <Tab label="Completed(Q.A)" />
                     <Tab label="Delivered" />
                 </Tabs>
             </Box>

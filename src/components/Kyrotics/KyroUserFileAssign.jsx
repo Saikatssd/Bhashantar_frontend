@@ -5,6 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { auth } from '../../utils/firebase';
 import { useAuth } from '../../context/AuthContext';
 import UserTable from '../Table/UserTable';
+import {formatDate} from '../../utils/formatDate'
 
 const KyroUserFileAssign = () => {
     const { projectId } = useParams();
@@ -72,7 +73,7 @@ const KyroUserFileAssign = () => {
             // updateFileStatus('projectId', 'fileId', { status: 'in-progress', kyro_assignedTo: 'userId' });
 
             // await updateFileStatus(projectId, id, 3, currentUser.uid);
-            await updateFileStatus(projectId, id, { status: 3, kyro_assignedTo: currentUser.uid, kyro_assignedDate: new Date().toISOString() });
+            await updateFileStatus(projectId, id, { status: 3, kyro_assignedTo: currentUser.uid, kyro_assignedDate: formatDate(new Date()) });
             setFiles(files.filter(file => file.id !== id));
         } catch (err) {
             console.error('Error updating file status:', err);

@@ -29,6 +29,7 @@ const UploadDocument = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const { currentUser } = useAuth();
+  const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
     const fetchProjects = async () => {
