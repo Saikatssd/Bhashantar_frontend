@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   fetchAllCompanies,
   fetchDetailedFileReport,
@@ -26,6 +26,10 @@ import {
   TextField,
 } from "@mui/material";
 import FilterAltRoundedIcon from '@mui/icons-material/FilterAltRounded';
+import { parse, format, isValid } from 'date-fns';
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const columns = [
   { id: "slNo", label: "Sl No", minWidth: 10 },
@@ -49,6 +53,12 @@ const statusMapping = {
   7: "Delivered",
   8: "Delivered",
 };
+
+
+// const date1 = parse('28/08/2024', 'dd/MM/yyyy', new Date());
+// console.log(date1)
+// console.log(new Date())
+
 
 const DetailedFileReport = () => {
   const [companies, setCompanies] = useState([]);
@@ -102,61 +112,123 @@ const DetailedFileReport = () => {
     applyFilters();
   }, [filters, fileDetails]);
 
-  const applyFilters = () => {
+  // const applyFilters = () => {
+  //   const filtered = fileDetails.filter((file) => {
+  //     const assignedDate = new Date(file.assignedDate);
+  //     const deliveryDate = new Date(file.deliveryDate);
+  //     const assignedStartDate = filters.assignedStartDate
+  //       ? new Date(filters.assignedStartDate)
+  //       : null;
+  //     const assignedEndDate = filters.assignedEndDate
+  //       ? new Date(filters.assignedEndDate)
+  //       : null;
+  //     const deliveryStartDate = filters.deliveryStartDate
+  //       ? new Date(filters.deliveryStartDate)
+  //       : null;
+  //     const deliveryEndDate = filters.deliveryEndDate
+  //       ? new Date(filters.deliveryEndDate)
+  //       : null;
+
+  //     return (
+  //       (filters.searchQuery
+  //         ? file.fileName
+  //           .toLowerCase()
+  //           .includes(filters.searchQuery.toLowerCase()) ||
+  //         file.assigneeName
+  //           .toLowerCase()
+  //           .includes(filters.searchQuery.toLowerCase()) ||
+  //         file.projectName
+  //           .toLowerCase()
+  //           .includes(filters.searchQuery.toLowerCase())
+  //         : true) &&
+  //       (assignedStartDate && assignedEndDate
+  //         ? new Date(assignedDate).setHours(0, 0, 0, 0) >=
+  //         new Date(assignedStartDate).setHours(0, 0, 0, 0) &&
+  //         new Date(assignedDate).setHours(0, 0, 0, 0) <=
+  //         new Date(assignedEndDate).setHours(0, 0, 0, 0)
+  //         : true) &&
+  //       (filters.status
+  //         ? filters.status == 5.5
+  //           ? file.status >= 5
+  //           : file.status === Number(filters.status)
+  //         : true) &&
+  //       (deliveryStartDate && deliveryEndDate
+  //         ? new Date(deliveryDate).setHours(0, 0, 0, 0) >=
+  //         new Date(deliveryStartDate).setHours(0, 0, 0, 0) &&
+  //         new Date(deliveryDate).setHours(0, 0, 0, 0) <=
+  //         new Date(deliveryEndDate).setHours(0, 0, 0, 0)
+  //         : true)
+  //     );
+  //   });
+  //   setFilteredDetails(filtered);
+  // };
+
+
+  const applyFilters = useCallback(() => {
     const filtered = fileDetails.filter((file) => {
-      const assignedDate = new Date(file.assignedDate);
-      const deliveryDate = new Date(file.deliveryDate);
+      // Ensure that file.assignedDate and file.deliveryDate are not null or undefined
+      const assignedDate = file.assignedDate ? parse(file.assignedDate, 'dd/MM/yyyy', new Date()) : null;
+      // console.log(assignedDate)
+      const deliveryDate = file.deliveryDate ? parse(file.deliveryDate, 'dd/MM/yyyy', new Date()) : null;
       const assignedStartDate = filters.assignedStartDate
+        // ? parse(filters.assignedStartDate, 'yyyy-MM-dd', new Date())
         ? new Date(filters.assignedStartDate)
         : null;
+      console.log("assignStartDate",assignedStartDate)
+
       const assignedEndDate = filters.assignedEndDate
-        ? new Date(filters.assignedEndDate)
+        ? parse(filters.assignedEndDate, 'yyyy-MM-dd', new Date())
         : null;
       const deliveryStartDate = filters.deliveryStartDate
-        ? new Date(filters.deliveryStartDate)
+        ? parse(filters.deliveryStartDate, 'yyyy-MM-dd', new Date())
         : null;
       const deliveryEndDate = filters.deliveryEndDate
-        ? new Date(filters.deliveryEndDate)
+        ? parse(filters.deliveryEndDate, 'yyyy-MM-dd', new Date())
         : null;
 
       return (
         (filters.searchQuery
-          ? file.fileName
-            .toLowerCase()
-            .includes(filters.searchQuery.toLowerCase()) ||
-          file.assigneeName
-            .toLowerCase()
-            .includes(filters.searchQuery.toLowerCase()) ||
-          file.projectName
-            .toLowerCase()
-            .includes(filters.searchQuery.toLowerCase())
+          ? file.fileName.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+          file.assigneeName.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+          file.projectName.toLowerCase().includes(filters.searchQuery.toLowerCase())
           : true) &&
-        (assignedStartDate && assignedEndDate
-          ? new Date(assignedDate).setHours(0, 0, 0, 0) >=
-          new Date(assignedStartDate).setHours(0, 0, 0, 0) &&
-          new Date(assignedDate).setHours(0, 0, 0, 0) <=
-          new Date(assignedEndDate).setHours(0, 0, 0, 0)
+        (assignedStartDate && assignedEndDate && assignedDate
+          ? isValid(assignedDate) &&
+          assignedDate >= assignedStartDate &&
+          assignedDate <= assignedEndDate
           : true) &&
         (filters.status
-          ? filters.status == 5.5
+          ? filters.status === "5.5"
             ? file.status >= 5
             : file.status === Number(filters.status)
           : true) &&
-        (deliveryStartDate && deliveryEndDate
-          ? new Date(deliveryDate).setHours(0, 0, 0, 0) >=
-          new Date(deliveryStartDate).setHours(0, 0, 0, 0) &&
-          new Date(deliveryDate).setHours(0, 0, 0, 0) <=
-          new Date(deliveryEndDate).setHours(0, 0, 0, 0)
+        (deliveryStartDate && deliveryEndDate && deliveryDate
+          ? isValid(deliveryDate) &&
+          deliveryDate >= deliveryStartDate &&
+          deliveryDate <= deliveryEndDate
           : true)
       );
     });
     setFilteredDetails(filtered);
-  };
+  }, [filters, fileDetails]);
+
+
+  console.log(filters.assignedStartDate)
+
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
   };
+
+
+  const handleDateFilterChange = (date, name) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: date,
+    }));
+  };
+
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -202,12 +274,7 @@ const DetailedFileReport = () => {
             />
           </div>
           <div className="flex flex-col">
-            {/* <label
-                  className="text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="status"
-                >
-                  Status
-                </label> */}
+
             <select
               id="status-options"
               value={filters.status}
@@ -262,6 +329,16 @@ const DetailedFileReport = () => {
                   onChange={handleFilterChange}
                   className="block w-full pl-3 pr-3 py-2 border border-dashed border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/30 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
+
+                {/* <DatePicker
+                  name="assignedStartDate"
+                  value={filters.assignedStartDate}
+                  // selected={startDate}
+                  onChange={(date) => handleDateFilterChange(date, 'assignedStartDate')}
+                  dateFormat="dd/MM/yyyy"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md transition-all duration-200"
+                /> */}
+
                 <input
                   type="date"
                   name="assignedEndDate"
