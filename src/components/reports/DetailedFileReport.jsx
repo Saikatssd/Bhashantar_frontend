@@ -25,8 +25,10 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
-import FilterAltRoundedIcon from '@mui/icons-material/FilterAltRounded';
-import { parse, format, isValid } from 'date-fns';
+import FilterAltRoundedIcon from "@mui/icons-material/FilterAltRounded";
+import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
+
+import { parse, format, isValid } from "date-fns";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -43,22 +45,9 @@ const columns = [
   { id: "projectName", label: "Project Name", minWidth: 130 },
 ];
 
-const statusMapping = {
-  1: "ML",
-  2: "NotStarted",
-  3: "InProgress",
-  4: "Completed",
-  5: "Delivered",
-  6: "Delivered",
-  7: "Delivered",
-  8: "Delivered",
-};
-
-
 // const date1 = parse('28/08/2024', 'dd/MM/yyyy', new Date());
 // console.log(date1)
 // console.log(new Date())
-
 
 const DetailedFileReport = () => {
   const [companies, setCompanies] = useState([]);
@@ -77,6 +66,18 @@ const DetailedFileReport = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [showFilters, setShowFilters] = useState(false);
+
+  const clearFilters = () => {
+    setFilters({
+      searchQuery: "",
+      assignedStartDate: "",
+      assignedEndDate: "",
+      status: "",
+      deliveryStartDate: "",
+      deliveryEndDate: "",
+    });
+    setShowFilters(false);
+  };
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -112,115 +113,71 @@ const DetailedFileReport = () => {
     applyFilters();
   }, [filters, fileDetails]);
 
-  // const applyFilters = () => {
-  //   const filtered = fileDetails.filter((file) => {
-  //     const assignedDate = new Date(file.assignedDate);
-  //     const deliveryDate = new Date(file.deliveryDate);
-  //     const assignedStartDate = filters.assignedStartDate
-  //       ? new Date(filters.assignedStartDate)
-  //       : null;
-  //     const assignedEndDate = filters.assignedEndDate
-  //       ? new Date(filters.assignedEndDate)
-  //       : null;
-  //     const deliveryStartDate = filters.deliveryStartDate
-  //       ? new Date(filters.deliveryStartDate)
-  //       : null;
-  //     const deliveryEndDate = filters.deliveryEndDate
-  //       ? new Date(filters.deliveryEndDate)
-  //       : null;
-
-  //     return (
-  //       (filters.searchQuery
-  //         ? file.fileName
-  //           .toLowerCase()
-  //           .includes(filters.searchQuery.toLowerCase()) ||
-  //         file.assigneeName
-  //           .toLowerCase()
-  //           .includes(filters.searchQuery.toLowerCase()) ||
-  //         file.projectName
-  //           .toLowerCase()
-  //           .includes(filters.searchQuery.toLowerCase())
-  //         : true) &&
-  //       (assignedStartDate && assignedEndDate
-  //         ? new Date(assignedDate).setHours(0, 0, 0, 0) >=
-  //         new Date(assignedStartDate).setHours(0, 0, 0, 0) &&
-  //         new Date(assignedDate).setHours(0, 0, 0, 0) <=
-  //         new Date(assignedEndDate).setHours(0, 0, 0, 0)
-  //         : true) &&
-  //       (filters.status
-  //         ? filters.status == 5.5
-  //           ? file.status >= 5
-  //           : file.status === Number(filters.status)
-  //         : true) &&
-  //       (deliveryStartDate && deliveryEndDate
-  //         ? new Date(deliveryDate).setHours(0, 0, 0, 0) >=
-  //         new Date(deliveryStartDate).setHours(0, 0, 0, 0) &&
-  //         new Date(deliveryDate).setHours(0, 0, 0, 0) <=
-  //         new Date(deliveryEndDate).setHours(0, 0, 0, 0)
-  //         : true)
-  //     );
-  //   });
-  //   setFilteredDetails(filtered);
-  // };
-
-
   const applyFilters = useCallback(() => {
     const filtered = fileDetails.filter((file) => {
       // Ensure that file.assignedDate and file.deliveryDate are not null or undefined
-      const assignedDate = file.assignedDate ? parse(file.assignedDate, 'dd/MM/yyyy', new Date()) : null;
-      // console.log(assignedDate)
-      const deliveryDate = file.deliveryDate ? parse(file.deliveryDate, 'dd/MM/yyyy', new Date()) : null;
-      const assignedStartDate = filters.assignedStartDate
-        // ? parse(filters.assignedStartDate, 'yyyy-MM-dd', new Date())
-        ? new Date(filters.assignedStartDate)
+      const assignedDate = file.assignedDate
+        ? parse(file.assignedDate, "dd/MM/yyyy", new Date())
         : null;
-      console.log("assignStartDate",assignedStartDate)
+      // console.log(assignedDate)
+      const deliveryDate = file.deliveryDate
+        ? parse(file.deliveryDate, "dd/MM/yyyy", new Date())
+        : null;
+      const assignedStartDate = filters.assignedStartDate
+        ? parse(filters.assignedStartDate, "yyyy-MM-dd", new Date())
+        : //? new Date(filters.assignedStartDate)
+          null;
+      console.log("assignStartDate", assignedStartDate);
 
       const assignedEndDate = filters.assignedEndDate
-        ? parse(filters.assignedEndDate, 'yyyy-MM-dd', new Date())
+        ? parse(filters.assignedEndDate, "yyyy-MM-dd", new Date())
         : null;
       const deliveryStartDate = filters.deliveryStartDate
-        ? parse(filters.deliveryStartDate, 'yyyy-MM-dd', new Date())
+        ? parse(filters.deliveryStartDate, "yyyy-MM-dd", new Date())
         : null;
       const deliveryEndDate = filters.deliveryEndDate
-        ? parse(filters.deliveryEndDate, 'yyyy-MM-dd', new Date())
+        ? parse(filters.deliveryEndDate, "yyyy-MM-dd", new Date())
         : null;
 
       return (
         (filters.searchQuery
-          ? file.fileName.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-          file.assigneeName.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-          file.projectName.toLowerCase().includes(filters.searchQuery.toLowerCase())
+          ? file.fileName
+              .toLowerCase()
+              .includes(filters.searchQuery.toLowerCase()) ||
+            file.assigneeName
+              .toLowerCase()
+              .includes(filters.searchQuery.toLowerCase()) ||
+            file.projectName
+              .toLowerCase()
+              .includes(filters.searchQuery.toLowerCase())
           : true) &&
-        (assignedStartDate && assignedEndDate && assignedDate
+        (assignedStartDate && assignedEndDate
           ? isValid(assignedDate) &&
-          assignedDate >= assignedStartDate &&
-          assignedDate <= assignedEndDate
+            assignedDate >= assignedStartDate &&
+            assignedDate <= assignedEndDate
           : true) &&
-        (filters.status
-          ? filters.status === "5.5"
-            ? file.status >= 5
-            : file.status === Number(filters.status)
-          : true) &&
-        (deliveryStartDate && deliveryEndDate && deliveryDate
+        // (filters.status
+        //   ? filters.status == "Delivered"
+        //     ? file.status >= 5
+        //     : file.status == (filters.status)
+        //   : true) &&
+        (filters.status ? file.status == filters.status : true) &&
+        (deliveryStartDate && deliveryEndDate
           ? isValid(deliveryDate) &&
-          deliveryDate >= deliveryStartDate &&
-          deliveryDate <= deliveryEndDate
+            deliveryDate >= deliveryStartDate &&
+            deliveryDate <= deliveryEndDate
           : true)
       );
     });
     setFilteredDetails(filtered);
   }, [filters, fileDetails]);
 
-
-  console.log(filters.assignedStartDate)
-
+  console.log(filters.assignedStartDate);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
   };
-
 
   const handleDateFilterChange = (date, name) => {
     setFilters((prevFilters) => ({
@@ -228,7 +185,6 @@ const DetailedFileReport = () => {
       [name]: date,
     }));
   };
-
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -274,7 +230,6 @@ const DetailedFileReport = () => {
             />
           </div>
           <div className="flex flex-col">
-
             <select
               id="status-options"
               value={filters.status}
@@ -283,12 +238,19 @@ const DetailedFileReport = () => {
               name="status"
               placeholder="Select Status"
             >
-              <option value="">Select Status</option>
+              {/* <option value="">Select Status</option>
               <option value="1">ML</option>
               <option value="2">Ready for Work</option>
               <option value="3">Work in Progress</option>
               <option value="4">Completed</option>
-              <option value="5.5">Delivered</option>
+              <option value="5.5">Delivered</option> */}
+
+              <option value="">Select Status</option>
+              <option value="ML">ML</option>
+              <option value="NotStarted">Ready for Work</option>
+              <option value="InProgress">Work in Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Delivered">Delivered</option>
             </select>
           </div>
           <IconButton onClick={() => setShowFilters(!showFilters)}>
@@ -298,6 +260,13 @@ const DetailedFileReport = () => {
         </div>
 
         <div className="flex space-x-6">
+        <button
+            onClick={clearFilters}
+            className="my-auto py-2 px-3 rounded-3xl bg-[#e3d2fa] hover:bg-[#ffe0e3] hover:shadow-md"
+          >
+            <FilterListOffRoundedIcon className="mr-2" />
+            Clear Filters
+          </button>
           <Button
             variant="outlined"
             onClick={() =>
@@ -306,8 +275,6 @@ const DetailedFileReport = () => {
           >
             Export to XLS
           </Button>
-
-
         </div>
       </div>
 
@@ -412,17 +379,11 @@ const DetailedFileReport = () => {
                     <TableCell align="center">{index + 1}</TableCell>
                     <TableCell>{file.fileName}</TableCell>
                     {/* <TableCell align="center">{file.status}</TableCell> */}
-                    <TableCell>{statusMapping[file.status]}</TableCell>
+                    <TableCell>{file.status}</TableCell>
                     <TableCell align="center">{file.pageCount}</TableCell>
-                    <TableCell align="center">
-                      {file.uploadedDate}
-                    </TableCell>
-                    <TableCell align="center">
-                      {file.assignedDate}
-                    </TableCell>
-                    <TableCell align="center">
-                      {file.deliveryDate}
-                    </TableCell>
+                    <TableCell align="center">{file.uploadedDate}</TableCell>
+                    <TableCell align="center">{file.assignedDate}</TableCell>
+                    <TableCell align="center">{file.deliveryDate}</TableCell>
                     <TableCell>{file.assigneeName}</TableCell>
                     <TableCell>{file.projectName}</TableCell>
                   </TableRow>

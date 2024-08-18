@@ -24,6 +24,7 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { formatDate } from "./formatDate";
+import {parse} from 'date-fns'
 
 import JSZip from "jszip";
 import PizZip from "pizzip";
@@ -633,21 +634,64 @@ export const fetchClientProjectDetails = async (companyId) => {
 
 export const fetchDetailedFileReport = async (companyId) => {
   try {
+
+    const statusLabel = {
+      1: "ML",
+      2: "NotStarted",
+      3: "InProgress",
+      4: "Completed",
+      5: "Delivered",
+      6: "Delivered",
+      7: "Delivered",
+      8: "Delivered",
+    };
+
     const projects = await fetchCompanyProjects(companyId);
     const detailedFileReport = await Promise.all(
       projects.map(async (project) => {
         const files = await fetchProjectFiles(project.id);
-        const filesWithAssigneeNames = await Promise.all(files.map(async (file) => {
-          const assigneeName = file.kyro_assignedTo ? await fetchUserNameById(file.kyro_assignedTo) : 'N/A';
+        const filteredFiles = files.filter((file) => file.status >= 1)
+        const filesWithAssigneeNames = await Promise.all(filteredFiles.map(async (file) => {
+          const assigneeName = file.kyro_assignedTo ? await fetchUserNameById(file.kyro_assignedTo) : '';
           return {
-            projectName: project.name,
             fileName: file.name,
-            status: file.status,
+            status: statusLabel[file.status],
             pageCount: file.pageCount,
             uploadedDate: file.uploadedDate,
             assignedDate: file.kyro_assignedDate,
             deliveryDate: file.kyro_deliveredDate,
             assigneeName,
+            projectName: project.name,
+          };
+        }));
+        return filesWithAssigneeNames;
+      })
+    );
+    return detailedFileReport.flat();
+  } catch (error) {
+    console.error('Error fetching detailed file report:', error);
+    throw new Error('Error fetching detailed file report');
+  }
+};
+
+export const fetchClientDetailedFileReport = async (companyId) => {
+  try {
+    const projects = await fetchCompanyProjects(companyId);
+    const detailedFileReport = await Promise.all(
+      projects.map(async (project) => {
+        const files = await fetchProjectFiles(project.id);
+        const filteredFiles = files.filter((file) => file.status >= 5)
+        const filesWithAssigneeNames = await Promise.all(filteredFiles.map(async (file) => {
+          const assigneeName = file.client_assignedTo ? await fetchUserNameById(file.client_assignedTo) : '';
+          return {
+            fileName: file.name,
+            status: file.status,
+            pageCount: file.pageCount,
+            uploadedDate: file.uploadedDate,
+            assignedDate: file.client_assignedDate,
+            deliveryDate: file.client_downloadedDate,
+            assigneeName,
+            projectName: project.name,
           };
         }));
         return filesWithAssigneeNames;
@@ -670,13 +714,15 @@ export const fetchReportDetails = async (companyId, startDate, endDate) => {
       const files = await fetchProjectFiles(project.id);
 
       const filteredFiles = files.filter((file) => {
-        const completedDate = new Date(file.kyro_deliveredDate);
-        // console.log(file.kyro_completedDate)
-        return completedDate >= startDate && completedDate <= endDate;
+        const deliveredDate = file.kyro_deliveredDate ? parse(file.kyro_deliveredDate, "dd/MM/yyyy", new Date()): null;
+        console.log(deliveredDate);
+        
+        return deliveredDate >= startDate && deliveredDate <= endDate;
       });
 
       const dateMap = filteredFiles.reduce((acc, file) => {
-        const date = new Date(file.kyro_deliveredDate).toLocaleDateString();
+        const date = file.kyro_deliveredDate;
+        console.log(date)
         if (!acc[date]) {
           acc[date] = { date, fileCount: 0, pageCount: 0 };
         }
@@ -695,44 +741,6 @@ export const fetchReportDetails = async (companyId, startDate, endDate) => {
   }
 };
 
-export const fetchClientReportDetails = async (companyId, startDate, endDate) => {
-  try {
-    const projects = await fetchCompanyProjects(companyId);
-    const allDetails = [];
-
-    // Ensure startDate and endDate are properly formatted as Date objects
-    startDate = new Date(startDate);
-    endDate = new Date(endDate);
-
-    for (const project of projects) {
-      const files = await fetchProjectFiles(project.id);
-
-      const filteredFiles = files.filter((file) => {
-        const completedDate = new Date(file.client_completedDate);
-        return completedDate >= startDate && completedDate <= endDate;
-      });
-
-      const dateMap = filteredFiles.reduce((acc, file) => {
-        // Format date to YYYY-MM-DD
-        const date = new Date(file.client_completedDate).toISOString().split('T')[0];
-
-        if (!acc[date]) {
-          acc[date] = { date, fileCount: 0, pageCount: 0 };
-        }
-        acc[date].fileCount += 1;
-        acc[date].pageCount += file.pageCount || 0;
-        return acc;
-      }, {});
-
-      allDetails.push(...Object.values(dateMap));
-    }
-
-    return allDetails;
-  } catch (error) {
-    console.error("Error fetching report details:", error);
-    throw new Error("Error fetching report details");
-  }
-};
 
 // --- Company Operations ---
 

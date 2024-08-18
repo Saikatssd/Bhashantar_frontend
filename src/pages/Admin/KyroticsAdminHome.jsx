@@ -21,7 +21,8 @@ import KyroSidebar from "../../components/Kyrotics/KyroSidebar";
 import DetailedFileReport from "../../components/reports/DetailedFileReport";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import ReplyIcon from '@mui/icons-material/Reply';
+import ReplyIcon from "@mui/icons-material/Reply";
+import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
 
 const defaultStartDate = new Date();
 defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
@@ -32,12 +33,21 @@ const KyroAdminHome = ({ companyId, role }) => {
   const [projectDetails, setProjectDetails] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [reportDetails, setReportDetails] = useState([]);
-  const [startDate, setStartDate] = useState(defaultStartDate);
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(
+    defaultStartDate.setHours(0, 0, 0, 0)
+  );
+  console.log(startDate);
+  const [endDate, setEndDate] = useState(new Date().setHours(0, 0, 0, 0));
+  console.log(endDate);
   const [showDetailedReport, setShowDetailedReport] = useState(false);
 
   const toggleReport = () => {
     setShowDetailedReport(!showDetailedReport);
+  };
+
+  const clearFilters = () => {
+    setStartDate(defaultStartDate.setHours(0, 0, 0, 0));
+    setEndDate(new Date().setHours(0, 0, 0, 0));
   };
 
   useEffect(() => {
@@ -105,34 +115,19 @@ const KyroAdminHome = ({ companyId, role }) => {
 
   return (
     <div className="flex w-screen">
-      {role == 'admin' && (<>
-        <KyroSidebar companyId={companyId} role={"admin"} />
-      </>)}
+      {role == "admin" && (
+        <>
+          <KyroSidebar companyId={companyId} role={"admin"} />
+        </>
+      )}
       <div className="p-2 h-screen w-full overflow-y-auto">
-
-        {/* <button
-          className="fixed animate-bounce right-6 top-11 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer"
-          onClick={toggleReport}
-        >
-          {showDetailedReport ? (
-            <>
-              <Dashboard className="mr-2" />
-              Project Overview
-            </>
-          ) : (
-            <>
-              <Description className="mr-2" />
-              Detailed Report
-            </>
-          )}
-        </button> */}
-
         <button
-          className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${showDetailedReport
-            ? 'bg-gradient-to-l from-blue-500 to-purple-500'
-            // : 'bg-green-500 border border-green-700'
-            : 'bg-gradient-to-r from-blue-500 to-purple-500'
-            }`}
+          className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${
+            showDetailedReport
+              ? "bg-gradient-to-l from-blue-500 to-purple-500"
+              : // : 'bg-green-500 border border-green-700'
+                "bg-gradient-to-r from-blue-500 to-purple-500"
+          }`}
           onClick={toggleReport}
         >
           {showDetailedReport ? (
@@ -143,7 +138,6 @@ const KyroAdminHome = ({ companyId, role }) => {
             </>
           ) : (
             <>
-
               {/* <Description className="mr-2" /> */}
               Detailed Report
               <ReplyIcon className="ml-2 scale-x-[-1]" />
@@ -303,7 +297,14 @@ const KyroAdminHome = ({ companyId, role }) => {
                         className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md transition-all duration-200"
                       />
                     </div>
-                    <div className="mt-4 my-auto">
+                    <div className="mt-4 my-auto flex flex-col gap-4">
+                      <button
+                        onClick={clearFilters}
+                        className="my-auto py-2 rounded-3xl bg-[#e3d2fa] hover:bg-[#ffe0e3] hover:shadow-md"
+                      >
+                        <FilterListOffRoundedIcon className="mr-2"/>
+                        Clear Filters
+                      </button>
                       <Button
                         variant="outlined"
                         onClick={() =>

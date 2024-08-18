@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   fetchAllCompanies,
-  fetchDetailedFileReport,
+  fetchClientDetailedFileReport,
 } from "../../utils/firestoreUtil";
 import { formatDate } from "../../utils/formatDate";
 import { exportToExcel } from "../../utils/exportExcel";
@@ -25,7 +25,13 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
-import FilterAltRoundedIcon from '@mui/icons-material/FilterAltRounded';
+import FilterAltRoundedIcon from "@mui/icons-material/FilterAltRounded";
+import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
+
+import { parse, format, isValid } from "date-fns";
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const columns = [
   { id: "slNo", label: "Sl No", minWidth: 10 },
@@ -34,25 +40,15 @@ const columns = [
   { id: "pageCount", label: "Page Count", minWidth: 70 },
   { id: "uploadedDate", label: "Uploaded Date", minWidth: 90 },
   { id: "assignedDate", label: "Assigned Date", minWidth: 130 },
-  { id: "deliveryDate", label: "Delivery Date", minWidth: 130 },
+  { id: "deliveryDate", label: "Downloaded Date", minWidth: 130 },
   { id: "assigneeName", label: "Assignee Name", minWidth: 130 },
   { id: "projectName", label: "Project Name", minWidth: 130 },
 ];
 
-const statusMapping = {
-  1: "ML",
-  2: "NotStarted",
-  3: "InProgress",
-  4: "Completed",
-  5: "Delivered",
-  6: "Delivered",
-  7: "Delivered",
-  8: "Delivered",
-};
-
-const ClientFileDetailedReport = ({companyId}) => {
-//   const [companies, setCompanies] = useState([]);
-//   const [companyId, setcompanyId] = useState("");
+// const date1 = parse('28/08/2024', 'dd/MM/yyyy', new Date());
+// console.log(date1)
+// console.log(new Date())
+const ClientFileDetailedReport = ({ companyId }) => {
   const [fileDetails, setFileDetails] = useState([]);
   const [filteredDetails, setFilteredDetails] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,13 +65,24 @@ const ClientFileDetailedReport = ({companyId}) => {
   const [showFilters, setShowFilters] = useState(false);
 
 
+  const clearFilters = () => {
+    setFilters({
+      searchQuery: "",
+      assignedStartDate: "",
+      assignedEndDate: "",
+      status: "",
+      deliveryStartDate: "",
+      deliveryEndDate: "",
+    });
+    setShowFilters(false);
+  };
 
   useEffect(() => {
     if (companyId) {
       const fetchDetails = async () => {
         setIsLoading(true);
         try {
-          const details = await fetchDetailedFileReport(companyId);
+          const details = await fetchClientDetailedFileReport(companyId);
           setFileDetails(details);
           setFilteredDetails(details);
         } catch (error) {
@@ -92,60 +99,77 @@ const ClientFileDetailedReport = ({companyId}) => {
     applyFilters();
   }, [filters, fileDetails]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     const filtered = fileDetails.filter((file) => {
-      const assignedDate = new Date(file.assignedDate);
-      const deliveryDate = new Date(file.deliveryDate);
-      const assignedStartDate = filters.assignedStartDate
-        ? new Date(filters.assignedStartDate)
+      // Ensure that file.assignedDate and file.deliveryDate are not null or undefined
+      const assignedDate = file.assignedDate
+        ? parse(file.assignedDate, "dd/MM/yyyy", new Date())
         : null;
+      // console.log(assignedDate)
+      const deliveryDate = file.deliveryDate
+        ? parse(file.deliveryDate, "dd/MM/yyyy", new Date())
+        : null;
+      const assignedStartDate = filters.assignedStartDate
+        ? parse(filters.assignedStartDate, "yyyy-MM-dd", new Date())
+        : //? new Date(filters.assignedStartDate)
+          null;
+      console.log("assignStartDate", assignedStartDate);
+
       const assignedEndDate = filters.assignedEndDate
-        ? new Date(filters.assignedEndDate)
+        ? parse(filters.assignedEndDate, "yyyy-MM-dd", new Date())
         : null;
       const deliveryStartDate = filters.deliveryStartDate
-        ? new Date(filters.deliveryStartDate)
+        ? parse(filters.deliveryStartDate, "yyyy-MM-dd", new Date())
         : null;
       const deliveryEndDate = filters.deliveryEndDate
-        ? new Date(filters.deliveryEndDate)
+        ? parse(filters.deliveryEndDate, "yyyy-MM-dd", new Date())
         : null;
 
       return (
         (filters.searchQuery
           ? file.fileName
-            .toLowerCase()
-            .includes(filters.searchQuery.toLowerCase()) ||
-          file.assigneeName
-            .toLowerCase()
-            .includes(filters.searchQuery.toLowerCase()) ||
-          file.projectName
-            .toLowerCase()
-            .includes(filters.searchQuery.toLowerCase())
+              .toLowerCase()
+              .includes(filters.searchQuery.toLowerCase()) ||
+            file.assigneeName
+              .toLowerCase()
+              .includes(filters.searchQuery.toLowerCase()) ||
+            file.projectName
+              .toLowerCase()
+              .includes(filters.searchQuery.toLowerCase())
           : true) &&
         (assignedStartDate && assignedEndDate
-          ? new Date(assignedDate).setHours(0, 0, 0, 0) >=
-          new Date(assignedStartDate).setHours(0, 0, 0, 0) &&
-          new Date(assignedDate).setHours(0, 0, 0, 0) <=
-          new Date(assignedEndDate).setHours(0, 0, 0, 0)
+          ? isValid(assignedDate) &&
+            assignedDate >= assignedStartDate &&
+            assignedDate <= assignedEndDate
           : true) &&
-        (filters.status
-          ? filters.status == 5.5
-            ? file.status >= 5
-            : file.status === Number(filters.status)
-          : true) &&
+        // (filters.status
+        //   ? filters.status == "Delivered"
+        //     ? file.status >= 5
+        //     : file.status == (filters.status)
+        //   : true) &&
+        (filters.status ? file.status == filters.status : true) &&
         (deliveryStartDate && deliveryEndDate
-          ? new Date(deliveryDate).setHours(0, 0, 0, 0) >=
-          new Date(deliveryStartDate).setHours(0, 0, 0, 0) &&
-          new Date(deliveryDate).setHours(0, 0, 0, 0) <=
-          new Date(deliveryEndDate).setHours(0, 0, 0, 0)
+          ? isValid(deliveryDate) &&
+            deliveryDate >= deliveryStartDate &&
+            deliveryDate <= deliveryEndDate
           : true)
       );
     });
     setFilteredDetails(filtered);
-  };
+  }, [filters, fileDetails]);
+
+  console.log(filters.assignedStartDate);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+  };
+
+  const handleDateFilterChange = (date, name) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: date,
+    }));
   };
 
   const handleChangePage = (event, newPage) => {
@@ -159,23 +183,7 @@ const ClientFileDetailedReport = ({companyId}) => {
 
   return (
     <div className="p-4">
-      {/* <FormControl sx={{ width: "30%" }}>
-        <InputLabel id="select-company-label">Select Company</InputLabel>
-        <Select
-          labelId="select-company-label"
-          id="select-company"
-          value={companyId}
-          label="Select a Company"
-          onChange={(e) => setcompanyId(e.target.value)}
-        >
-          {companies.map((company) => (
-            <MenuItem key={company.id} value={company.id}>
-              {company.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl> */}
-
+      <div className="text-3xl font-bold p-4"><h1 >Detailed File Overview</h1></div>
       <div className="flex justify-between pb-4 mt-10">
         <div className="flex gap-6 ">
           <div className="relative w-60">
@@ -192,12 +200,6 @@ const ClientFileDetailedReport = ({companyId}) => {
             />
           </div>
           <div className="flex flex-col">
-            {/* <label
-                  className="text-gray-700 text-sm font-bold mb-2"
-                  htmlFor="status"
-                >
-                  Status
-                </label> */}
             <select
               id="status-options"
               value={filters.status}
@@ -206,12 +208,19 @@ const ClientFileDetailedReport = ({companyId}) => {
               name="status"
               placeholder="Select Status"
             >
-              <option value="">Select Status</option>
+              {/* <option value="">Select Status</option>
               <option value="1">ML</option>
               <option value="2">Ready for Work</option>
               <option value="3">Work in Progress</option>
               <option value="4">Completed</option>
-              <option value="5.5">Delivered</option>
+              <option value="5.5">Delivered</option> */}
+
+              <option value="">Select Status</option>
+              <option value="ML">ML</option>
+              <option value="NotStarted">Ready for Work</option>
+              <option value="InProgress">Work in Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Delivered">Delivered</option>
             </select>
           </div>
           <IconButton onClick={() => setShowFilters(!showFilters)}>
@@ -221,6 +230,13 @@ const ClientFileDetailedReport = ({companyId}) => {
         </div>
 
         <div className="flex space-x-6">
+          <button
+            onClick={clearFilters}
+            className="my-auto py-2 px-3 rounded-3xl bg-[#e3d2fa] hover:bg-[#ffe0e3] hover:shadow-md"
+          >
+            <FilterListOffRoundedIcon className="mr-2" />
+            Clear Filters
+          </button>
           <Button
             variant="outlined"
             onClick={() =>
@@ -229,8 +245,6 @@ const ClientFileDetailedReport = ({companyId}) => {
           >
             Export to XLS
           </Button>
-
-
         </div>
       </div>
 
@@ -252,6 +266,16 @@ const ClientFileDetailedReport = ({companyId}) => {
                   onChange={handleFilterChange}
                   className="block w-full pl-3 pr-3 py-2 border border-dashed border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/30 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
+
+                {/* <DatePicker
+                  name="assignedStartDate"
+                  value={filters.assignedStartDate}
+                  // selected={startDate}
+                  onChange={(date) => handleDateFilterChange(date, 'assignedStartDate')}
+                  dateFormat="dd/MM/yyyy"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md transition-all duration-200"
+                /> */}
+
                 <input
                   type="date"
                   name="assignedEndDate"
@@ -325,17 +349,11 @@ const ClientFileDetailedReport = ({companyId}) => {
                     <TableCell align="center">{index + 1}</TableCell>
                     <TableCell>{file.fileName}</TableCell>
                     {/* <TableCell align="center">{file.status}</TableCell> */}
-                    <TableCell>{statusMapping[file.status]}</TableCell>
+                    <TableCell>{file.status}</TableCell>
                     <TableCell align="center">{file.pageCount}</TableCell>
-                    <TableCell align="center">
-                      {formatDate(file.uploadedDate)}
-                    </TableCell>
-                    <TableCell align="center">
-                      {formatDate(file.assignedDate)}
-                    </TableCell>
-                    <TableCell align="center">
-                      {formatDate(file.deliveryDate)}
-                    </TableCell>
+                    <TableCell align="center">{file.uploadedDate}</TableCell>
+                    <TableCell align="center">{file.assignedDate}</TableCell>
+                    <TableCell align="center">{file.deliveryDate}</TableCell>
                     <TableCell>{file.assigneeName}</TableCell>
                     <TableCell>{file.projectName}</TableCell>
                   </TableRow>
