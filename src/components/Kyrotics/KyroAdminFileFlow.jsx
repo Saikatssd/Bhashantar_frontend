@@ -188,16 +188,16 @@ const KyroAdminFileFlow = () => {
   };
 
 
-  const handleAssignSelected = async () => {
-    for (const fileId of selectedRows) {
-      await updateFileStatus(projectId, fileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: formatDate(new Date()) });
-    }
-    setSelectedRows([]);
-    const updatedFiles = await fetchProjectFiles(projectId);
-    setFiles(updatedFiles);
-    navigate(-1);
+  // const handleAssignSelected = async () => {
+  //   for (const fileId of selectedRows) {
+  //     await updateFileStatus(projectId, fileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: formatDate(new Date()) });
+  //   }
+  //   setSelectedRows([]);
+  //   const updatedFiles = await fetchProjectFiles(projectId);
+  //   setFiles(updatedFiles);
+  //   navigate(-1);
 
-  };
+  // };
 
   const handleSendSelected = async () => {
     for (const fileId of selectedRows) {
@@ -207,7 +207,7 @@ const KyroAdminFileFlow = () => {
     setSelectedRows([]);
     const updatedFiles = await fetchProjectFiles(projectId);
     setFiles(updatedFiles);
-    navigate(-1);
+    navigate(1);
 
   };
 

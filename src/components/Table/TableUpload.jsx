@@ -9,11 +9,11 @@ import TablePagination from "@mui/material/TablePagination";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import MuiTable from "@mui/material/Table";
-
+import Checkbox from "@mui/material/Checkbox";
 
 const calculateTotalPages = (rows) => {
   return rows.reduce((total, row) => {
-      return total + (row.pageCount || 0);
+    return total + (row.pageCount || 0);
   }, 0);
 };
 
@@ -26,8 +26,45 @@ function TableUpload({
   handleChangePage,
   handleChangeRowsPerPage,
   handleEditClick,
+  selectedRows,
+  setSelectedRows,
+  handleDeleteSelected,
   projectName,
 }) {
+
+  // const handleCheckboxClick = (event, id) => {
+  //   if (event.target.checked) {
+  //     setSelectedRows([...selectedRows, id]);
+  //   } else {
+  //     setSelectedRows(selectedRows.filter(rowId => rowId !== id));
+  //   }
+  // };
+  // const handleBulkDelete = async (selectedRows) => {
+  //   try {
+  //     // setIsLoading(true);
+  //     for (const row of selectedRows) {
+  //       await handleEditClick(row.id, row.name);
+  //     }
+  //     setSelectedRows([]); // Clear selected rows after deletion
+  //     // setIsLoading(false);
+  //   } catch (err) {
+  //     console.error("Error during bulk delete:", err);
+  //     // setIsLoading(false);
+  //   }
+  // };
+  
+
+  const handleCheckboxClick = (event, id, name) => {
+    if (event.target.checked) {
+      setSelectedRows([...selectedRows, { id, name }]);
+    } else {
+      setSelectedRows(selectedRows.filter(row => row.id !== id));
+    }
+  };
+  
+  const selectedRowsData = rows.filter(row => selectedRows.includes(row.id));
+  const totalSelectedPages = calculateTotalPages(selectedRowsData);
+
   return (
     <div>
       <h2
@@ -39,15 +76,42 @@ function TableUpload({
         }}
       >
         {projectName}
-       <span className="ml-4 text-lg font-normal text-gray-600">
-            ({rows.length} files, {calculateTotalPages(rows)} pages)
-          </span>
+        <span className="ml-4 text-lg font-normal text-gray-600">
+          ({rows.length} files, {calculateTotalPages(rows)} pages)
+        </span>
       </h2>
+      <div className="flex justify-between items-center mb-4 px-4">
+        {selectedRows.length > 0 && (
+          <span>{selectedRows.length} selected, {totalSelectedPages} pages</span>
+        )}
+        <Button
+          variant="contained"
+          color="warning"
+          onClick={() => { handleDeleteSelected()}}
+          disabled={selectedRows.length === 0}
+        >
+          Delete Selected
+        </Button>
+
+      </div>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer sx={{ maxHeight: 700 }}>
           <MuiTable stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    indeterminate={selectedRows.length > 0 && selectedRows.length < rows.length}
+                    checked={rows.length > 0 && selectedRows.length === rows.length}
+                    onChange={(event) => {
+                      if (event.target.checked) {
+                        setSelectedRows(rows.map((row) => [row.id]));
+                      } else {
+                        setSelectedRows([]);
+                      }
+                    }}
+                  />
+                </TableCell>
                 {columns.map((column) => (
                   <TableCell
                     key={column.id}
@@ -64,6 +128,16 @@ function TableUpload({
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                    <TableCell padding="checkbox">
+                      {/* <Checkbox
+                        checked={selectedRows.includes(row.id)}
+                        onChange={(event) => handleCheckboxClick(event, row.id)}
+                      /> */}
+                      <Checkbox
+                        checked={selectedRows.some(selectedRow => selectedRow.id === row.id)}
+                        onChange={(event) => handleCheckboxClick(event, row.id, row.name)}
+                      />
+                    </TableCell>
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (
@@ -73,7 +147,7 @@ function TableUpload({
                         >
                           {column.id === "edit" ? (
                             <div>
-                             
+
                               <Button
                                 variant="contained"
                                 color="primary"
@@ -85,7 +159,7 @@ function TableUpload({
                                 Delete
                               </Button>
                             </div>
-                           ) : value}
+                          ) : value}
                         </TableCell>
                       );
                     })}
@@ -97,7 +171,7 @@ function TableUpload({
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
-          count={rows.length}
+          count={selectedRows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -123,6 +197,8 @@ TableUpload.propTypes = {
   handleChangePage: PropTypes.func.isRequired,
   handleChangeRowsPerPage: PropTypes.func.isRequired,
   handleEditClick: PropTypes.func,
+  selectedRows: PropTypes.array.isRequired,
+  setSelectedRows: PropTypes.func.isRequired,
   projectName: PropTypes.string.isRequired,
 };
 

@@ -123,9 +123,22 @@ const UploadDocument = () => {
     }
   };
 
+  const handleDeleteSelected = async () => {
+    for (const row of selectedRows) {
+      await handleFileDelete(row.id, row.name);
+    }
+    setSelectedRows([]);
+    // const updatedFiles = await fetchProjectFiles(projectId);
+    // setFiles(updatedFiles);
+
+    navigate(1);
+
+  };
+
   const columns = [
     { id: 'slNo', label: 'Sl. No', minWidth: 50 },
     { id: 'name', label: 'File Name', minWidth: 170 },
+    { id: 'pageCount', label: 'Page Count', minWidth: 100 },
     { id: 'uploadedDate', label: 'Uploaded At', minWidth: 170 },
     { id: 'edit', label: 'Actions', minWidth: 100 },
   ];
@@ -157,8 +170,8 @@ const UploadDocument = () => {
                 className=" cursor-pointer"
                 onClick={() => handleProjectClick(project)}
               >
-              
-                 <FolderIcon color="info" sx={{ fontSize: 130 }} className='hover:text-sky-500 hover:scale-110 ease-in duration-1000' />
+
+                <FolderIcon color="info" sx={{ fontSize: 130 }} className='hover:text-sky-500 hover:scale-110 ease-in duration-1000' />
                 <div className="p-1 text-center">
                   {project.name}
                 </div>
@@ -200,7 +213,10 @@ const UploadDocument = () => {
                 rowsPerPage={rowsPerPage}
                 handleChangePage={handleChangePage}
                 handleChangeRowsPerPage={handleChangeRowsPerPage}
+                selectedRows={selectedRows}
+                setSelectedRows={setSelectedRows}
                 handleEditClick={handleFileDelete}
+                handleDeleteSelected={handleDeleteSelected}
                 projectName={selectedProject.name}
               />
             )}
@@ -222,69 +238,7 @@ const UploadDocument = () => {
             </Button>
           </div>
         )}
-        {/* <Fab
-          variant="extended"
-          color="primary"
-          size="large"
-          sx={{ position: 'fixed', bottom: 40, right: 40, width: '220px', height: '75px', fontSize: '18px', zIndex: 2 }}
-          onClick={() => setIsModalOpen(true)}
-        >
-          <AddIcon sx={{ mr: 1 }} />
-          New Project
-        </Fab> */}
 
-        {/* {isModalOpen && (
-          <Dialog className="relative z-10" open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-            <DialogBackdrop
-              transition
-              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-            />
-            <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-              <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                <DialogPanel
-                  transition
-                  className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
-                >
-                  <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                    <div className="sm:flex sm:items-start">
-                      <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                        <DialogTitle as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                          Create New Project
-                        </DialogTitle>
-                        <div className="mt-2">
-                          <input
-                            type="text"
-                            className="block p-3 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm sm:leading-6 bg-gray-100 placeholder-gray-500 text-gray-900 focus:bg-white focus:opacity-100 opacity-50"
-                            placeholder="New Project Name"
-                            value={newProjectName}
-                            onChange={(e) => setNewProjectName(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                    <button
-                      type="button"
-                      className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                      onClick={newProject}
-                    >
-                      Create
-                    </button>
-                    <button
-                      type="button"
-                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                      onClick={() => setIsModalOpen(false)}
-                      data-autofocus
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </DialogPanel>
-              </div>
-            </div>
-          </Dialog>
-        )} */}
       </div>
     </div>
   );
