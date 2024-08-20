@@ -365,6 +365,8 @@ export const fetchProjectFilesCount = async (status, projectId) => {
   }
 };
 
+
+
 // Update the content of a specific document
 export const updateDocumentContent = async (projectId, fileId, blob) => {
   try {

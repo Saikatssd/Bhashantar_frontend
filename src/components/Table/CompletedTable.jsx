@@ -13,9 +13,10 @@ import Checkbox from "@mui/material/Checkbox";
 import DownloadIcon from "@mui/icons-material/Download";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { fetchProjectFilesCount, fetchTotalPagesInProject } from "../../utils/firestoreUtil";
-
-
+import {
+  fetchProjectFilesCount,
+  fetchTotalPagesInProject,
+} from "../../utils/firestoreUtil";
 
 function CompletedTable({
   columns,
@@ -99,13 +100,19 @@ function CompletedTable({
     handleSelectedMenuClose();
   };
 
+  const calculateTotalPages = (rows) => {
+    return rows.reduce((total, row) => {
+      return total + (row.pageCount || 0);
+    }, 0);
+  };
+
   return (
     <div>
       <h2 className="text-center py-4 font-bold text-2xl">
         {projectName}
         {!loading && (
           <span className="ml-4 text-lg font-normal text-gray-600">
-            ({fileCount} files, {totalPages} pages)
+            ({rows.length} files, {calculateTotalPages(rows)} pages)
           </span>
         )}
       </h2>
@@ -210,7 +217,9 @@ function CompletedTable({
                                 </MenuItem>
                               </Menu>
                             </div>
-                          ) : value}
+                          ) : (
+                            value
+                          )}
                         </TableCell>
                       );
                     })}

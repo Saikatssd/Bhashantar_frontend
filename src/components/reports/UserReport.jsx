@@ -20,7 +20,7 @@ import { exportToExcel } from "../../utils/exportExcel";
 import FilterAltRoundedIcon from "@mui/icons-material/FilterAltRounded";
 import ReplyIcon from "@mui/icons-material/Reply";
 import UserCompFileReport from "./UserCompFileReport";
-import { fetchUserCompletedDetailedFileReport, fetchUserDetailedReport } from "../../services/reportServices";
+import {fetchUserDetailedReport } from "../../services/reportServices";
 
 const UserReport = () => {
   const [companies, setCompanies] = useState([]);

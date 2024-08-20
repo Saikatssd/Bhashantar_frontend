@@ -10,14 +10,12 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import MuiTable from "@mui/material/Table";
-import { fetchProjectFilesCount, fetchTotalPagesInProject } from "../../utils/firestoreUtil";
+import {
+  fetchProjectFilesCount,
+  fetchTotalPagesInProject,
+} from "../../utils/firestoreUtil";
 
 
-const calculateTotalPages = (rows) => {
-  return rows.reduce((total, row) => {
-    return total + (row.pageCount || 0);
-  }, 0);
-};
 
 function TableAdmin({
   columns,
@@ -32,7 +30,7 @@ function TableAdmin({
   setSelectedRows,
   projectName,
   projectId,
-  status
+  status,
 }) {
   const [fileCount, setFileCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -44,7 +42,7 @@ function TableAdmin({
       try {
         const [count, pages] = await Promise.all([
           fetchProjectFilesCount(status, projectId),
-          fetchTotalPagesInProject(status, projectId)
+          fetchTotalPagesInProject(status, projectId),
         ]);
         setFileCount(count);
         setTotalPages(pages);
@@ -64,12 +62,18 @@ function TableAdmin({
     if (event.target.checked) {
       setSelectedRows([...selectedRows, id]);
     } else {
-      setSelectedRows(selectedRows.filter(rowId => rowId !== id));
+      setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
     }
   };
 
-  const selectedRowsData = rows.filter(row => selectedRows.includes(row.id));
-  const totalSelectedPages = calculateTotalPages(selectedRowsData);
+  // const selectedRowsData = rows.filter((row) => selectedRows.includes(row.id));
+  // const totalSelectedPages = calculateTotalPages(selectedRowsData);
+
+  const calculateTotalPages = (rows) => {
+    return rows.reduce((total, row) => {
+      return total + (row.pageCount || 0);
+    }, 0);
+  };
 
   return (
     <div>
@@ -77,23 +81,26 @@ function TableAdmin({
         {projectName}
         {!loading && (
           <span className="ml-4 text-lg font-normal text-gray-600">
-            ({fileCount} files, {totalPages} pages)
+            ({rows.length} files, {calculateTotalPages(rows)} pages)
           </span>
         )}
       </h2>
       <div className="flex justify-between items-center mb-4 px-4">
         {selectedRows.length > 0 && (
-          <span>{selectedRows.length} selected, {totalSelectedPages} pages</span>
+          <span>
+            {selectedRows.length} selected, {totalSelectedPages} pages
+          </span>
         )}
         <Button
           variant="contained"
           color="primary"
-          onClick={() => { handleEditClick()}}
+          onClick={() => {
+            handleEditClick();
+          }}
           disabled={selectedRows.length === 0}
         >
           Assign Selected
         </Button>
-
       </div>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer sx={{ maxHeight: 700 }}>
@@ -102,8 +109,13 @@ function TableAdmin({
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox
-                    indeterminate={selectedRows.length > 0 && selectedRows.length < rows.length}
-                    checked={rows.length > 0 && selectedRows.length === rows.length}
+                    indeterminate={
+                      selectedRows.length > 0 &&
+                      selectedRows.length < rows.length
+                    }
+                    checked={
+                      rows.length > 0 && selectedRows.length === rows.length
+                    }
                     onChange={(event) => {
                       if (event.target.checked) {
                         setSelectedRows(rows.map((row) => row.id));
@@ -155,7 +167,9 @@ function TableAdmin({
                                 Assign
                               </Button>
                             </div>
-                          ) : value}
+                          ) : (
+                            value
+                          )}
                         </TableCell>
                       );
                     })}
@@ -197,7 +211,6 @@ TableAdmin.propTypes = {
   setSelectedRows: PropTypes.func.isRequired,
   projectName: PropTypes.string.isRequired,
   projectId: PropTypes.string.isRequired,
-
 };
 
 TableAdmin.defaultProps = {

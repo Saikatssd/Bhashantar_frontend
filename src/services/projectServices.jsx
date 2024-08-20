@@ -5,126 +5,164 @@
 
 import { db, storage } from "../utils/firebase";
 import {
-    collection,
-    addDoc,
-    getDocs,
-    getDoc,
-    doc,
-    updateDoc,
-    serverTimestamp,
-    query,
-    where,
-    deleteDoc,
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+  serverTimestamp,
+  query,
+  where,
+  deleteDoc,
 } from "firebase/firestore";
 
 // --- Project Operations ---
 
 // Fetch all projects
 export const fetchAllProjects = async () => {
-    try {
-        const querySnapshot = await getDocs(collection(db, "projects"));
-        const projects = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-        return projects;
-    } catch (error) {
-        console.error("Error fetching projects:", error);
-        throw new Error("Error fetching projects");
-    }
+  try {
+    const querySnapshot = await getDocs(collection(db, "projects"));
+    const projects = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return projects;
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    throw new Error("Error fetching projects");
+  }
 };
 
-
-
 export const fetchProjectFilesByDate = async (
-    projectId,
-    startDate,
-    endDate
+  projectId,
+  startDate,
+  endDate
 ) => {
-    try {
-        const q = query(
-            collection(db, "projects", projectId, "files"),
-            where("uploadedDate", ">=", startDate),
-            where("uploadedDate", "<=", endDate)
-        );
-        const filesSnapshot = await getDocs(q);
-        const files = filesSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-        return files;
-    } catch (error) {
-        console.error("Error fetching project files by date:", error);
-        throw new Error("Error fetching project files by date");
-    }
+  try {
+    const q = query(
+      collection(db, "projects", projectId, "files"),
+      where("uploadedDate", ">=", startDate),
+      where("uploadedDate", "<=", endDate)
+    );
+    const filesSnapshot = await getDocs(q);
+    const files = filesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return files;
+  } catch (error) {
+    console.error("Error fetching project files by date:", error);
+    throw new Error("Error fetching project files by date");
+  }
 };
 
 // Fetch the name of a specific project
 export const fetchProjectName = async (projectId) => {
-    try {
-        const projectDocRef = doc(db, "projects", projectId);
-        const projectDoc = await getDoc(projectDocRef);
-        if (projectDoc.exists()) {
-            return projectDoc.data().name;
-        } else {
-            throw new Error("Project does not exist");
-        }
-    } catch (error) {
-        console.error("Error fetching project name:", error);
-        throw new Error("Error fetching project name");
+  try {
+    const projectDocRef = doc(db, "projects", projectId);
+    const projectDoc = await getDoc(projectDocRef);
+    if (projectDoc.exists()) {
+      return projectDoc.data().name;
+    } else {
+      throw new Error("Project does not exist");
     }
+  } catch (error) {
+    console.error("Error fetching project name:", error);
+    throw new Error("Error fetching project name");
+  }
 };
-
 
 // Fetch files for a specific project
 export const fetchProjectFiles = async (projectId) => {
-    try {
-        const filesCollection = collection(db, "projects", projectId, "files");
-        const filesSnapshot = await getDocs(filesCollection);
+  try {
+    const filesCollection = collection(db, "projects", projectId, "files");
+    const filesSnapshot = await getDocs(filesCollection);
 
-        // return filesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        const files = filesSnapshot.docs.map((doc) => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                name: data.name,
-                pdfUrl: data.pdfUrl,
-                htmlUrl: data.htmlUrl,
-                pageCount: data.pageCount,
-                projectId: projectId,
-                status: data.status,
+    // return filesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const files = filesSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: data.name,
+        pdfUrl: data.pdfUrl,
+        htmlUrl: data.htmlUrl,
+        pageCount: data.pageCount,
+        projectId: projectId,
+        status: data.status,
 
-                uploadedDate: data.uploadedDate ? data.uploadedDate : null,
-                kyro_assignedDate: data.kyro_assignedDate
-                    ? data.kyro_assignedDate
-                    : null,
-                kyro_completedDate: data.kyro_completedDate
-                    ? data.kyro_completedDate
-                    : null,
-                kyro_deliveredDate: data.kyro_deliveredDate
-                    ? data.kyro_deliveredDate
-                    : null,
+        uploadedDate: data.uploadedDate ? data.uploadedDate : null,
+        kyro_assignedDate: data.kyro_assignedDate
+          ? data.kyro_assignedDate
+          : null,
+        kyro_completedDate: data.kyro_completedDate
+          ? data.kyro_completedDate
+          : null,
+        kyro_deliveredDate: data.kyro_deliveredDate
+          ? data.kyro_deliveredDate
+          : null,
 
-                // client_uploadedDate: data.client_uploadedDate ? data.client_uploadedDate : null,
-                client_assignedDate: data.client_assignedDate
-                    ? data.client_assignedDate
-                    : null,
-                client_completedDate: data.client_completedDate
-                    ? data.client_completedDate
-                    : null,
+        // client_uploadedDate: data.client_uploadedDate ? data.client_uploadedDate : null,
+        client_assignedDate: data.client_assignedDate
+          ? data.client_assignedDate
+          : null,
+        client_completedDate: data.client_completedDate
+          ? data.client_completedDate
+          : null,
 
-                client_downloadedDate: data.client_downloadedDate
-                    ? data.client_downloadedDate
-                    : null,
+        client_downloadedDate: data.client_downloadedDate
+          ? data.client_downloadedDate
+          : null,
 
-                kyro_assignedTo: data.kyro_assignedTo || null,
-                client_assignedTo: data.client_assignedTo || null,
-            };
-        });
+        kyro_assignedTo: data.kyro_assignedTo || null,
+        client_assignedTo: data.client_assignedTo || null,
+      };
+    });
 
-        return files;
-    } catch (error) {
-        console.error("Error fetching project files:", error);
-        throw new Error("Error fetching project files");
-    }
+    return files;
+  } catch (error) {
+    console.error("Error fetching project files:", error);
+    throw new Error("Error fetching project files");
+  }
 };
+
+export const fetchTotalProjectFilesCount = async (projectId) => {
+    try {
+      const q = query(
+        collection(db, "projects", projectId, "files")
+      );
+      const filesSnapshot = await getDocs(q);
+      const fileCount = filesSnapshot.size;
+    //   console.log(`Project: ${projectId}, File Count: ${fileCount}`);
+      return fileCount;
+    } catch (error) {
+      console.error(
+        `Error fetching project files count:`,
+        error
+      );
+      throw new Error("Error fetching project files count");
+    }
+  };
+
+// export const fetchTotalProjectFilesCount = async (projectId) => {
+//   try {
+//     // Fetch the project document to get the project name
+//     const projectDoc = await getDoc(doc(db, "projects", projectId));
+//     if (!projectDoc.exists()) {
+//       throw new Error("Project not found");
+//     }
+
+//     const projectName = projectDoc.data().name;
+
+//     // Query to get the files count
+//     const q = query(collection(db, "projects", projectId, "files"));
+//     const filesSnapshot = await getDocs(q);
+//     const fileCount = filesSnapshot.size;
+
+//     console.log(`Project: ${projectName}, File Count: ${fileCount}`);
+//     return fileCount;
+//   } catch (error) {
+//     console.error(`Error fetching project files count:`, error);
+//     throw new Error("Error fetching project files count");
+//   }
+// };
