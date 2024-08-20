@@ -28,6 +28,9 @@ import { Description, Dashboard } from "@mui/icons-material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Sidebar from "../../components/ClientCompany/Sidebar";
 import ClientFileDetailedReport from "../../components/ClientCompany/ClientFileDetailedReport";
+import ReplyIcon from "@mui/icons-material/Reply";
+
+
 
 const defaultStartDate = new Date();
 defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
@@ -112,29 +115,29 @@ const AdminHome = ({ companyId, role }) => {
       {/* </>)} */}
       <div className="p-2 h-screen w-full overflow-y-auto">
         <div className="">
-          <button
-            className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 z-50 cursor-pointer ${
-              showDetailedReport
-                ? "bg-gradient-to-l from-blue-500 to-purple-500"
-                : // : 'bg-green-500 border border-green-700'
-                  "bg-gradient-to-r from-blue-500 to-purple-500"
-            }`}
-            onClick={toggleReport}
-          >
-            {showDetailedReport ? (
-              <>
-                <Visibility className="mr-2" />
-                {/* <Dashboard className="mr-2" /> */}
-                Project Overview
-              </>
-            ) : (
-              <>
-                <VisibilityOff className="mr-2" />
-                {/* <Description className="mr-2" /> */}
-                Detailed Report
-              </>
-            )}
-          </button>
+        <button
+          className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${
+            showDetailedReport
+              ? "bg-gradient-to-l from-blue-500 to-purple-500"
+              : // : 'bg-green-500 border border-green-700'
+                "bg-gradient-to-r from-blue-500 to-purple-500"
+          }`}
+          onClick={toggleReport}
+        >
+          {showDetailedReport ? (
+            <>
+              <ReplyIcon className="mr-2" />
+              {/* <Dashboard className="mr-2" /> */}
+              Project Overview
+            </>
+          ) : (
+            <>
+              {/* <Description className="mr-2" /> */}
+              Detailed Report
+              <ReplyIcon className="ml-2 scale-x-[-1]" />
+            </>
+          )}
+        </button>
         </div>
 
         {showDetailedReport ? (

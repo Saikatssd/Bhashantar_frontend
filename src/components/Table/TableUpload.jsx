@@ -32,27 +32,6 @@ function TableUpload({
   projectName,
 }) {
 
-  // const handleCheckboxClick = (event, id) => {
-  //   if (event.target.checked) {
-  //     setSelectedRows([...selectedRows, id]);
-  //   } else {
-  //     setSelectedRows(selectedRows.filter(rowId => rowId !== id));
-  //   }
-  // };
-  // const handleBulkDelete = async (selectedRows) => {
-  //   try {
-  //     // setIsLoading(true);
-  //     for (const row of selectedRows) {
-  //       await handleEditClick(row.id, row.name);
-  //     }
-  //     setSelectedRows([]); // Clear selected rows after deletion
-  //     // setIsLoading(false);
-  //   } catch (err) {
-  //     console.error("Error during bulk delete:", err);
-  //     // setIsLoading(false);
-  //   }
-  // };
-  
 
   const handleCheckboxClick = (event, id, name) => {
     if (event.target.checked) {
@@ -129,10 +108,7 @@ function TableUpload({
                 .map((row, index) => (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     <TableCell padding="checkbox">
-                      {/* <Checkbox
-                        checked={selectedRows.includes(row.id)}
-                        onChange={(event) => handleCheckboxClick(event, row.id)}
-                      /> */}
+                   
                       <Checkbox
                         checked={selectedRows.some(selectedRow => selectedRow.id === row.id)}
                         onChange={(event) => handleCheckboxClick(event, row.id, row.name)}

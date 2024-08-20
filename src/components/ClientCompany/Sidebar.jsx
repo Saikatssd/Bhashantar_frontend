@@ -40,9 +40,8 @@ export default function Sidebar({ companyId, role }) {
   return (
     <div className="backdrop-blur-sm  bg-white/30 h-screen shadow-xl ">
       <div
-        className={`flex flex-col justify-between transition-transform duration-300 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 fixed md:relative w-64 h-full z-10`}
+        className={`flex flex-col justify-between transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } md:translate-x-0 fixed md:relative w-64 h-full z-10`}
       >
         <div className="px-4 py-6">
           <div className="flex justify-center mb-6">
@@ -52,11 +51,10 @@ export default function Sidebar({ companyId, role }) {
             <li>
               <Link
                 to="/home"
-                className={`block rounded-lg px-4 py-3 text-md font-medium ${
-                  isActive("/home")
+                className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive("/home")
                     ? "bg-[#e3d2fa] text-gray-700"
                     : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                }`}
+                  }`}
               >
                 <HomeIcon className="mr-5" />
                 Home
@@ -64,12 +62,23 @@ export default function Sidebar({ companyId, role }) {
             </li>
             <li>
               <Link
-                to={`/company/${companyId}/profile`}
-                className={`block rounded-lg px-4 py-3 text-md font-medium ${
-                  isActive(`/company/${companyId}/profile`)
+                to={`/company/${companyId}/project`}
+                className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/project`)
                     ? "bg-[#e3d2fa] text-gray-700"
                     : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                }`}
+                  }`}
+              >
+                <FolderCopyIcon className="mr-5" />
+                Judgements
+              </Link>
+            </li>
+            <li>
+              <Link
+                to={`/company/${companyId}/profile`}
+                className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/profile`)
+                    ? "bg-[#e3d2fa] text-gray-700"
+                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                  }`}
               >
                 <PersonIcon className="mr-5" />
                 Profile
@@ -93,11 +102,10 @@ export default function Sidebar({ companyId, role }) {
                       <li>
                         <Link
                           to={`/company/${companyId}/userManage`}
-                          className={`block rounded-lg ml-3 pl-2 py-3 text-sm font-medium ${
-                            isActive(`/company/${companyId}/userManage`)
+                          className={`block rounded-lg ml-3 pl-2 py-3 text-sm font-medium ${isActive(`/company/${companyId}/userManage`)
                               ? "bg-[#e3d2fa] text-gray-700"
                               : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                          }`}
+                            }`}
                         >
                           <ManageAccountsIcon className="mr-5" />
                           Manage Users
@@ -106,11 +114,10 @@ export default function Sidebar({ companyId, role }) {
                       <li>
                         <Link
                           to={`/company/${companyId}/userManage`}
-                          className={`block rounded-lg ml-3 pl-2 py-3 text-sm font-medium ${
-                            isActive(`/company/${companyId}/userManage`)
+                          className={`block rounded-lg ml-3 pl-2 py-3 text-sm font-medium ${isActive(`/company/${companyId}/userManage`)
                               ? "bg-[#e3d2fa] text-gray-700"
                               : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                          }`}
+                            }`}
                         >
                           <DriveFileRenameOutlineIcon className="mr-5" />
                           Folder settings
@@ -132,28 +139,15 @@ export default function Sidebar({ companyId, role }) {
                 </li> */}
               </>
             )}
-            <li>
-              <Link
-                to={`/company/${companyId}/project`}
-                className={`block rounded-lg px-4 py-3 text-md font-medium ${
-                  isActive(`/company/${companyId}/project`)
-                    ? "bg-[#e3d2fa] text-gray-700"
-                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                }`}
-              >
-                <FolderCopyIcon className="mr-5" />
-                Projects
-              </Link>
-            </li>
+
             {role === "user" && (
               <li>
                 <Link
                   to={`/company/${companyId}/mywork`}
-                  className={`block rounded-lg px-4 py-3 text-md font-medium ${
-                    isActive(`/company/${companyId}/mywork`)
+                  className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/mywork`)
                       ? "bg-[#e3d2fa] text-gray-700"
                       : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                  }`}
+                    }`}
                 >
                   <StorageTwoToneIcon className="mr-5" />
                   My Work
@@ -164,11 +158,10 @@ export default function Sidebar({ companyId, role }) {
               <li>
                 <Link
                   to={`/company/${companyId}/register`}
-                  className={`block rounded-lg px-4 py-3 text-md font-medium ${
-                    isActive(`/company/${companyId}/register`)
+                  className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/register`)
                       ? "bg-[#e3d2fa] text-gray-700"
                       : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                  }`}
+                    }`}
                 >
                   <PersonAddAltRoundedIcon className="mr-5" />
                   Register
@@ -179,11 +172,10 @@ export default function Sidebar({ companyId, role }) {
               <li>
                 <Link
                   to={`/company/${companyId}/uploadDocument`}
-                  className={`block rounded-lg px-4 py-3 text-md font-medium ${
-                    isActive(`/company/${companyId}/uploadDocument`)
+                  className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/uploadDocument`)
                       ? "bg-[#e3d2fa] text-gray-700"
                       : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                  }`}
+                    }`}
                 >
                   <UploadIcon className="mr-5" />
                   Upload Document

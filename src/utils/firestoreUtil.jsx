@@ -496,36 +496,6 @@ export const fetchProjectName = async (projectId) => {
 };
 
 // Fetch project details including file counts and statuses
-// export const fetchProjectDetails = async (companyId) => {
-//   try {
-//     const projects = await fetchCompanyProjects(companyId);
-//     const projectDetails = await Promise.all(projects.map(async (project) => {
-//       const files = await fetchProjectFiles(project.id);
-//       const totalFiles = files.length;
-//       const completedFiles = files.filter(file => file.status >= 5).length;
-//       const ReadyForWorkFiles=files.filter(file => file.status == 2 ).length
-//       const inProgressFiles=files.filter(file => (file.status == 3) || (file.status == 4) ).length
-//       const kyro_completedDate = files.kyro_completedDate;
-//       console.log(kyro_completedDate)
-//     //  console.log(inProgressFiles) // const inProgressFiles = totalFiles - completedFiles;
-
-//       return {
-//         id: project.id,
-//         name: project.name,
-//         totalFiles,
-//         ReadyForWorkFiles,
-//         inProgressFiles,
-//         completedFiles,
-//         kyro_completedDate
-
-//       };
-//     }));
-//     return projectDetails;
-//   } catch (error) {
-//     console.error('Error fetching project details:', error);
-//     throw new Error('Error fetching project details');
-//   }
-// };
 
 export const fetchProjectDetails = async (companyId) => {
   try {
@@ -548,7 +518,7 @@ export const fetchProjectDetails = async (companyId) => {
         // const completedFilePageCount = completedFiles.reduce((total, file) => total + (file.pageCount || 0), 0);
 
         return {
-          // id: project.id,
+          
           name: project.name,
           totalFiles,
           readyForWorkFiles,
@@ -603,34 +573,7 @@ export const fetchClientProjectDetails = async (companyId) => {
   }
 };
 
-// New function for detailed file report
 
-// export const fetchDetailedFileReport = async (companyId) => {
-//   try {
-//     const projects = await fetchCompanyProjects(companyId);
-//     const detailedFileReport = await Promise.all(
-//       projects.map(async (project) => {
-//         const files = await fetchProjectFiles(project.id);
-//         return Promise.all(
-//           files.map(async (file) => ({
-//             projectName: project.name,
-//             fileName: file.name,
-//             status: file.status,
-//             pageCount: file.pageCount,
-//             uploadedDate: file.uploadedDate,
-//             assignedDate: file.kyro_assignedDate,
-//             deliveryDate: file.kyro_deliveredDate,
-//             assigneeName: file.kyro_assignedTo ? await fetchUserNameById(file.kyro_assignedTo) : 'N/A',
-//           }))
-//         );
-//       })
-//     );
-//     return detailedFileReport.flat();
-//   } catch (error) {
-//     console.error("Error fetching detailed file report:", error);
-//     throw new Error("Error fetching detailed file report");
-//   }
-// };
 
 export const fetchDetailedFileReport = async (companyId) => {
   try {
@@ -777,64 +720,7 @@ export const fetchCompanyNameByCompanyId = async (companyId) => {
 // --- User Operations ---
 
 
-// Function to group data by date (ignoring hour and seconds)
-export const groupByDate = (data, dateKey) => {
-  return data.reduce((acc, item) => {
-    const formattedDate = formatDate(item[dateKey]);
-    if (!acc[formattedDate]) {
-      acc[formattedDate] = [];
-    }
-    acc[formattedDate].push(item);
-    return acc;
-  }, {});
-};
 
-// export const fetchUserReportData = async (companyId) => {
-//   try {
-//     const projects = await fetchCompanyProjects(companyId);
-//     const allFiles = [];
-
-//     for (const project of projects) {
-//       const projectFiles = await fetchProjectFiles(project.id);
-//       allFiles.push(...projectFiles);
-//     }
-
-//     const assignedGrouped = groupByDate(allFiles, 'kyro_assignedDate');
-//     const completedGrouped = groupByDate(allFiles, 'kyro_completedDate');
-
-//     const reportData = [];
-
-//     for (const [assignedDate, assignedFiles] of Object.entries(assignedGrouped)) {
-//       const completedFiles = completedGrouped[assignedDate] || [];
-
-
-//       for (const file of assignedFiles) {
-//         const userId = file.kyro_assignedTo;
-
-//         if (userId) {
-//           const userName = await fetchUserNameById(userId);
-//           reportData.push({
-//             userName,
-//             AssignedDate: assignedDate,
-//             AssignedFiles: assignedFiles.length,
-//             AssignedPages: assignedFiles.reduce((sum, file) => sum + (file.pageCount || 0), 0),
-//             CompletedDate: assignedDate,
-//             CompletedFiles: completedFiles.length,
-//             CompletedPages: completedFiles.reduce((sum, file) => sum + (file.pageCount || 0), 0),
-//           });
-//         } else {
-//           // console.error("Invalid user ID found in file:", file);
-//         }
-//       }
-
-//     }
-
-//     return reportData;
-//   } catch (error) {
-//     console.error("Error fetching user report data:", error);
-//     throw new Error("Error fetching user report data");
-//   }
-// };
 
 export const fetchUserReportData = async (companyId) => {
   try {

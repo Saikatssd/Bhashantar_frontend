@@ -20,6 +20,7 @@ import { exportToExcel } from "../../utils/exportExcel";
 import FilterAltRoundedIcon from "@mui/icons-material/FilterAltRounded";
 import ReplyIcon from "@mui/icons-material/Reply";
 import UserCompFileReport from "./UserCompFileReport";
+import { fetchUserCompletedDetailedFileReport, fetchUserDetailedReport } from "../../services/reportServices";
 
 const UserReport = () => {
   const [companies, setCompanies] = useState([]);
@@ -45,92 +46,131 @@ const UserReport = () => {
 
   useEffect(() => {
     const fetchCompanies = async () => {
-      const companiesData = await fetchAllCompanies();
-      setCompanies(companiesData);
+      try {
+        const companies = await fetchAllCompanies();
+        setCompanies(companies);
+      } catch (error) {
+        console.error("Error fetching companies:", error);
+      }
     };
     fetchCompanies();
   }, []);
 
-  const handleCompanyChange = async (event) => {
-    const companyId = event.target.value;
-    setSelectedCompany(companyId);
 
-    if (companyId) {
-      setIsLoading(true);
-      try {
-        const projects = await fetchCompanyProjects(companyId);
-        let allFiles = [];
 
-        // Fetch all files from all projects
-        for (const project of projects) {
-          const projectFiles = await fetchProjectFiles(project.id);
-          allFiles = [...allFiles, ...projectFiles];
-        }
-
-        // Group files by assigned and completed dates
-        const groupedData = await allFiles.reduce(async (accPromise, file) => {
-          const acc = await accPromise;
-
-          const assignedDate = file.kyro_assignedDate
-            ? file.kyro_assignedDate : null;
-          const completedDate = file.kyro_completedDate
-            ? file.kyro_completedDate
-            : null;
-          let userName = file.kyro_assignedTo || null;
-
-          if (userName) {
-            userName = await fetchUserNameById(userName);
-          }
-
-          if (assignedDate) {
-            if (!acc[assignedDate])
-              acc[assignedDate] = {
-                assignedFilesCount: 0,
-                assignedPageCount: 0,
-                completedFilesCount: 0,
-                completedPageCount: 0,
-                userName,
-              };
-            acc[assignedDate].assignedFilesCount += 1;
-            acc[assignedDate].assignedPageCount += file.pageCount || 0;
-          }
-
-          if (completedDate) {
-            if (!acc[completedDate])
-              acc[completedDate] = {
-                assignedFilesCount: 0,
-                assignedPageCount: 0,
-                completedFilesCount: 0,
-                completedPageCount: 0,
-                userName,
-              };
-            acc[completedDate].completedFilesCount += 1;
-            acc[completedDate].completedPageCount += file.pageCount || 0;
-          }
-
-          return acc;
-        }, Promise.resolve({}));
-
-        // Format the grouped data into an array
-        const formattedData = Object.keys(groupedData).map((date) => ({
-          assignedDate: date, // Assign the correct date here
-          assignedFilesCount: groupedData[date].assignedFilesCount || 0,
-          assignedPageCount: groupedData[date].assignedPageCount || 0,
-          completedDate: date, // Assign the correct date here
-          completedFilesCount: groupedData[date].completedFilesCount || 0,
-          completedPageCount: groupedData[date].completedPageCount || 0,
-          userName: groupedData[date].userName,
-        }));
-
-        setReportData(formattedData);
-        setFilteredData(formattedData);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const handleCompanyChange = (event) => {
+    setSelectedCompany(event.target.value);
   };
+
+
+  useEffect(() => {
+    if (selectedCompany) {
+      const fetchDetails = async () => {
+        setIsLoading(true);
+        try {
+          // const assignedStartDate = new Date(assignedDateRange.start);
+          // const assignedEndDate = new Date(assignedDateRange.end);
+
+          // const completedStartDate = new Date(completedDateRange.start);
+          // const completedEndDate = new Date(completedDateRange.end);
+         
+          const details = await fetchUserDetailedReport(selectedCompany);
+          setReportData(details);
+          setFilteredData(details);
+        } catch (error) {
+          console.error("Error fetching detailed file report:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchDetails();
+    }
+  }, [selectedCompany]);
+
+  // useEffect(() => {
+  //   applyFilters();
+  // }, [filters, fileDetails]);
+
+  // const handleCompanyChange = async (event) => {
+  //   const companyId = event.target.value;
+  //   setSelectedCompany(companyId);
+
+  //   if (companyId) {
+  //     setIsLoading(true);
+  //     try {
+  //       const projects = await fetchCompanyProjects(companyId);
+  //       let allFiles = [];
+
+  //       // Fetch all files from all projects
+  //       for (const project of projects) {
+  //         const projectFiles = await fetchProjectFiles(project.id);
+  //         allFiles = [...allFiles, ...projectFiles];
+  //       }
+
+  //       // Group files by assigned and completed dates
+  //       const groupedData = await allFiles.reduce(async (accPromise, file) => {
+  //         const acc = await accPromise;
+
+  //         const assignedDate = file.kyro_assignedDate
+  //           ? file.kyro_assignedDate : null;
+  //         const completedDate = file.kyro_completedDate
+  //           ? file.kyro_completedDate
+  //           : null;
+  //         let userName = file.kyro_assignedTo || null;
+
+  //         if (userName) {
+  //           userName = await fetchUserNameById(userName);
+  //         }
+
+  //         if (assignedDate) {
+  //           if (!acc[assignedDate])
+  //             acc[assignedDate] = {
+  //               assignedFilesCount: 0,
+  //               assignedPageCount: 0,
+  //               completedFilesCount: 0,
+  //               completedPageCount: 0,
+  //               userName,
+  //             };
+  //           acc[assignedDate].assignedFilesCount += 1;
+  //           acc[assignedDate].assignedPageCount += file.pageCount || 0;
+  //         }
+
+  //         if (completedDate) {
+  //           if (!acc[completedDate])
+  //             acc[completedDate] = {
+  //               assignedFilesCount: 0,
+  //               assignedPageCount: 0,
+  //               completedFilesCount: 0,
+  //               completedPageCount: 0,
+  //               userName,
+  //             };
+  //           acc[completedDate].completedFilesCount += 1;
+  //           acc[completedDate].completedPageCount += file.pageCount || 0;
+  //         }
+
+  //         return acc;
+  //       }, Promise.resolve({}));
+
+  //       // Format the grouped data into an array
+  //       const formattedData = Object.keys(groupedData).map((date) => ({
+  //         assignedDate: date, // Assign the correct date here
+  //         assignedFilesCount: groupedData[date].assignedFilesCount || 0,
+  //         assignedPageCount: groupedData[date].assignedPageCount || 0,
+  //         completedDate: date, // Assign the correct date here
+  //         completedFilesCount: groupedData[date].completedFilesCount || 0,
+  //         completedPageCount: groupedData[date].completedPageCount || 0,
+  //         userName: groupedData[date].userName,
+  //       }));
+
+  //       setReportData(formattedData);
+  //       setFilteredData(formattedData);
+  //     } catch (err) {
+  //       setError(err.message);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
+  // };
 
   const handleDateFilterChange = () => {
     let filtered = reportData;
@@ -298,14 +338,14 @@ const UserReport = () => {
             </Button>
           </div>
 
-          <Button
+          {/* <Button
             variant="contained"
             color="primary"
             onClick={handleDateFilterChange}
             className="mb-4"
           >
             Apply Filters
-          </Button>
+          </Button> */}
 
           {isLoading ? (
             <div>Loading...</div>
@@ -348,19 +388,19 @@ const UserReport = () => {
                           {data.assignedDate}
                         </td>
                         <td className="whitespace-nowrap px-6 py-2 font-medium">
-                          {data.assignedFilesCount}
+                          {data.assignedFiles}
                         </td>
                         <td className="whitespace-nowrap px-6 py-2 font-medium">
-                          {data.assignedPageCount}
+                          {data.assignedPages}
                         </td>
                         <td className="whitespace-nowrap px-6 py-2 font-medium">
                           {data.completedDate}
                         </td>
                         <td className="whitespace-nowrap px-6 py-2 font-medium">
-                          {data.completedFilesCount}
+                          {data.completedFiles}
                         </td>
                         <td className="whitespace-nowrap px-6 py-2 font-medium">
-                          {data.completedPageCount}
+                          {data.completedPages}
                         </td>
                         <td className="whitespace-nowrap px-6 py-2 font-medium">
                           {data.userName}

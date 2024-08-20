@@ -298,7 +298,6 @@ const FileStatusManager = () => {
           <Button
             onClick={handleBulkStatusChange}
             color="primary"
-            disabled={!newStatus}
           >
             Update Status
           </Button>
