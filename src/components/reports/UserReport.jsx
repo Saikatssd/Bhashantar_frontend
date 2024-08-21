@@ -20,6 +20,7 @@ import { exportToExcel } from "../../utils/exportExcel";
 import FilterAltRoundedIcon from "@mui/icons-material/FilterAltRounded";
 import ReplyIcon from "@mui/icons-material/Reply";
 import UserCompFileReport from "./UserCompFileReport";
+import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
 import {fetchUserDetailedReport } from "../../services/reportServices";
 
 const UserReport = () => {
@@ -42,6 +43,17 @@ const UserReport = () => {
 
   const toggleReport = () => {
     setShowDetailedReport(!showDetailedReport);
+  };
+
+  const clearFilters = () => {
+    setAssignedDateRange({
+      start: "",
+      end: "",
+    });
+    setCompletedDateRange({
+      start: "",
+      end: "",
+    });
   };
 
   useEffect(() => {
@@ -327,25 +339,24 @@ const UserReport = () => {
               </div>
             </div>
             {/* </div> */}
-
-            <Button
-              variant="outlined"
-              onClick={() =>
-                exportToExcel(filteredData, "detailed_user_Report")
-              }
-            >
-              Export to XLS
-            </Button>
+            <div className="mt-4 my-auto flex flex-col gap-4">
+              <button
+              onClick={clearFilters}
+              className="my-auto py-2 rounded-3xl bg-[#e3d2fa] hover:bg-[#ffe0e3] hover:shadow-md"
+                        >
+              <FilterListOffRoundedIcon className="mr-2" />
+              Clear Filters
+                        </button>
+              <Button
+                variant="outlined"
+                onClick={() =>
+                  exportToExcel(filteredData, "detailed_user_Report")
+                }
+              >
+                Export to XLS
+              </Button>
+            </div>
           </div>
-
-          {/* <Button
-            variant="contained"
-            color="primary"
-            onClick={handleDateFilterChange}
-            className="mb-4"
-          >
-            Apply Filters
-          </Button> */}
 
           {isLoading ? (
             <div>Loading...</div>

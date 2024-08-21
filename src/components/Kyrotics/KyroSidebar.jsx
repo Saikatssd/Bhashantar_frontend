@@ -12,14 +12,19 @@ import RoomPreferencesIcon from "@mui/icons-material/RoomPreferences";
 import TaskIcon from "@mui/icons-material/Task";
 import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
+import SettingsIcon from "@mui/icons-material/Settings";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ConfirmationDialog from "../ConfirmationDialog";
 import { Description, Dashboard } from "@mui/icons-material";
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { Collapse } from "@mui/material";
 
 
 export default function KyroSidebar({ companyId, role }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const location = useLocation();
 
@@ -90,9 +95,22 @@ export default function KyroSidebar({ companyId, role }) {
             {(role === "admin" || role === "superAdmin") && (
               <>
                 <li>
-                  <Link
+                <div
+                    className="flex justify-between rounded-lg px-4 py-3 mb-3 text-md font-medium text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                    onClick={() => setShowSettings(!showSettings)}
+                  >
+                    <div>
+                      <SettingsIcon className="mr-5" />
+                      Settings
+                    </div>
+                    {showSettings ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                  </div>
+                  <Collapse in={showSettings} timeout="auto" unmountOnExit className="border-l-4 ml-6">
+                  <ul className="space-y-2">
+                    <li>
+                    <Link
                     to={`/kyro/${companyId}/userManage`}
-                    className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                    className={`block rounded-lg ml-3 pl-2 py-3 text-md font-medium ${
                       isActive(`/kyro/${companyId}/userManage`)
                         ? "bg-[#e3d2fa] text-gray-700"
                         : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
@@ -101,11 +119,11 @@ export default function KyroSidebar({ companyId, role }) {
                     <ManageAccountsIcon className="mr-5" />
                     Manage Users
                   </Link>
-                </li>
-                <li>
+                    </li>
+                    <li>
                   <Link
                     to={`/kyro/${companyId}/roleManage`}
-                    className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                    className={`block rounded-lg ml-3 pl-2 py-3 text-md font-medium ${
                       isActive(`/kyro/${companyId}/roleManage`)
                         ? "bg-[#e3d2fa] text-gray-700"
                         : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
@@ -115,6 +133,24 @@ export default function KyroSidebar({ companyId, role }) {
                     Manage Roles
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    to={`/kyro/${companyId}/fileStatus`}
+                    className={`block rounded-lg ml-3 pl-2 py-3 text-md font-medium ${
+                      isActive(`/kyro/${companyId}/fileStatus`)
+                        ? "bg-[#e3d2fa] text-gray-700"
+                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                    }`}
+                  >
+                    <TaskIcon className="mr-5" />
+                    File Status
+                  </Link>
+                </li>
+                  </ul>
+                  </Collapse>
+                  
+                </li>
+                
                 <li>
                   <Link
                     to={`/kyro/${companyId}/userReport`}
@@ -141,19 +177,7 @@ export default function KyroSidebar({ companyId, role }) {
                     Manage Permissions
                   </Link>
                 </li> */}
-                <li>
-                  <Link
-                    to={`/kyro/${companyId}/fileStatus`}
-                    className={`block rounded-lg px-4 py-3 text-md font-medium ${
-                      isActive(`/kyro/${companyId}/fileStatus`)
-                        ? "bg-[#e3d2fa] text-gray-700"
-                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                    }`}
-                  >
-                    <TaskIcon className="mr-5" />
-                    File Status
-                  </Link>
-                </li>
+                
               </>
             )}
 
