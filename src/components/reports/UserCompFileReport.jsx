@@ -198,6 +198,7 @@ import { fetchUserCompletedFilesReport } from "../../services/reportServices";
 import { exportToExcel } from "../../utils/exportExcel";
 import { format } from "date-fns";
 import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
+import { FilePageSum } from "../../utils/FilepageSum";
 
 const UserCompFileReport = () => {
   const today = format(new Date(), "yyyy-MM-dd");
@@ -214,8 +215,10 @@ const UserCompFileReport = () => {
   });
 
   const clearFilters = () => {
-    setCompletedDateRange( {start: today,
-      end: today,});
+    setCompletedDateRange({
+      start: today,
+      end: today,
+    });
   };
 
   useEffect(() => {
@@ -263,6 +266,10 @@ const UserCompFileReport = () => {
   const handleCompanyChange = (event) => {
     setSelectedCompany(event.target.value);
   };
+
+
+  const totals = FilePageSum(filteredDetails);
+
 
   return (
     <div className="container mx-auto p-4">
@@ -369,13 +376,23 @@ const UserCompFileReport = () => {
                   {data.userName}
                 </td>
                 <td className="whitespace-nowrap px-6 py-2 font-medium text-center">
-                  {data.fileCount}
+                  {data.totalFiles}
                 </td>
                 <td className="whitespace-nowrap px-6 py-2 font-medium text-center">
                   {data.totalPages}
                 </td>
               </tr>
             ))}
+            {/* Add the totals row */}
+            <tr className="bg-gray-200 font-bold">
+              <td className="whitespace-nowrap px-6 py-2 text-center">Totals</td>
+              <td className="whitespace-nowrap px-6 py-2 text-center">
+                {totals.totalFiles}
+              </td>
+              <td className="whitespace-nowrap px-6 py-2 text-center">
+                {totals.totalPages}
+              </td>
+            </tr>
           </tbody>
         </table>
       )}

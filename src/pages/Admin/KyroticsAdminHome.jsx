@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
   fetchAllCompanies,
-  fetchProjectDetails,
-  fetchReportDetails,
+  // fetchProjectDetails,
+  // fetchReportDetails,
 } from "../../utils/firestoreUtil";
+import { fetchReportDetails, fetchProjectDetails } from '../../services/reportServices'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -23,6 +24,7 @@ import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ReplyIcon from "@mui/icons-material/Reply";
 import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
+import { FilePageSum } from "../../utils/FilepageSum";
 
 const defaultStartDate = new Date();
 defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
@@ -112,6 +114,8 @@ const KyroAdminHome = ({ companyId, role }) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
+  const totals = FilePageSum(projectDetails);
+  const totalDeliered = FilePageSum(reportDetails);
 
   return (
     <div className="flex w-screen">
@@ -122,12 +126,11 @@ const KyroAdminHome = ({ companyId, role }) => {
       )}
       <div className="p-2 h-screen w-full overflow-y-auto">
         <button
-          className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${
-            showDetailedReport
-              ? "bg-gradient-to-l from-blue-500 to-purple-500"
-              : // : 'bg-green-500 border border-green-700'
-                "bg-gradient-to-r from-blue-500 to-purple-500"
-          }`}
+          className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${showDetailedReport
+            ? "bg-gradient-to-l from-blue-500 to-purple-500"
+            : // : 'bg-green-500 border border-green-700'
+            "bg-gradient-to-r from-blue-500 to-purple-500"
+            }`}
           onClick={toggleReport}
         >
           {showDetailedReport ? (
@@ -212,7 +215,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                                 Sl No
                               </th>
                               <th className="whitespace-nowrap px-6 py-2 font-medium">
-                                Project Name
+                                Judgements
                               </th>
                               <th className="whitespace-nowrap px-6 py-2 font-medium">
                                 File Count
@@ -250,10 +253,29 @@ const KyroAdminHome = ({ companyId, role }) => {
                                   {project.inProgressFiles}
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                                  {project.completedFileCount}
+                                  {project.deliveredFiles}
                                 </td>
                               </tr>
                             ))}
+                            {/* Add the totals row */}
+                            <tr className="bg-gray-200 font-bold">
+                              <td className="whitespace-nowrap px-6 py-2 text-center">Totals</td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.totalFiles}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.readyForWorkFiles}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.inProgressFiles}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.deliveredFiles}
+                              </td>
+                            </tr>
                           </tbody>
                         </table>
                       </div>
@@ -302,7 +324,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                         onClick={clearFilters}
                         className="my-auto py-2 rounded-3xl bg-[#e3d2fa] hover:bg-[#ffe0e3] hover:shadow-md"
                       >
-                        <FilterListOffRoundedIcon className="mr-2"/>
+                        <FilterListOffRoundedIcon className="mr-2" />
                         Clear Filters
                       </button>
                       <Button
@@ -349,13 +371,27 @@ const KyroAdminHome = ({ companyId, role }) => {
                                 {detail.date}
                               </td>
                               <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                                {detail.fileCount}
+                                {detail.TotalFiles}
                               </td>
                               <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                                {detail.pageCount}
+                                {detail.TotalPages}
                               </td>
                             </tr>
                           ))}
+                          {/* Add the totals row */}
+                          <tr className="bg-gray-200 font-bold">
+                            <td className="whitespace-nowrap px-6 py-2 text-center">Totals</td>
+                            <td className="whitespace-nowrap px-6 py-2 text-center">
+                              
+                            </td>
+                            <td className="whitespace-nowrap px-6 py-2 text-center">
+                              {totalDeliered.TotalFiles}
+                            </td>
+                            <td className="whitespace-nowrap px-6 py-2 text-center">
+                              {totalDeliered.TotalFiles}
+                            </td>
+
+                          </tr>
                         </tbody>
                       </table>
                     </div>

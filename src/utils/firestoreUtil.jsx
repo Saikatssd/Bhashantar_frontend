@@ -506,8 +506,8 @@ export const fetchProjectDetails = async (companyId) => {
       projects.map(async (project) => {
         const files = await fetchProjectFiles(project.id);
         const totalFiles = files.length;
-        const completedFiles = files.filter((file) => file.status >= 5);
-        const completedFileCount = completedFiles.length;
+        const completedFiles = files.filter((file) => file.status >= 5).length;
+        // const completedFileCount = completedFiles.length;
         const readyForWorkFiles = files.filter(
           (file) => file.status == 2
         ).length;
@@ -525,7 +525,7 @@ export const fetchProjectDetails = async (companyId) => {
           totalFiles,
           readyForWorkFiles,
           inProgressFiles,
-          completedFileCount,
+          completedFiles,
           // kyroCompletedDates,
           // completedFilePageCount
         };

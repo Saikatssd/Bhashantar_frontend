@@ -275,7 +275,7 @@ const ProjectList = () => {
       );
       setIsEditModalOpen(false);
       setEditProjectId("");
-      toast.success(response.data.message);
+      toast.success(response.data);
     } catch (err) {
       let message = "Refresh your Browser & Try Again";
       if (err.response && err.response.data) {

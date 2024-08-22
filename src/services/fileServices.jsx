@@ -23,7 +23,7 @@ import {
   getDownloadURL,
   deleteObject,
 } from "firebase/storage";
-import { formatDate } from "./formatDate";
+import { formatDate } from "../utils/formatDate";
 import {parse} from 'date-fns'
 
 import JSZip from "jszip";
@@ -107,5 +107,25 @@ export const deleteFile = async (projectId, fileId, fileName) => {
   } catch (error) {
     console.error("Error deleting file:", error);
     throw new Error("Error deleting file");
+  }
+};
+
+
+
+export const fetchFileNameById = async (projectId, fileId) => {
+  try {
+    const fileDocRef = doc(db, "projects", projectId, "files", fileId);
+    const fileDoc = await getDoc(fileDocRef);
+
+    if (fileDoc.exists()) {
+      const data = fileDoc.data();
+      return data.name ? data.name : null; // Return the file name or null if it doesn't exist
+    } else {
+      console.error("No such file document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching file name by ID:", error);
+    throw new Error("Error fetching file name");
   }
 };

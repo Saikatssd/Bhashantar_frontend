@@ -15,7 +15,8 @@ import DownloadIcon from "@mui/icons-material/Download";
 import Tooltip from "@mui/material/Tooltip";
 import { server } from "../main";
 import axios from "axios";
-import {formatDate} from '../utils/formatDate';
+import { formatDate } from '../utils/formatDate';
+import { fetchFileNameById } from "../services/fileServices";
 
 const Editor = () => {
   const { projectId, documentId } = useParams();
@@ -65,8 +66,15 @@ const Editor = () => {
         const text = await response.text();
         setHtmlContent(text);
         setPdfUrl(pdfUrl);
-        const extractedFileName = pdfUrl.split("/").pop();
-        setFileName(extractedFileName);
+
+        // const decodedUrl = decodeURIComponent(pdfUrl);
+
+        // // Extract the filename from the full decoded path
+        // const fileNameWithQuery = decodedUrl.split("/").pop(); 
+        // const fileName = fileNameWithQuery.split("?")[0]; 
+        const fileName = fetchFileNameById(documentId)
+
+        setFileName(fileName);
         setIsInitialContentSet(true);
       } catch (err) {
         setError("Error fetching document");
@@ -94,6 +102,8 @@ const Editor = () => {
 
     saveContent();
   }, [debouncedHtmlContent, projectId, documentId]);
+
+  console.log(fileName)
 
   const handleSave = async () => {
     try {
@@ -159,7 +169,7 @@ const Editor = () => {
   //           height: "calc(100vh)",
   //           menubar: 'edit insert view format table tools',
   //           // content_css: [ 'editor.css', 'mycontent2.css' ],
-            
+
   //           // plugins:
   //           // "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount linkchecker tableofcontents mergetags autocorrect typography inlinecss markdown pagebreak",
   //           plugins:
@@ -225,7 +235,7 @@ const Editor = () => {
               "8pt 9pt 10pt 11pt 12pt 14pt 18pt 24pt 30pt 36pt 48pt 60pt 72pt 96pt",
             tinycomments_author: "Author name",
             fullscreen_native: true,
-            
+
             font_family_formats:
               "Nirmala UI=nirmala ui, sans-serif;" +
               "Arial=arial,helvetica,sans-serif;" +
@@ -233,7 +243,7 @@ const Editor = () => {
               "Georgia=georgia,palatino,serif;" +
               "Tahoma=tahoma,arial,helvetica,sans-serif;" +
               "Verdana=verdana,geneva,sans-serif;",
-  
+
             setup: (editor) => {
               editor.ui.registry.addButton("paragraphSpacing", {
                 text: "Paragraph Spacing",
@@ -258,7 +268,7 @@ const Editor = () => {
     }
     return null;
   }, [htmlContent, isInitialContentSet, documentId]);
-  
+
 
   useEffect(() => {
     return () => {
@@ -288,7 +298,7 @@ const Editor = () => {
         }}
       >
         <div>
-          <iframe src={pdfUrl} title="pdf" width="100%" height="988px" />
+          <iframe src={pdfUrl} title={fileName} width="100%" height="988px" />
         </div>
         <Button
           onClick={handleBack}

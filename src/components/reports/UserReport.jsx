@@ -87,6 +87,7 @@ const UserReport = () => {
           // const completedEndDate = new Date(completedDateRange.end);
          
           const details = await fetchUserDetailedReport(selectedCompany);
+          console.log(details);
           setReportData(details);
           setFilteredData(details);
         } catch (error) {
@@ -110,69 +111,69 @@ const UserReport = () => {
   //   if (companyId) {
   //     setIsLoading(true);
   //     try {
-  //       const projects = await fetchCompanyProjects(companyId);
-  //       let allFiles = [];
+        // const projects = await fetchCompanyProjects(companyId);
+        // let allFiles = [];
 
-  //       // Fetch all files from all projects
-  //       for (const project of projects) {
-  //         const projectFiles = await fetchProjectFiles(project.id);
-  //         allFiles = [...allFiles, ...projectFiles];
-  //       }
+        // // Fetch all files from all projects
+        // for (const project of projects) {
+        //   const projectFiles = await fetchProjectFiles(project.id);
+        //   allFiles = [...allFiles, ...projectFiles];
+        // }
 
-  //       // Group files by assigned and completed dates
-  //       const groupedData = await allFiles.reduce(async (accPromise, file) => {
-  //         const acc = await accPromise;
+        // // Group files by assigned and completed dates
+        // const groupedData = await allFiles.reduce(async (accPromise, file) => {
+        //   const acc = await accPromise;
 
-  //         const assignedDate = file.kyro_assignedDate
-  //           ? file.kyro_assignedDate : null;
-  //         const completedDate = file.kyro_completedDate
-  //           ? file.kyro_completedDate
-  //           : null;
-  //         let userName = file.kyro_assignedTo || null;
+        //   const assignedDate = file.kyro_assignedDate
+        //     ? file.kyro_assignedDate : null;
+        //   const completedDate = file.kyro_completedDate
+        //     ? file.kyro_completedDate
+        //     : null;
+        //   let userName = file.kyro_assignedTo || null;
 
-  //         if (userName) {
-  //           userName = await fetchUserNameById(userName);
-  //         }
+        //   if (userName) {
+        //     userName = await fetchUserNameById(userName);
+        //   }
 
-  //         if (assignedDate) {
-  //           if (!acc[assignedDate])
-  //             acc[assignedDate] = {
-  //               assignedFilesCount: 0,
-  //               assignedPageCount: 0,
-  //               completedFilesCount: 0,
-  //               completedPageCount: 0,
-  //               userName,
-  //             };
-  //           acc[assignedDate].assignedFilesCount += 1;
-  //           acc[assignedDate].assignedPageCount += file.pageCount || 0;
-  //         }
+        //   if (assignedDate) {
+        //     if (!acc[assignedDate])
+        //       acc[assignedDate] = {
+        //         assignedFilesCount: 0,
+        //         assignedPageCount: 0,
+        //         completedFilesCount: 0,
+        //         completedPageCount: 0,
+        //         userName,
+        //       };
+        //     acc[assignedDate].assignedFilesCount += 1;
+        //     acc[assignedDate].assignedPageCount += file.pageCount || 0;
+        //   }
 
-  //         if (completedDate) {
-  //           if (!acc[completedDate])
-  //             acc[completedDate] = {
-  //               assignedFilesCount: 0,
-  //               assignedPageCount: 0,
-  //               completedFilesCount: 0,
-  //               completedPageCount: 0,
-  //               userName,
-  //             };
-  //           acc[completedDate].completedFilesCount += 1;
-  //           acc[completedDate].completedPageCount += file.pageCount || 0;
-  //         }
+        //   if (completedDate) {
+        //     if (!acc[completedDate])
+        //       acc[completedDate] = {
+        //         assignedFilesCount: 0,
+        //         assignedPageCount: 0,
+        //         completedFilesCount: 0,
+        //         completedPageCount: 0,
+        //         userName,
+        //       };
+        //     acc[completedDate].completedFilesCount += 1;
+        //     acc[completedDate].completedPageCount += file.pageCount || 0;
+        //   }
 
-  //         return acc;
-  //       }, Promise.resolve({}));
+        //   return acc;
+        // }, Promise.resolve({}));
 
-  //       // Format the grouped data into an array
-  //       const formattedData = Object.keys(groupedData).map((date) => ({
-  //         assignedDate: date, // Assign the correct date here
-  //         assignedFilesCount: groupedData[date].assignedFilesCount || 0,
-  //         assignedPageCount: groupedData[date].assignedPageCount || 0,
-  //         completedDate: date, // Assign the correct date here
-  //         completedFilesCount: groupedData[date].completedFilesCount || 0,
-  //         completedPageCount: groupedData[date].completedPageCount || 0,
-  //         userName: groupedData[date].userName,
-  //       }));
+        // // Format the grouped data into an array
+        // const formattedData = Object.keys(groupedData).map((date) => ({
+        //   assignedDate: date, // Assign the correct date here
+        //   assignedFilesCount: groupedData[date].assignedFilesCount || 0,
+        //   assignedPageCount: groupedData[date].assignedPageCount || 0,
+        //   completedDate: date, // Assign the correct date here
+        //   completedFilesCount: groupedData[date].completedFilesCount || 0,
+        //   completedPageCount: groupedData[date].completedPageCount || 0,
+        //   userName: groupedData[date].userName,
+        // }));
 
   //       setReportData(formattedData);
   //       setFilteredData(formattedData);
