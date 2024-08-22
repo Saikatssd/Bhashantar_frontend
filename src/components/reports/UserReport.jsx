@@ -371,19 +371,19 @@ const UserReport = () => {
                         Assigned Date
                       </th>
                       <th className="whitespace-nowrap px-6 py-2 font-medium">
-                        Assigned Files Count
+                        Assigned Files
                       </th>
                       <th className="whitespace-nowrap px-6 py-2 font-medium">
-                        Assigned Page Count
+                        Assigned Pages
                       </th>
                       <th className="whitespace-nowrap px-6 py-2 font-medium">
                         Completed Date
                       </th>
                       <th className="whitespace-nowrap px-6 py-2 font-medium">
-                        Completed Files Count
+                        Completed Files
                       </th>
                       <th className="whitespace-nowrap px-6 py-2 font-medium">
-                        Completed Page Count
+                        Completed Pages
                       </th>
                       <th className="whitespace-nowrap px-6 py-2 font-medium">
                         User Name
