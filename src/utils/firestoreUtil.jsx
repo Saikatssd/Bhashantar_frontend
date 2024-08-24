@@ -660,14 +660,14 @@ export const fetchReportDetails = async (companyId, startDate, endDate) => {
 
       const filteredFiles = files.filter((file) => {
         const deliveredDate = file.kyro_deliveredDate ? parse(file.kyro_deliveredDate, "dd/MM/yyyy", new Date()): null;
-        console.log(deliveredDate);
+        // console.log(deliveredDate);
         
         return deliveredDate >= startDate && deliveredDate <= endDate;
       });
 
       const dateMap = filteredFiles.reduce((acc, file) => {
         const date = file.kyro_deliveredDate;
-        console.log(date)
+        // console.log(date)
         if (!acc[date]) {
           acc[date] = { date, fileCount: 0, pageCount: 0 };
         }

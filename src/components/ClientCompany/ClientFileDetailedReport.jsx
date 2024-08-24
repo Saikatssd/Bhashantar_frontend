@@ -113,7 +113,7 @@ const ClientFileDetailedReport = ({ companyId }) => {
         ? parse(filters.assignedStartDate, "yyyy-MM-dd", new Date())
         : //? new Date(filters.assignedStartDate)
           null;
-      console.log("assignStartDate", assignedStartDate);
+      // console.log("assignStartDate", assignedStartDate);
 
       const assignedEndDate = filters.assignedEndDate
         ? parse(filters.assignedEndDate, "yyyy-MM-dd", new Date())
@@ -158,7 +158,7 @@ const ClientFileDetailedReport = ({ companyId }) => {
     setFilteredDetails(filtered);
   }, [filters, fileDetails]);
 
-  console.log(filters.assignedStartDate);
+  // console.log(filters.assignedStartDate);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;

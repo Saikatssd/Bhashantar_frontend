@@ -38,9 +38,9 @@ const KyroAdminHome = ({ companyId, role }) => {
   const [startDate, setStartDate] = useState(
     defaultStartDate.setHours(0, 0, 0, 0)
   );
-  console.log(startDate);
+  // console.log(startDate);
   const [endDate, setEndDate] = useState(new Date().setHours(0, 0, 0, 0));
-  console.log(endDate);
+  // console.log(endDate);
   const [showDetailedReport, setShowDetailedReport] = useState(false);
 
   const toggleReport = () => {
@@ -388,7 +388,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                               {totalDeliered.TotalFiles}
                             </td>
                             <td className="whitespace-nowrap px-6 py-2 text-center">
-                              {totalDeliered.TotalFiles}
+                              {totalDeliered.TotalPages}
                             </td>
 
                           </tr>

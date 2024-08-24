@@ -1,10 +1,8 @@
 // // src/pages/Admin/AdminHome.jsx
 
 import React, { useState, useEffect } from "react";
-import {
-  fetchClientProjectDetails,
-  fetchReportDetails,
-} from "../../utils/firestoreUtil";
+
+import {  fetchClientProjectDetails,fetchReportDetails } from "../../services/reportServices";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -12,23 +10,17 @@ import {
   MenuItem,
   Select,
   CircularProgress,
-  FormControl,
-  InputLabel,
-  Fab,
+
 } from "@mui/material";
 import { CalendarToday } from "@mui/icons-material";
-import NavigationIcon from "@mui/icons-material/Navigation";
 import { exportToExcel } from "../../utils/exportExcel";
-import KyroSidebar from "../../components/Kyrotics/KyroSidebar";
-import Report from "../../components/reports/DetailedFileReport";
 import ContentPasteSearchIcon from "@mui/icons-material/ContentPasteSearch";
 import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { Description, Dashboard } from "@mui/icons-material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Sidebar from "../../components/ClientCompany/Sidebar";
 import ClientFileDetailedReport from "../../components/ClientCompany/ClientFileDetailedReport";
 import ReplyIcon from "@mui/icons-material/Reply";
+import { FilePageSum } from "../../utils/FilepageSum";
 
 
 
@@ -108,6 +100,9 @@ const AdminHome = ({ companyId, role }) => {
     setPage(0);
   };
 
+  const totals = FilePageSum(projectDetails);
+  const totalDeliered = FilePageSum(reportDetails);
+
   return (
     <div className="flex w-screen">
       {/* {role == 'admin' && (<> */}
@@ -115,29 +110,28 @@ const AdminHome = ({ companyId, role }) => {
       {/* </>)} */}
       <div className="p-2 h-screen w-full overflow-y-auto">
         <div className="">
-        <button
-          className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${
-            showDetailedReport
+          <button
+            className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${showDetailedReport
               ? "bg-gradient-to-l from-blue-500 to-purple-500"
               : // : 'bg-green-500 border border-green-700'
-                "bg-gradient-to-r from-blue-500 to-purple-500"
-          }`}
-          onClick={toggleReport}
-        >
-          {showDetailedReport ? (
-            <>
-              <ReplyIcon className="mr-2" />
-              {/* <Dashboard className="mr-2" /> */}
-              Project Overview
-            </>
-          ) : (
-            <>
-              {/* <Description className="mr-2" /> */}
-              Detailed Report
-              <ReplyIcon className="ml-2 scale-x-[-1]" />
-            </>
-          )}
-        </button>
+              "bg-gradient-to-r from-blue-500 to-purple-500"
+              }`}
+            onClick={toggleReport}
+          >
+            {showDetailedReport ? (
+              <>
+                <ReplyIcon className="mr-2" />
+                {/* <Dashboard className="mr-2" /> */}
+                Project Overview
+              </>
+            ) : (
+              <>
+                {/* <Description className="mr-2" /> */}
+                Detailed Report
+                <ReplyIcon className="ml-2 scale-x-[-1]" />
+              </>
+            )}
+          </button>
         </div>
 
         {showDetailedReport ? (
@@ -245,10 +239,29 @@ const AdminHome = ({ companyId, role }) => {
                                   {project.inProgressFiles}
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                                  {project.completedFileCount}
+                                  {project.completedFiles}
                                 </td>
                               </tr>
                             ))}
+                            {/* Add the totals row */}
+                            <tr className="bg-gray-200 font-bold">
+                              <td className="whitespace-nowrap px-6 py-2 text-center">Totals</td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.totalFiles}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.readyForWorkFiles}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.inProgressFiles}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.completedFiles}
+                              </td>
+                            </tr>
                           </tbody>
                         </table>
                       </div>
@@ -297,7 +310,7 @@ const AdminHome = ({ companyId, role }) => {
                         onClick={clearFilters}
                         className="my-auto py-2 rounded-3xl bg-[#e3d2fa] hover:bg-[#ffe0e3] hover:shadow-md"
                       >
-                        <FilterListOffRoundedIcon className="mr-2"/>
+                        <FilterListOffRoundedIcon className="mr-2" />
                         Clear Filters
                       </button>
                       <Button
@@ -344,13 +357,27 @@ const AdminHome = ({ companyId, role }) => {
                                 {detail.date}
                               </td>
                               <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                                {detail.fileCount}
+                                {detail.TotalFiles}
                               </td>
                               <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
-                                {detail.pageCount}
+                                {detail.TotalPages}
                               </td>
                             </tr>
                           ))}
+                          {/* Add the totals row */}
+                          <tr className="bg-gray-200 font-bold">
+                            <td className="whitespace-nowrap px-6 py-2 text-center">Totals</td>
+                            <td className="whitespace-nowrap px-6 py-2 text-center">
+
+                            </td>
+                            <td className="whitespace-nowrap px-6 py-2 text-center">
+                              {totalDeliered.TotalFiles}
+                            </td>
+                            <td className="whitespace-nowrap px-6 py-2 text-center">
+                              {totalDeliered.TotalPages}
+                            </td>
+
+                          </tr>
                         </tbody>
                       </table>
                     </div>

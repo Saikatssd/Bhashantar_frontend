@@ -112,20 +112,44 @@ export const deleteFile = async (projectId, fileId, fileName) => {
 
 
 
+// export const fetchFileNameById = async (projectId, fileId) => {
+//   try {
+//     const fileDocRef = doc(db, "projects", projectId, "files", fileId);
+//     const fileDoc = await getDoc(fileDocRef);
+
+//     if (fileDoc.exists()) {
+//       const data = fileDoc.data();
+//       console.log("data",data)
+//       return data.name ? data.name : null; // Return the file name or null if it doesn't exist
+//     } else {
+//       console.error("No such file document!");
+//       return null;
+//     }
+//   } catch (error) {
+//     console.error("Error fetching file name by ID:", error);
+//     throw new Error("Error fetching file name");
+//   }
+// };
+
+
 export const fetchFileNameById = async (projectId, fileId) => {
   try {
+    // Log inputs to ensure they are correct
+    console.log("Fetching file name for projectId:", projectId, "fileId:", fileId);
+
     const fileDocRef = doc(db, "projects", projectId, "files", fileId);
     const fileDoc = await getDoc(fileDocRef);
 
     if (fileDoc.exists()) {
       const data = fileDoc.data();
+      // console.log("File data:", data);
       return data.name ? data.name : null; // Return the file name or null if it doesn't exist
     } else {
-      console.error("No such file document!");
+      console.error("No such file document exists!");
       return null;
     }
   } catch (error) {
-    console.error("Error fetching file name by ID:", error);
-    throw new Error("Error fetching file name");
+    console.error("Error fetching file name by ID:", error.message);
+    throw new Error(`Error fetching file name for projectId: ${projectId}, fileId: ${fileId}`);
   }
 };

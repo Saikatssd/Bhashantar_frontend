@@ -19,13 +19,7 @@ const CompanyInstance = ({ role }) => {
   return (
     <div className="flex">
       {companyId === 'cvy2lr5H0CUVH8o2vsVk' ? <KyroSidebar companyId={companyId} role={role}/> : <Sidebar companyId={companyId} role={role} />}
-      {/* if (companyId === 'cvy2lr5H0CUVH8o2vsVk') {
-        <KyroSidebar companyId={companyId} role={role}/>
-
-    }
-    else{
-      <Sidebar companyId={companyId} role={role} />
-    } */}
+ 
       <div className="flex-grow">
         <Routes>
           <Route path="/profile" element={<Profile />} />

@@ -14,7 +14,7 @@ import Table from '../Table/Table';
 import TableAdmin from '../Table/TableAdmin';
 import KyroCompletedTable from '../Table/KyroCompletedTable';
 import { useNavigate } from 'react-router-dom';
-import {formatDate} from '../../utils/formatDate'
+import { formatDate } from '../../utils/formatDate'
 
 
 const columnsReadyForWork = [
@@ -188,16 +188,18 @@ const KyroAdminFileFlow = () => {
   };
 
 
-  // const handleAssignSelected = async () => {
-  //   for (const fileId of selectedRows) {
-  //     await updateFileStatus(projectId, fileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: formatDate(new Date()) });
-  //   }
-  //   setSelectedRows([]);
-  //   const updatedFiles = await fetchProjectFiles(projectId);
-  //   setFiles(updatedFiles);
-  //   navigate(-1);
+  const handleRevertBackSelected = async () => {
+    for (const fileId of selectedRows) {
+      await updateFileStatusNumber(projectId, fileId, 3);
+      // setCompletedFiles(files.filter(file => file.id !== fileId));
+    }
+    setSelectedRows([]);
+    const updatedFiles = await fetchProjectFiles(projectId);
+    setFiles(updatedFiles);
 
-  // };
+    navigate(-1);
+
+  };
 
   const handleSendSelected = async () => {
     for (const fileId of selectedRows) {
@@ -270,8 +272,8 @@ const KyroAdminFileFlow = () => {
           rowsPerPage={rowsPerPage}
           selectedRows={selectedRows}
           setSelectedRows={setSelectedRows}
-          // handleEditNavigate={handleEditNavigate}
           handleSendSelected={handleSendSelected}
+          handleRevertBackSelected={handleRevertBackSelected}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           projectName={projectName}

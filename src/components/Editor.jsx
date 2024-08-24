@@ -72,9 +72,7 @@ const Editor = () => {
         // // Extract the filename from the full decoded path
         // const fileNameWithQuery = decodedUrl.split("/").pop(); 
         // const fileName = fileNameWithQuery.split("?")[0]; 
-        const fileName = fetchFileNameById(documentId)
-
-        setFileName(fileName);
+    
         setIsInitialContentSet(true);
       } catch (err) {
         setError("Error fetching document");
@@ -84,6 +82,15 @@ const Editor = () => {
       }
     };
     fetchContent();
+  }, [projectId, documentId]);
+
+  useEffect(() => {
+    const fetchName = async () => {
+      const name = await fetchFileNameById(projectId, documentId);
+      setFileName(name);
+    };
+  
+    fetchName();
   }, [projectId, documentId]);
 
   useEffect(() => {
@@ -297,9 +304,18 @@ const Editor = () => {
           borderRight: "1px solid #ccc",
         }}
       >
-        <div>
+        {/* <div>
+          <div>{fileName}</div>
           <iframe src={pdfUrl} title={fileName} width="100%" height="988px" />
-        </div>
+        </div> */}
+        {fileName ? (
+          <>
+            {/* <div>{fileName}</div> */}
+            <iframe src={pdfUrl} title={fileName} width="100%" height="988px" />
+          </>
+        ) : (
+          <div>Loading...</div>
+        )}
         <Button
           onClick={handleBack}
           variant="contained"
