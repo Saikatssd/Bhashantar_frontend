@@ -69,7 +69,6 @@ const AdminHome = ({ companyId, role }) => {
   useEffect(() => {
     if (companyId && startDate && endDate) {
       const fetchReport = async () => {
-        setIsLoading(true);
         try {
           const details = await fetchReportDetails(
             companyId,
@@ -79,9 +78,7 @@ const AdminHome = ({ companyId, role }) => {
           setReportDetails(details);
         } catch (error) {
           console.error("Error fetching report details:", error);
-        } finally {
-          setIsLoading(false);
-        }
+        } 
       };
       fetchReport();
     }
