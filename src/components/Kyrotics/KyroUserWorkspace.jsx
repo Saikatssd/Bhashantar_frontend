@@ -60,7 +60,7 @@ const KyroUserWorkspace = () => {
             (file) => file.status === 3 && file.kyro_assignedTo === currentUser.uid
           );
           const projectCompletedFiles = project.files.filter(
-            (file) => file.status === 4 && file.kyro_assignedTo === currentUser.uid
+            (file) => file.status >= 4 && file.kyro_assignedTo === currentUser.uid
           );
 
           projectInProgressFiles.forEach((file) =>

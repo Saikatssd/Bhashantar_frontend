@@ -12,6 +12,7 @@ import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import PrivateRoute from './components/common/PrivateRoute';
 import FileReportUser from './components/reports/UserCompFileReport';
+import './App.css'
 
 const App = () => {
   const [user, setUser] = useState(null);

@@ -203,7 +203,7 @@ const AdminFileFlow = () => {
       // await updateFileStatus(projectId, selectedFileId, 5, userId);
       setReadyForWorkFiles(files.filter((file) => file.id !== selectedFileId));
       handleCloseModal();
-      navigate(-1);
+      navigate(1);
     } catch (err) {
       console.error("Error updating file status:", err);
       setError(err);

@@ -34,6 +34,82 @@ export const fetchAllProjects = async () => {
   }
 };
 
+export const fetchFilesByStatus = async () => {
+  try {
+    // Fetch all projects
+    const projectsSnapshot = await getDocs(collection(db, "projects"));
+    const allFiles = [];
+
+    for (const projectDoc of projectsSnapshot.docs) {
+      const projectId = projectDoc.id;
+
+      // Fetch files for each project
+      const filesCollection = collection(db, "projects", projectId, "files");
+
+      // Query for files with status 3 (Pending), status >= 5 (Completed), and status 4 (Under Review)
+      const filesQuery = query(
+        filesCollection,
+        where("status", "in", [3, 4]),
+        where("status", ">=", 3)
+      );
+
+      const filesSnapshot = await getDocs(filesQuery);
+
+      // Filter the files based on the status criteria and map them
+      const files = filesSnapshot.docs
+        .map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data.name,
+            pdfUrl: data.pdfUrl,
+            htmlUrl: data.htmlUrl,
+            pageCount: data.pageCount,
+            projectId: projectId,
+            status: data.status,
+
+            uploadedDate: data.uploadedDate ? data.uploadedDate : null,
+            kyro_assignedDate: data.kyro_assignedDate
+              ? data.kyro_assignedDate
+              : null,
+            kyro_completedDate: data.kyro_completedDate
+              ? data.kyro_completedDate
+              : null,
+            kyro_deliveredDate: data.kyro_deliveredDate
+              ? data.kyro_deliveredDate
+              : null,
+
+            client_assignedDate: data.client_assignedDate
+              ? data.client_assignedDate
+              : null,
+            client_completedDate: data.client_completedDate
+              ? data.client_completedDate
+              : null,
+
+            client_downloadedDate: data.client_downloadedDate
+              ? data.client_downloadedDate
+              : null,
+
+            kyro_assignedTo: data.kyro_assignedTo || null,
+            client_assignedTo: data.client_assignedTo || null,
+          };
+        })
+        .filter((file) => {
+          // Further filter to include only Pending (status 3), Completed (status >= 5), and Under Review (status 4)
+          return file.status === 3 || file.status >= 5 || file.status === 4;
+        });
+
+      // Add filtered files to the allFiles array
+      allFiles.push(...files);
+    }
+
+    return allFiles;
+  } catch (error) {
+    console.error("Error fetching files by status:", error);
+    throw new Error("Error fetching files by status");
+  }
+};
+
 export const fetchProjectFilesByDate = async (
   projectId,
   startDate,
@@ -127,22 +203,17 @@ export const fetchProjectFiles = async (projectId) => {
 };
 
 export const fetchTotalProjectFilesCount = async (projectId) => {
-    try {
-      const q = query(
-        collection(db, "projects", projectId, "files")
-      );
-      const filesSnapshot = await getDocs(q);
-      const fileCount = filesSnapshot.size;
+  try {
+    const q = query(collection(db, "projects", projectId, "files"));
+    const filesSnapshot = await getDocs(q);
+    const fileCount = filesSnapshot.size;
     //   console.log(`Project: ${projectId}, File Count: ${fileCount}`);
-      return fileCount;
-    } catch (error) {
-      console.error(
-        `Error fetching project files count:`,
-        error
-      );
-      throw new Error("Error fetching project files count");
-    }
-  };
+    return fileCount;
+  } catch (error) {
+    console.error(`Error fetching project files count:`, error);
+    throw new Error("Error fetching project files count");
+  }
+};
 
 // export const fetchTotalProjectFilesCount = async (projectId) => {
 //   try {
@@ -166,3 +237,95 @@ export const fetchTotalProjectFilesCount = async (projectId) => {
 //     throw new Error("Error fetching project files count");
 //   }
 // };
+
+export const fetchUserProjectsCount = async (userId) => {
+  try {
+    // Fetch all projects
+    const projectsSnapshot = await getDocs(collection(db, "projects"));
+    let pendingCount = 0;
+    let completedCount = 0;
+    let underReviewCount = 0;
+
+    for (const projectDoc of projectsSnapshot.docs) {
+      const projectId = projectDoc.id;
+
+      // Fetch files for each project where kyro_assignedTo matches the userId
+      const filesCollection = collection(db, "projects", projectId, "files");
+      const filesQuery = query(
+        filesCollection,
+        where("kyro_assignedTo", "==", userId),
+        where("status", "in", [3, 4, 5, 6]) // Add all the statuses to filter for
+      );
+
+      const filesSnapshot = await getDocs(filesQuery);
+
+      // Count the files based on their status
+      filesSnapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        if (data.status == 3) pendingCount++;
+        else if (data.status >= 5) completedCount++;
+        else if (data.status == 4) underReviewCount++;
+      });
+    }
+
+    return {
+      pendingCount:
+        pendingCount > 9 ? pendingCount.toString() : `0${pendingCount}`,
+      completedCount:
+        completedCount > 9 ? completedCount.toString() : `0${completedCount}`,
+      underReviewCount:
+        underReviewCount > 9
+          ? underReviewCount.toString()
+          : `0${underReviewCount}`,
+    };
+  } catch (error) {
+    console.error("Error fetching project files by user:", error);
+    throw new Error("Error fetching project files by user");
+  }
+};
+
+export const fetchClientUserProjectsCount = async (userId) => {
+  try {
+    // Fetch all projects
+    const projectsSnapshot = await getDocs(collection(db, "projects"));
+    let pendingCount = 0;
+    let completedCount = 0;
+    let underReviewCount = 0;
+
+    for (const projectDoc of projectsSnapshot.docs) {
+      const projectId = projectDoc.id;
+
+      // Fetch files for each project where kyro_assignedTo matches the userId
+      const filesCollection = collection(db, "projects", projectId, "files");
+      const filesQuery = query(
+        filesCollection,
+        where("client_assignedTo", "==", userId),
+        where("status", "in", [6, 7, 8]) // Add all the statuses to filter for
+      );
+
+      const filesSnapshot = await getDocs(filesQuery);
+
+      // Count the files based on their status
+      filesSnapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        if (data.status == 6) pendingCount++;
+        else if (data.status == 7) completedCount++;
+        else if (data.status == 8) underReviewCount++;
+      });
+    }
+
+    return {
+      pendingCount:
+        pendingCount > 9 ? pendingCount.toString() : `0${pendingCount}`,
+      completedCount:
+        completedCount > 9 ? completedCount.toString() : `0${completedCount}`,
+      underReviewCount:
+        underReviewCount > 9
+          ? underReviewCount.toString()
+          : `0${underReviewCount}`,
+    };
+  } catch (error) {
+    console.error("Error fetching project files by user:", error);
+    throw new Error("Error fetching project files by user");
+  }
+};
