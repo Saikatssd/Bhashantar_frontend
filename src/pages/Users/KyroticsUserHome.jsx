@@ -62,17 +62,6 @@ export default function KyroticsUserHome({ companyId, userId }) {
             </div>
             <div className="flex justify p-5">
               <div
-                className="w-24 h-24 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center text-4xl text-green-500 font-bold"
-                style={{ background: "rgba(191, 249, 191, 0.5)" }}
-              >
-                {projectCounts.completedCount}
-              </div>
-              <div className="ml-5 my-auto ">
-                <p className="text-xl font-bold">Completed Works </p>
-              </div>
-            </div>
-            <div className="flex justify p-5">
-              <div
                 className="w-24 h-24 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center text-4xl text-yellow-500 font-bold"
                 style={{ background: "rgba(249, 246, 191, 0.5)" }}
               >
@@ -80,6 +69,17 @@ export default function KyroticsUserHome({ companyId, userId }) {
               </div>
               <div className="ml-5 my-auto ">
                 <p className="text-xl font-bold">Works under review</p>
+              </div>
+            </div>
+            <div className="flex justify p-5">
+              <div
+                className="w-24 h-24 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center text-4xl text-green-500 font-bold"
+                style={{ background: "rgba(191, 249, 191, 0.5)" }}
+              >
+                {projectCounts.completedCount}
+              </div>
+              <div className="ml-5 my-auto ">
+                <p className="text-xl font-bold">Completed Works </p>
               </div>
             </div>
           </div>
