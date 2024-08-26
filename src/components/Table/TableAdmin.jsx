@@ -10,7 +10,10 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import MuiTable from "@mui/material/Table";
-
+import {
+  fetchProjectFilesCount,
+  fetchTotalPagesInProject,
+} from "../../utils/firestoreUtil";
 
 
 function TableAdmin({
@@ -29,8 +32,31 @@ function TableAdmin({
   status,
 }) {
   const [loading, setLoading] = useState(true);
-
+  const [fileCount, setFileCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [count, pages] = await Promise.all([
+          fetchProjectFilesCount(status, projectId),
+          fetchTotalPagesInProject(status, projectId),
+        ]);
+        setFileCount(count);
+        setTotalPages(pages);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (projectId && status) {
+      fetchData();
+    }
+  }, [projectId, status]);
+
 
   const handleCheckboxClick = (event, id) => {
     if (event.target.checked) {
@@ -40,14 +66,14 @@ function TableAdmin({
     }
   };
 
-  // const selectedRowsData = rows.filter((row) => selectedRows.includes(row.id));
-  // const totalSelectedPages = calculateTotalPages(selectedRowsData);
-
   const calculateTotalPages = (rows) => {
     return rows.reduce((total, row) => {
       return total + (row.pageCount || 0);
     }, 0);
   };
+  const selectedRowsData = rows.filter((row) => selectedRows.includes(row.id));
+  const totalSelectedPages = calculateTotalPages(selectedRowsData);
+
 
   return (
     <div>
