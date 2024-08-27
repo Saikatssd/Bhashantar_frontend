@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
   fetchAllCompanies,
-  // fetchProjectDetails,
-  // fetchReportDetails,
-} from "../../utils/firestoreUtil";
+} from "../../services/companyServices";
 import {
-  fetchReportDetails,
+  fetchDeliveryReportDetails,
   fetchProjectDetails,
 } from "../../services/reportServices";
 import DatePicker from "react-datepicker";
@@ -129,7 +127,7 @@ const KyroAdminHome = ({ companyId, role }) => {
       const fetchReport = async () => {
         setIsLoading(true);
         try {
-          const details = await fetchReportDetails(
+          const details = await fetchDeliveryReportDetails(
             selectedCompany,
             startDate,
             endDate
@@ -271,6 +269,9 @@ const KyroAdminHome = ({ companyId, role }) => {
                                 In Progress
                               </th>
                               <th className="whitespace-nowrap px-6 py-2 font-medium">
+                                QA
+                              </th>
+                              <th className="whitespace-nowrap px-6 py-2 font-medium">
                                 Delivered Files
                               </th>
                             </tr>
@@ -297,6 +298,9 @@ const KyroAdminHome = ({ companyId, role }) => {
                                   {project.inProgressFiles}
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                                  {project.qaFiles}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
                                   {project.deliveredFiles}
                                 </td>
                               </tr>
@@ -315,6 +319,9 @@ const KyroAdminHome = ({ companyId, role }) => {
                               </td>
                               <td className="whitespace-nowrap px-6 py-2 text-center">
                                 {totals.inProgressFiles}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.qaFiles}
                               </td>
                               <td className="whitespace-nowrap px-6 py-2 text-center">
                                 {totals.deliveredFiles}

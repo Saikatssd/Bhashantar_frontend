@@ -201,7 +201,9 @@ import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
 import { FilePageSum } from "../../utils/FilepageSum";
 
 const UserCompFileReport = () => {
-  const today = format(new Date(), "yyyy-MM-dd");
+  const today = format(new Date().setHours(0, 0, 0, 0), "yyyy-MM-dd");
+  // const oneDayBefore = new Date(today);
+  // oneDayBefore.setDate(today.getDate() - 1);
 
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState("");
@@ -213,6 +215,8 @@ const UserCompFileReport = () => {
     start: today,
     end: today,
   });
+
+ 
 
   const clearFilters = () => {
     setCompletedDateRange({
@@ -244,8 +248,13 @@ const UserCompFileReport = () => {
 
       setIsLoading(true);
       try {
-        const startDate = new Date(completedDateRange.start);
-        const endDate = new Date(completedDateRange.end);
+        const startDate = new Date(completedDateRange.start).setHours(
+          0,
+          0,
+          0,
+          0
+        );
+        const endDate = new Date(completedDateRange.end).setHours(0, 0, 0, 0);
         const data = await fetchUserCompletedFilesReport(
           selectedCompany,
           startDate,
@@ -267,9 +276,7 @@ const UserCompFileReport = () => {
     setSelectedCompany(event.target.value);
   };
 
-
   const totals = FilePageSum(filteredDetails);
-
 
   return (
     <div className="container mx-auto p-4">
@@ -385,7 +392,9 @@ const UserCompFileReport = () => {
             ))}
             {/* Add the totals row */}
             <tr className="bg-gray-200 font-bold">
-              <td className="whitespace-nowrap px-6 py-2 text-center">Totals</td>
+              <td className="whitespace-nowrap px-6 py-2 text-center">
+                Totals
+              </td>
               <td className="whitespace-nowrap px-6 py-2 text-center">
                 {totals.totalFiles}
               </td>

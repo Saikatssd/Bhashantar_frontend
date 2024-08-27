@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  fetchAllCompanies,
-  fetchDetailedFileReport,
-} from "../../utils/firestoreUtil";
-import { formatDate } from "../../utils/formatDate";
+import { fetchAllCompanies } from "../../services/companyServices";
+import { fetchDetailedFileReport } from "../../services/reportServices";
 import { exportToExcel } from "../../utils/exportExcel";
 import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import {
   Table,
   TableBody,
@@ -23,14 +19,10 @@ import {
   TablePagination,
   Collapse,
   IconButton,
-  TextField,
 } from "@mui/material";
 import FilterAltRoundedIcon from "@mui/icons-material/FilterAltRounded";
 import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
-
-import { parse, format, isValid } from "date-fns";
-
-import DatePicker from "react-datepicker";
+import { parse,  isValid } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 
 const columns = [
@@ -245,11 +237,11 @@ const DetailedFileReport = () => {
               <option value="4">Completed</option>
               <option value="5.5">Delivered</option> */}
 
-              <option value="">Select Status</option>
-              <option value="ML">ML</option>
+              <option value="">All Status</option>
+              <option value="Processing ">Processing</option>
               <option value="NotStarted">Ready for Work</option>
               <option value="InProgress">Work in Progress</option>
-              <option value="Completed">Completed</option>
+              <option value="QA">QA</option>
               <option value="Delivered">Delivered</option>
             </select>
           </div>
@@ -260,7 +252,7 @@ const DetailedFileReport = () => {
         </div>
 
         <div className="flex space-x-6">
-        <button
+          <button
             onClick={clearFilters}
             className="my-auto py-2 px-3 rounded-3xl bg-[#e3d2fa] hover:bg-[#ffe0e3] hover:shadow-md"
           >

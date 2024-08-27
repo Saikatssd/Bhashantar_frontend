@@ -1,8 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
+
 import {
   fetchAllCompanies,
+} from "../../services/companyServices";
+import {
   fetchClientDetailedFileReport,
-} from "../../utils/firestoreUtil";
+} from "../../services/reportServices";
+// import {
+//   fetchAllCompanies,
+//   fetchClientDetailedFileReport,
+// } from "../../utils/firestoreUtil";
 import { formatDate } from "../../utils/formatDate";
 import { exportToExcel } from "../../utils/exportExcel";
 import SearchIcon from "@mui/icons-material/Search";
@@ -200,7 +207,7 @@ const ClientFileDetailedReport = ({ companyId }) => {
             />
           </div>
           <div className="flex flex-col">
-            <select
+          <select
               id="status-options"
               value={filters.status}
               onChange={handleFilterChange}
@@ -208,19 +215,11 @@ const ClientFileDetailedReport = ({ companyId }) => {
               name="status"
               placeholder="Select Status"
             >
-              {/* <option value="">Select Status</option>
-              <option value="1">ML</option>
-              <option value="2">Ready for Work</option>
-              <option value="3">Work in Progress</option>
-              <option value="4">Completed</option>
-              <option value="5.5">Delivered</option> */}
-
-              <option value="">Select Status</option>
-              <option value="ML">ML</option>
+              <option value="">All Status</option>
               <option value="NotStarted">Ready for Work</option>
               <option value="InProgress">Work in Progress</option>
               <option value="Completed">Completed</option>
-              <option value="Delivered">Delivered</option>
+              <option value="Downloaded">Downloaded</option>
             </select>
           </div>
           <IconButton onClick={() => setShowFilters(!showFilters)}>

@@ -36,31 +36,7 @@ function CompletedTable({
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentFile, setCurrentFile] = useState(null);
   const [selectedAnchorEl, setSelectedAnchorEl] = useState(null);
-  const [fileCount, setFileCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [count, pages] = await Promise.all([
-          fetchProjectFilesCount(status, projectId),
-          fetchTotalPagesInProject(status, projectId),
-        ]);
-        setFileCount(count);
-        setTotalPages(pages);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (projectId && status) {
-      fetchData();
-    }
-  }, [projectId, status]);
 
   const handleCheckboxClick = (event, id) => {
     if (event.target.checked) {

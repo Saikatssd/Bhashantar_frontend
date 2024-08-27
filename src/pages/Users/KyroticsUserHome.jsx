@@ -58,6 +58,7 @@ export default function KyroticsUserHome({ companyId, userId }) {
               </div>
               <div className="ml-5 my-auto ">
                 <p className="text-xl font-bold">Pending Works </p>
+                <p className="text-md mt-4">1000 pages</p>
               </div>
             </div>
             <div className="flex justify p-5">

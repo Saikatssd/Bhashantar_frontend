@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-import {  fetchClientProjectDetails,fetchReportDetails } from "../../services/reportServices";
+import {  fetchClientProjectDetails,fetchDeliveryReportDetails } from "../../services/reportServices";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -70,7 +70,7 @@ const AdminHome = ({ companyId, role }) => {
     if (companyId && startDate && endDate) {
       const fetchReport = async () => {
         try {
-          const details = await fetchReportDetails(
+          const details = await fetchDeliveryReportDetails(
             companyId,
             startDate,
             endDate
