@@ -187,7 +187,7 @@ const ProjectList = () => {
                   {project.name}
                 </div>
               </Link>
-              {fileCounts[project.id] === 0 ? (
+              {/* {fileCounts[project.id] === 0 ? (
                 <Fab
                   color="secondary"
                   size="small"
@@ -202,13 +202,13 @@ const ProjectList = () => {
                 </Fab>
               ) : (
                 <></>
-              )}
+              )} */}
             </div>
           ))}
         </div>
       )}
 
-      <Fab
+      {/* <Fab
         variant="extended"
         color="primary"
         size="large"
@@ -224,10 +224,10 @@ const ProjectList = () => {
       >
         <AddIcon sx={{ mr: 1 }} />
         New Project
-      </Fab>
+      </Fab> */}
 
       {/* Create Project Modal */}
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <Dialog
           className="relative z-10"
           open={isModalOpen}
@@ -275,10 +275,10 @@ const ProjectList = () => {
             </div>
           </div>
         </Dialog>
-      )}
+      )} */}
 
       {/* Edit Project Modal */}
-      {isEditModalOpen && (
+      {/* {isEditModalOpen && (
         <Dialog
           className="relative z-10"
           open={isEditModalOpen}
@@ -333,7 +333,7 @@ const ProjectList = () => {
             </div>
           </div>
         </Dialog>
-      )}
+      )} */}
     </div>
   );
 };

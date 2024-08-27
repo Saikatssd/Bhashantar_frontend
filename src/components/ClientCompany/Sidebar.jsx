@@ -137,7 +137,7 @@ export default function Sidebar({ companyId, role }) {
                           Manage Users
                         </Link>
                       </li>
-                      <li>
+                      {/* <li>
                         <Link
                           to={`/company/${companyId}/userManage`}
                           className={`block rounded-lg ml-3 pl-2 py-3 text-sm font-medium ${isActive(`/company/${companyId}/userManage`)
@@ -148,7 +148,7 @@ export default function Sidebar({ companyId, role }) {
                           <DriveFileRenameOutlineIcon className="mr-5" />
                           Folder settings
                         </Link>
-                      </li>
+                      </li> */}
                     </ul>
                   </Collapse>
                 </li>

@@ -72,7 +72,7 @@ const Editor = () => {
         // // Extract the filename from the full decoded path
         // const fileNameWithQuery = decodedUrl.split("/").pop(); 
         // const fileName = fileNameWithQuery.split("?")[0]; 
-    
+
         setIsInitialContentSet(true);
       } catch (err) {
         setError("Error fetching document");
@@ -89,7 +89,7 @@ const Editor = () => {
       const name = await fetchFileNameById(projectId, documentId);
       setFileName(name);
     };
-  
+
     fetchName();
   }, [projectId, documentId]);
 
@@ -335,19 +335,7 @@ const Editor = () => {
           Back
         </Button>
 
-        <Tooltip title="Download">
-          <DownloadIcon
-            onClick={handleDownload}
-            sx={{
-              position: "fixed",
-              top: 26,
-              right: 350,
-              fontSize: "20px",
-              zIndex: 10,
-            }}
-            className="text-gray-600 hover:text-blue-600 hover:scale-125 cursor-pointer "
-          />
-        </Tooltip>
+
       </div>
       <div style={{ flex: 1, padding: "10px" }}>
         {initializeEditor()}
@@ -368,6 +356,19 @@ const Editor = () => {
         >
           Submit
         </Button>
+        <Tooltip title="Download">
+          <DownloadIcon
+            onClick={handleDownload}
+            sx={{
+              position: "fixed",
+              top: 66,
+              right: 50,
+              fontSize: "20px",
+              zIndex: 10,
+            }}
+            className="text-gray-600 hover:text-blue-600 hover:scale-125 cursor-pointer "
+          />
+        </Tooltip>
         <ConfirmationDialog
           open={dialogOpen}
           handleClose={handleCloseDialog}

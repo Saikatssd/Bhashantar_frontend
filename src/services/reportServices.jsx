@@ -197,7 +197,7 @@ export const fetchDeliveryReportDetails = async (
         const deliveredDate = file.kyro_deliveredDate
           ? parse(file.kyro_deliveredDate, "dd/MM/yyyy", new Date())
           : null;
-        console.log(deliveredDate);
+        // console.log(deliveredDate);
 
         return (
           deliveredDate &&
