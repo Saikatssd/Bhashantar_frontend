@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { db } from '../utils/firebase';
+import React, { useState, useEffect } from "react";
+import { db } from "../utils/firebase";
 import {
   Button,
   IconButton,
@@ -14,10 +13,22 @@ import {
   TableRow,
   Paper,
   Typography,
-  CircularProgress
-} from '@mui/material';
-import { Delete, Block, CheckCircle } from '@mui/icons-material';
-import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+  CircularProgress,
+} from "@mui/material";
+import { Delete, Block, CheckCircle } from "@mui/icons-material";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { toast } from "react-hot-toast";
+import { server } from "../main";
+
+// console.log(server)
 
 const UserManage = ({ companyId }) => {
   const [users, setUsers] = useState([]);
@@ -27,24 +38,27 @@ const UserManage = ({ companyId }) => {
   useEffect(() => {
     const fetchUsersAndRoles = async () => {
       try {
-        const usersQuery = query(collection(db, 'users'), where('companyId', '==', companyId));
+        const usersQuery = query(
+          collection(db, "users"),
+          where("companyId", "==", companyId)
+        );
         const usersSnapshot = await getDocs(usersQuery);
-        const usersData = usersSnapshot.docs.map(doc => ({
+        const usersData = usersSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
         setUsers(usersData);
 
-        const rolesSnapshot = await getDocs(collection(db, 'roles'));
+        const rolesSnapshot = await getDocs(collection(db, "roles"));
         const rolesData = rolesSnapshot.docs
-          .filter(doc => doc.data().name !== 'superAdmin')
-          .map(doc => ({
+          .filter((doc) => doc.data().name !== "superAdmin")
+          .map((doc) => ({
             id: doc.id,
             ...doc.data(),
           }));
         setRoles(rolesData);
       } catch (error) {
-        console.error('Error fetching users and roles:', error);
+        console.error("Error fetching users and roles:", error);
       } finally {
         setLoading(false);
       }
@@ -55,7 +69,7 @@ const UserManage = ({ companyId }) => {
 
   const handleRoleChange = async (userId, newRoleId) => {
     try {
-      const userRef = doc(db, 'users', userId);
+      const userRef = doc(db, "users", userId);
       await updateDoc(userRef, { roleId: newRoleId });
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
@@ -63,31 +77,66 @@ const UserManage = ({ companyId }) => {
         )
       );
     } catch (error) {
-      console.error('Error assigning role:', error);
+      console.error("Error assigning role:", error);
     }
   };
 
   const handleDisableUser = async (userId) => {
     try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, { disabled: true });
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === userId ? { ...user, disabled: true } : user
-        )
-      );
+      const response = await fetch(`${server}/api/auth/disableUser`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+      console.log(response);
+      if (response.ok) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === userId ? { ...user, disabled: true } : user
+          )
+        );
+      } else {
+        toast.error("Failed to disable user");
+      }
     } catch (error) {
-      console.error('Error disabling user:', error);
+      console.error("Error disabling user:", error);
+    }
+  };
+
+  // console.log("server", server);
+  const handleEnableUser = async (userId) => {
+    try {
+      const response = await fetch(`${server}/api/auth/enableUser`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (response.ok) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === userId ? { ...user, disabled: false } : user
+          )
+        );
+      } else {
+        toast.error("Failed to enable user");
+      }
+    } catch (error) {
+      console.error("Error enabling user:", error);
     }
   };
 
   const handleDeleteUser = async (userId) => {
     try {
-      const userRef = doc(db, 'users', userId);
+      const userRef = doc(db, "users", userId);
       await deleteDoc(userRef);
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error("Error deleting user:", error);
     }
   };
 
@@ -127,10 +176,23 @@ const UserManage = ({ companyId }) => {
                   </Select>
                 </TableCell>
                 <TableCell>
-                  <IconButton onClick={() => handleDisableUser(user.id)} disabled={user.disabled} className="mr-2">
-                    {user.disabled ? <CheckCircle className="text-green-500" /> : <Block className="text-red-500" />}
+                  <IconButton className="mr-2">
+                    {user.disabled ? (
+                      <CheckCircle
+                        className="text-green-500"
+                        onClick={() => handleEnableUser(user.id)}
+                      />
+                    ) : (
+                      <Block
+                        className="text-red-500"
+                        onClick={() => handleDisableUser(user.id)}
+                      />
+                    )}
                   </IconButton>
-                  <IconButton onClick={() => handleDeleteUser(user.id)} className="text-red-500">
+                  <IconButton
+                    onClick={() => handleDeleteUser(user.id)}
+                    className="text-red-500"
+                  >
                     <Delete />
                   </IconButton>
                 </TableCell>

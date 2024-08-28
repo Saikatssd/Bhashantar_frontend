@@ -11,7 +11,6 @@ import UserWorkspace from './components/ClientCompany/UserFileFlow';
 import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import PrivateRoute from './components/common/PrivateRoute';
-import FileReportUser from './components/reports/UserCompFileReport';
 import './App.css'
 
 const App = () => {
@@ -45,7 +44,6 @@ const App = () => {
         <Routes>
           <Route path="*" element={<Navigate to="/" />} />
           <Route path="/" element={<Login />} />
-          <Route path="/report" element={<FileReportUser />} />
           <Route path="/home" element={
             <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'superAdmin', 'QA']}>
               <DashboardWrapper />

@@ -4,7 +4,7 @@ import Sidebar from "./Sidebar";
 import ProjectList from "../../pages/ProjectList";
 import PermissionsManage from "../../pages/PemissionManage";
 import RoleManage from "../../pages/RoleManage";
-import UserManage from "../../pages/UserManage";
+import UserList from "./userList";
 import UploadDocument from "./UploadDocument";
 import AdminFileFlow from "./AdminFileFlow";
 import Profile from "../../pages/Profile";
@@ -47,8 +47,8 @@ const CompanyInstance = ({ role }) => {
               <Route path="permissionManage" element={<PermissionsManage />} />
               <Route path="roleManage" element={<RoleManage />} />
               <Route
-                path="userManage"
-                element={<UserManage companyId={companyId} />}
+                path="userList"
+                element={<UserList companyId={companyId} />}
               />
             </>
           )}

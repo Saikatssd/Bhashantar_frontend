@@ -14,7 +14,7 @@ import ConfirmationDialog from "../ConfirmationDialog";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import { Collapse } from "@mui/material";
 
 export default function Sidebar({ companyId, role }) {
@@ -40,8 +40,9 @@ export default function Sidebar({ companyId, role }) {
   return (
     <div className="backdrop-blur-sm  bg-white/30 h-screen shadow-xl ">
       <div
-        className={`flex flex-col justify-between transition-transform duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } md:translate-x-0 fixed md:relative w-64 h-full z-10`}
+        className={`flex flex-col justify-between transition-transform duration-300 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 fixed md:relative w-64 h-full z-10`}
       >
         <div className="px-4 py-6">
           <div className="flex justify-center mb-6">
@@ -51,10 +52,11 @@ export default function Sidebar({ companyId, role }) {
             <li>
               <Link
                 to="/home"
-                className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive("/home")
-                  ? "bg-[#e3d2fa] text-gray-700"
-                  : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                  }`}
+                className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                  isActive("/home")
+                    ? "bg-[#e3d2fa] text-gray-700"
+                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                }`}
               >
                 <HomeIcon className="mr-5" />
                 Home
@@ -63,10 +65,11 @@ export default function Sidebar({ companyId, role }) {
             <li>
               <Link
                 to={`/company/${companyId}/project`}
-                className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/project`)
-                  ? "bg-[#e3d2fa] text-gray-700"
-                  : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                  }`}
+                className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                  isActive(`/company/${companyId}/project`)
+                    ? "bg-[#e3d2fa] text-gray-700"
+                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                }`}
               >
                 <FolderCopyIcon className="mr-5" />
                 Judgements
@@ -76,10 +79,11 @@ export default function Sidebar({ companyId, role }) {
               <li>
                 <Link
                   to={`/company/${companyId}/mywork`}
-                  className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/mywork`)
-                    ? "bg-[#e3d2fa] text-gray-700"
-                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                    }`}
+                  className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                    isActive(`/company/${companyId}/mywork`)
+                      ? "bg-[#e3d2fa] text-gray-700"
+                      : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                  }`}
                 >
                   <StorageTwoToneIcon className="mr-5" />
                   My Work
@@ -89,10 +93,11 @@ export default function Sidebar({ companyId, role }) {
             <li>
               <Link
                 to={`/company/${companyId}/profile`}
-                className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/profile`)
-                  ? "bg-[#e3d2fa] text-gray-700"
-                  : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                  }`}
+                className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                  isActive(`/company/${companyId}/profile`)
+                    ? "bg-[#e3d2fa] text-gray-700"
+                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                }`}
               >
                 <PersonIcon className="mr-5" />
                 Profile
@@ -103,68 +108,41 @@ export default function Sidebar({ companyId, role }) {
                 <li>
                   <Link
                     to={`/company/${companyId}/uploadDocument`}
-                    className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/uploadDocument`)
-                      ? "bg-[#e3d2fa] text-gray-700"
-                      : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                      }`}
+                    className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                      isActive(`/company/${companyId}/uploadDocument`)
+                        ? "bg-[#e3d2fa] text-gray-700"
+                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                    }`}
                   >
                     <UploadIcon className="mr-5" />
                     Upload Document
                   </Link>
                 </li>
                 <li>
-                  <div
-                    className="flex justify-between rounded-lg px-4 py-3 mb-3 text-md font-medium text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                    onClick={() => setShowSettings(!showSettings)}
+                  <Link
+                    to={`/company/${companyId}/userList`}
+                    className={`block rounded-lg ml-3 pl-2 py-3 text-sm font-medium ${
+                      isActive(`/company/${companyId}/userManage`)
+                        ? "bg-[#e3d2fa] text-gray-700"
+                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                    }`}
                   >
-                    <div>
-                      <SettingsIcon className="mr-5" />
-                      Settings
-                    </div>
-                    {showSettings ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-                  </div>
-                  <Collapse in={showSettings} timeout="auto" unmountOnExit className="border-l-4 ml-6">
-                    <ul className="space-y-2">
-                      <li>
-                        <Link
-                          to={`/company/${companyId}/userManage`}
-                          className={`block rounded-lg ml-3 pl-2 py-3 text-sm font-medium ${isActive(`/company/${companyId}/userManage`)
-                            ? "bg-[#e3d2fa] text-gray-700"
-                            : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                            }`}
-                        >
-                          <ManageAccountsIcon className="mr-5" />
-                          Manage Users
-                        </Link>
-                      </li>
-                      {/* <li>
-                        <Link
-                          to={`/company/${companyId}/userManage`}
-                          className={`block rounded-lg ml-3 pl-2 py-3 text-sm font-medium ${isActive(`/company/${companyId}/userManage`)
-                            ? "bg-[#e3d2fa] text-gray-700"
-                            : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                            }`}
-                        >
-                          <DriveFileRenameOutlineIcon className="mr-5" />
-                          Folder settings
-                        </Link>
-                      </li> */}
-                    </ul>
-                  </Collapse>
+                    <ManageAccountsIcon className="mr-5" />
+                    Manage Users
+                  </Link>
                 </li>
-
               </>
             )}
-
 
             {role === "superAdmin" && (
               <li>
                 <Link
                   to={`/company/${companyId}/register`}
-                  className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/register`)
-                    ? "bg-[#e3d2fa] text-gray-700"
-                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                    }`}
+                  className={`block rounded-lg px-4 py-3 text-md font-medium ${
+                    isActive(`/company/${companyId}/register`)
+                      ? "bg-[#e3d2fa] text-gray-700"
+                      : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                  }`}
                 >
                   <PersonAddAltRoundedIcon className="mr-5" />
                   Register
