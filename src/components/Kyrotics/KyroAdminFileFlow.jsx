@@ -1,63 +1,66 @@
-import React, { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import CircularProgress from '@mui/material/CircularProgress';
-import Typography from '@mui/material/Typography';
-import TabPanel from '../TabPanel';
-import { fetchProjectFiles, fetchProjectName, fetchUserNameById, updateFileStatus } from '../../utils/firestoreUtil';
-import { useAuth } from '../../context/AuthContext';
-import { useParams } from 'react-router-dom';
-import UserSelectModal from '../UserSelectModal';
-import { auth } from '../../utils/firebase';
-import Table from '../Table/Table';
-import TableAdmin from '../Table/TableAdmin';
-import KyroCompletedTable from '../Table/KyroCompletedTable';
-import { useNavigate } from 'react-router-dom';
-import { formatDate } from '../../utils/formatDate'
-
+import React, { useState, useEffect } from "react";
+import Box from "@mui/material/Box";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import CircularProgress from "@mui/material/CircularProgress";
+import Typography from "@mui/material/Typography";
+import TabPanel from "../TabPanel";
+import {
+  fetchProjectFiles,
+  fetchProjectName,
+  fetchUserNameById,
+  updateFileStatus,
+} from "../../utils/firestoreUtil";
+import { useAuth } from "../../context/AuthContext";
+import { useParams } from "react-router-dom";
+import UserSelectModal from "../UserSelectModal";
+import { auth } from "../../utils/firebase";
+import Table from "../Table/Table";
+import TableAdmin from "../Table/TableAdmin";
+import KyroCompletedTable from "../Table/KyroCompletedTable";
+import { useNavigate } from "react-router-dom";
+import { formatDate } from "../../utils/formatDate";
 
 const columnsReadyForWork = [
-  { id: 'slNo', label: 'Sl. No.', minWidth: 50 },
-  { id: 'name', label: 'File Name', minWidth: 100 },
-  { id: 'pageCount', label: 'Page Count', minWidth: 100 },
-  { id: 'uploadedDate', label: 'Uploaded At', minWidth: 100 },
-  { id: 'edit', label: '', minWidth: 100, align: 'right' },
+  { id: "slNo", label: "Sl. No.", minWidth: 50 },
+  { id: "name", label: "File Name", minWidth: 100 },
+  { id: "pageCount", label: "Page Count", minWidth: 100 },
+  { id: "uploadedDate", label: "Uploaded At", minWidth: 100 },
+  { id: "edit", label: "", minWidth: 100, align: "right" },
 ];
 
 const columnsInProgress = [
-  { id: 'slNo', label: 'Sl. No.', minWidth: 50 },
-  { id: 'name', label: 'File Name', minWidth: 100 },
-  { id: 'pageCount', label: 'Page Count', minWidth: 100 },
-  { id: 'kyro_assignedDate', label: 'Assigned Date', minWidth: 100 },
-  { id: 'kyro_assignedToName', label: 'Assigned To', minWidth: 150 },
-  { id: 'edit', label: '', minWidth: 100, align: 'right' },
+  { id: "slNo", label: "Sl. No.", minWidth: 50 },
+  { id: "name", label: "File Name", minWidth: 100 },
+  { id: "pageCount", label: "Page Count", minWidth: 100 },
+  { id: "kyro_assignedDate", label: "Assigned Date", minWidth: 100 },
+  { id: "kyro_assignedToName", label: "Assigned To", minWidth: 150 },
+  { id: "edit", label: "", minWidth: 100, align: "right" },
 ];
 
 const columnsCompleted = [
-  { id: 'slNo', label: 'Sl. No.', minWidth: 50 },
-  { id: 'name', label: 'File Name', minWidth: 100 },
-  { id: 'pageCount', label: 'Page Count', minWidth: 100 },
+  { id: "slNo", label: "Sl. No.", minWidth: 50 },
+  { id: "name", label: "File Name", minWidth: 100 },
+  { id: "pageCount", label: "Page Count", minWidth: 100 },
   // { id: 'projectName', label: 'Project Name', minWidth: 150 },
-  { id: 'kyro_completedDate', label: 'Completed Date', minWidth: 100 },
-  { id: 'kyro_assignedToName', label: 'Completed By', minWidth: 150 },
-  { id: 'edit', label: '', minWidth: 100, align: 'right' },
+  { id: "kyro_completedDate", label: "Completed Date", minWidth: 100 },
+  { id: "kyro_assignedToName", label: "Completed By", minWidth: 150 },
+  { id: "edit", label: "", minWidth: 100, align: "right" },
 ];
 const columnsQA = [
-  { id: 'slNo', label: 'Sl. No.', minWidth: 50 },
-  { id: 'name', label: 'File Name', minWidth: 100 },
-  { id: 'pageCount', label: 'Page Count', minWidth: 100 },
+  { id: "slNo", label: "Sl. No.", minWidth: 50 },
+  { id: "name", label: "File Name", minWidth: 100 },
+  { id: "pageCount", label: "Page Count", minWidth: 100 },
   // { id: 'projectName', label: 'Project Name', minWidth: 150 },
-  { id: 'kyro_deliveredDate', label: 'Delivered Date', minWidth: 100 },
-  { id: 'kyro_assignedToName', label: 'Completed By', minWidth: 150 },
+  { id: "kyro_deliveredDate", label: "Delivered Date", minWidth: 100 },
+  { id: "kyro_assignedToName", label: "Completed By", minWidth: 150 },
 ];
-
 
 const KyroAdminFileFlow = () => {
   const { projectId } = useParams();
   const [files, setFiles] = useState([]);
   const [tabValue, setTabValue] = useState(0);
-  const [companyId, setCompanyId] = useState('');
+  const [companyId, setCompanyId] = useState("");
   const [readyForWorkFiles, setReadyForWorkFiles] = useState([]);
   const [inProgressFiles, setInProgressFiles] = useState([]);
   const [completedFiles, setCompletedFiles] = useState([]);
@@ -69,8 +72,8 @@ const KyroAdminFileFlow = () => {
   const { currentUser } = useAuth();
   const [openModal, setOpenModal] = useState(false);
   const [selectedFileId, setSelectedFileId] = useState(null);
-  const [projectName, setProjectName] = useState('');
-  const [role, setRole] = useState('');
+  const [projectName, setProjectName] = useState("");
+  const [role, setRole] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
   const navigate = useNavigate();
 
@@ -89,8 +92,6 @@ const KyroAdminFileFlow = () => {
     return () => unsubscribe();
   }, []);
 
-
-
   useEffect(() => {
     const getFiles = async () => {
       if (!companyId || !projectId) return;
@@ -99,41 +100,57 @@ const KyroAdminFileFlow = () => {
         const projectFiles = await fetchProjectFiles(projectId);
         const projectName = await fetchProjectName(projectId);
 
-
         const fetchFileUsers = async (files) => {
-          return await Promise.all(files.map(async (file) => {
-            try {
-              const assignedUser = file.kyro_assignedTo ? await fetchUserNameById(file.kyro_assignedTo) : null;
-              return {
-                ...file,
-                kyro_assignedToName: assignedUser,
-              };
-            } catch (error) {
-              console.error(`Error fetching user name for file ${file.id}:`, error);
-              return {
-                ...file,
-                kyro_assignedToName: file.kyro_assignedTo,  // Fallback to ID if name fetch fails
-              };
-            }
-          }));
+          return await Promise.all(
+            files.map(async (file) => {
+              try {
+                const assignedUser = file.kyro_assignedTo
+                  ? await fetchUserNameById(file.kyro_assignedTo)
+                  : null;
+                return {
+                  ...file,
+                  kyro_assignedToName: assignedUser,
+                };
+              } catch (error) {
+                console.error(
+                  `Error fetching user name for file ${file.id}:`,
+                  error
+                );
+                return {
+                  ...file,
+                  kyro_assignedToName: file.kyro_assignedTo, // Fallback to ID if name fetch fails
+                };
+              }
+            })
+          );
         };
 
+        const readyForWork = await fetchFileUsers(
+          projectFiles.filter((file) => file.status === 2)
+        );
+        const inProgress = await fetchFileUsers(
+          projectFiles.filter((file) => file.status === 3)
+        );
+        const completed = await fetchFileUsers(
+          projectFiles.filter((file) => file.status === 4)
+        );
+        const qa = await fetchFileUsers(
+          projectFiles.filter((file) => file.status >= 5)
+        );
 
-
-
-        const readyForWork = await fetchFileUsers(projectFiles.filter(file => file.status === 2));
-        const inProgress = await fetchFileUsers(projectFiles.filter(file => file.status === 3));
-        const completed = await fetchFileUsers(projectFiles.filter(file => file.status === 4));
-        const qa = await fetchFileUsers(projectFiles.filter(file => file.status >= 5));
-
-
-        setReadyForWorkFiles(readyForWork.map((file, index) => ({ ...file, slNo: index + 1 })));
-        setInProgressFiles(inProgress.map((file, index) => ({ ...file, slNo: index + 1 })));
-        setCompletedFiles(completed.map((file, index) => ({ ...file, slNo: index + 1 })));
+        setReadyForWorkFiles(
+          readyForWork.map((file, index) => ({ ...file, slNo: index + 1 }))
+        );
+        setInProgressFiles(
+          inProgress.map((file, index) => ({ ...file, slNo: index + 1 }))
+        );
+        setCompletedFiles(
+          completed.map((file, index) => ({ ...file, slNo: index + 1 }))
+        );
         setQaFiles(qa.map((file, index) => ({ ...file, slNo: index + 1 })));
         setProjectName(projectName);
       } catch (err) {
-        console.error('Error fetching files:', err);
+        console.error("Error fetching files:", err);
         setError(err);
       } finally {
         setIsLoading(false);
@@ -170,23 +187,29 @@ const KyroAdminFileFlow = () => {
     try {
       if (selectedRows.length != 0) {
         for (const fileId of selectedRows) {
-          await updateFileStatus(projectId, fileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: formatDate(new Date()) });
+          await updateFileStatus(projectId, fileId, {
+            status: 3,
+            kyro_assignedTo: userId,
+            kyro_assignedDate: formatDate(new Date()),
+          });
         }
-      }
-      else {
-        await updateFileStatus(projectId, selectedFileId, { status: 3, kyro_assignedTo: userId, kyro_assignedDate: formatDate(new Date()) });
+      } else {
+        await updateFileStatus(projectId, selectedFileId, {
+          status: 3,
+          kyro_assignedTo: userId,
+          kyro_assignedDate: formatDate(new Date()),
+        });
       }
 
       // await updateFileStatus(projectId, selectedFileId, 3, userId);
-      setReadyForWorkFiles(files.filter(file => file.id !== selectedFileId));
-      window.location.reload();
+      setReadyForWorkFiles(files.filter((file) => file.id !== selectedFileId));
+      navigate(1)
       handleCloseModal();
     } catch (err) {
-      console.error('Error updating file status:', err);
+      console.error("Error updating file status:", err);
       setError(err);
     }
   };
-
 
   const handleRevertBackSelected = async () => {
     for (const fileId of selectedRows) {
@@ -197,20 +220,21 @@ const KyroAdminFileFlow = () => {
     const updatedFiles = await fetchProjectFiles(projectId);
     setFiles(updatedFiles);
 
-    navigate(-1);
-
+    navigate(1);
   };
 
   const handleSendSelected = async () => {
     for (const fileId of selectedRows) {
       // await updateFileStatus(projectId, fileId, { status: 5, kyro_completedDate: formatDate(new Date()) });
-      await updateFileStatus(projectId, fileId, { status: 5, kyro_deliveredDate: formatDate(new Date()) });
+      await updateFileStatus(projectId, fileId, {
+        status: 5,
+        kyro_deliveredDate: formatDate(new Date()),
+      });
     }
     setSelectedRows([]);
     const updatedFiles = await fetchProjectFiles(projectId);
     setFiles(updatedFiles);
     navigate(1);
-
   };
 
   if (isLoading) {
@@ -223,8 +247,16 @@ const KyroAdminFileFlow = () => {
 
   return (
     <Box>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }} className="backdrop-blur-sm pt-3 shadow-md bg-white/30" >
-        <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs example" centered>
+      <Box
+        sx={{ borderBottom: 1, borderColor: "divider" }}
+        className="backdrop-blur-sm pt-3 shadow-md bg-white/30"
+      >
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          aria-label="basic tabs example"
+          centered
+        >
           <Tab label="Ready for Work" />
           <Tab label="Work in Progress" />
           <Tab label="Completed (QA)" />
@@ -262,7 +294,6 @@ const KyroAdminFileFlow = () => {
           status={3}
         />
       </TabPanel>
-
 
       <TabPanel value={tabValue} index={2}>
         <KyroCompletedTable

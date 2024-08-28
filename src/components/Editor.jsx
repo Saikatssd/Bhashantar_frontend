@@ -32,6 +32,7 @@ const Editor = () => {
   const navigate = useNavigate();
   const debouncedHtmlContent = useDebounce(htmlContent, 3000);
   const [companyId, setCompanyId] = useState(null);
+  const [role,setRole] = useState()
 
   const handleOpenDialog = () => {
     setDialogOpen(true);
@@ -48,6 +49,7 @@ const Editor = () => {
         user.companyId = token.claims.companyId;
         setUser(user);
         setCompanyId(user.companyId);
+        setRole(user.roleName)
       } else {
         setUser(null);
       }

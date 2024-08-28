@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { uploadFile, fetchProjectFiles, fetchProjectName, deleteFile } from '../../utils/firestoreUtil';
-import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import { auth } from '../../utils/firebase';
-import { useAuth } from '../../context/AuthContext';
-import { updateFileStatus } from '../../utils/firestoreUtil'
-import UserTable from '../Table/UserTable'
-import {formatDate} from '../../utils/formatDate'
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import {
+  uploadFile,
+  fetchProjectFiles,
+  fetchProjectName,
+  deleteFile,
+} from "../../utils/firestoreUtil";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import { auth } from "../../utils/firebase";
+import { useAuth } from "../../context/AuthContext";
+import { updateFileStatus } from "../../utils/firestoreUtil";
+import UserTable from "../Table/UserTable";
+import { formatDate } from "../../utils/formatDate";
+import { useNavigate } from "react-router-dom";
 
 const UserFileAssign = () => {
   const { projectId } = useParams();
@@ -16,17 +22,19 @@ const UserFileAssign = () => {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [projectName, setProjectName] = useState('');
+  const [projectName, setProjectName] = useState("");
   const [companyId, setCompanyId] = useState(null);
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState("");
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
+  
   const columns = [
-    { id: 'slNo', label: 'Sl. No', minWidth: 50 },
-    { id: 'name', label: 'File Name', minWidth: 170 },
-    { id: 'pageCount', label: 'Page Count', minWidth: 100 },
-    { id: 'kyro_completedDate', label: 'Uploaded At', minWidth: 170 },
-    { id: 'assign', label: 'Actions', minWidth: 100 },
+    { id: "slNo", label: "Sl. No", minWidth: 50 },
+    { id: "name", label: "File Name", minWidth: 170 },
+    { id: "pageCount", label: "Page Count", minWidth: 100 },
+    { id: "kyro_completedDate", label: "Uploaded At", minWidth: 170 },
+    { id: "assign", label: "Actions", minWidth: 100 },
   ];
 
   useEffect(() => {
@@ -50,12 +58,13 @@ const UserFileAssign = () => {
         try {
           const projectFiles = await fetchProjectFiles(projectId);
           const projectName = await fetchProjectName(projectId);
-          const filteredFiles = projectFiles.filter(file => (file.status === 5)
+          const filteredFiles = projectFiles.filter(
+            (file) => file.status === 5
           );
           setFiles(filteredFiles);
           setProjectName(projectName);
         } catch (err) {
-          console.error('Error fetching project data:', err);
+          console.error("Error fetching project data:", err);
           setError(err);
         } finally {
           setIsLoading(false);
@@ -66,34 +75,40 @@ const UserFileAssign = () => {
   }, [projectId, companyId, role]);
 
   const handleFileUpload = async (e) => {
-    const uploadedFiles = Array.from(e.target.files).filter(file => file.type === 'application/pdf');
+    const uploadedFiles = Array.from(e.target.files).filter(
+      (file) => file.type === "application/pdf"
+    );
     try {
       setIsLoading(true);
-      const uploadPromises = uploadedFiles.map(file => uploadFile(projectId, file));
+      const uploadPromises = uploadedFiles.map((file) =>
+        uploadFile(projectId, file)
+      );
       const uploadedFilesData = await Promise.all(uploadPromises);
       setFiles([...files, ...uploadedFilesData]);
       setIsLoading(false);
     } catch (err) {
-      console.error('Error uploading files:', err);
+      console.error("Error uploading files:", err);
       setError(err);
       setIsLoading(false);
     }
   };
 
-
-
   const handleFileAssign = async (id) => {
     try {
-      await updateFileStatus(projectId, id, { status: 6, client_assignedTo: currentUser.uid, client_assignedDate: formatDate(new Date()) });
+      await updateFileStatus(projectId, id, {
+        status: 6,
+        client_assignedTo: currentUser.uid,
+        client_assignedDate: formatDate(new Date()),
+      });
 
       // await updateFileStatus(projectId, id, 5, currentUser.uid);
-      setFiles(files.filter(file => file.id !== id));
+      navigate(1);
+      setFiles(files.filter((file) => file.id !== id));
     } catch (err) {
-      console.error('Error updating file status:', err);
+      console.error("Error updating file status:", err);
       setError(err);
     }
   };
-
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -111,7 +126,7 @@ const UserFileAssign = () => {
         multiple
         accept="application/pdf"
         id="file-upload"
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
         onChange={handleFileUpload}
       />
       {isLoading && <CircularProgress />}
@@ -130,9 +145,7 @@ const UserFileAssign = () => {
             projectName={projectName}
           />
         </>
-
       )}
-
     </div>
   );
 };
