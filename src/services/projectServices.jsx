@@ -245,6 +245,9 @@ export const fetchUserProjectsCount = async (userId) => {
     let pendingCount = 0;
     let completedCount = 0;
     let underReviewCount = 0;
+    let pendingPages = 0;
+    let completedPages = 0;
+    let underReviewPages = 0;
 
     for (const projectDoc of projectsSnapshot.docs) {
       const projectId = projectDoc.id;
@@ -254,7 +257,7 @@ export const fetchUserProjectsCount = async (userId) => {
       const filesQuery = query(
         filesCollection,
         where("kyro_assignedTo", "==", userId),
-        where("status", "in", [3, 4, 5, 6]) // Add all the statuses to filter for
+        where("status", "in", [3, 4, 5, 6, 7, 8]) // Add all the statuses to filter for
       );
 
       const filesSnapshot = await getDocs(filesQuery);
@@ -262,9 +265,17 @@ export const fetchUserProjectsCount = async (userId) => {
       // Count the files based on their status
       filesSnapshot.docs.forEach((doc) => {
         const data = doc.data();
-        if (data.status == 3) pendingCount++;
-        else if (data.status >= 5) completedCount++;
-        else if (data.status == 4) underReviewCount++;
+        const pages = data.pageCount || 0;
+        if (data.status == 3) {
+          pendingCount++;
+          pendingPages += pages;
+        } else if (data.status >= 5) {
+          completedCount++;
+          completedPages += pages;
+        } else if (data.status == 4) {
+          underReviewCount++;
+          underReviewPages += pages;
+        }
       });
     }
 
@@ -277,6 +288,14 @@ export const fetchUserProjectsCount = async (userId) => {
         underReviewCount > 9
           ? underReviewCount.toString()
           : `0${underReviewCount}`,
+      pendingPages:
+        pendingPages > 9 ? pendingPages.toString() : `0${pendingPages}`,
+      completedPages:
+        completedPages > 9 ? completedPages.toString() : `0${completedPages}`,
+      underReviewPages:
+        underReviewPages > 9
+          ? underReviewPages.toString()
+          : `0${underReviewPages}`,
     };
   } catch (error) {
     console.error("Error fetching project files by user:", error);
@@ -291,6 +310,9 @@ export const fetchClientUserProjectsCount = async (userId) => {
     let pendingCount = 0;
     let completedCount = 0;
     let underReviewCount = 0;
+    let pendingPages = 0;
+    let completedPages = 0;
+    let underReviewPages = 0;
 
     for (const projectDoc of projectsSnapshot.docs) {
       const projectId = projectDoc.id;
@@ -308,9 +330,14 @@ export const fetchClientUserProjectsCount = async (userId) => {
       // Count the files based on their status
       filesSnapshot.docs.forEach((doc) => {
         const data = doc.data();
-        if (data.status == 6) pendingCount++;
-        else if (data.status == 7) completedCount++;
-        else if (data.status == 8) underReviewCount++;
+        const pages = data.pageCount || 0;
+        if (data.status == 6) {
+          pendingCount++;
+          pendingPages += pages;
+        } else if (data.status >= 7) {
+          completedCount++;
+          completedPages += pages;
+        }
       });
     }
 
@@ -323,6 +350,14 @@ export const fetchClientUserProjectsCount = async (userId) => {
         underReviewCount > 9
           ? underReviewCount.toString()
           : `0${underReviewCount}`,
+      pendingPages:
+        pendingPages > 9 ? pendingPages.toString() : `0${pendingPages}`,
+      completedPages:
+        completedPages > 9 ? completedPages.toString() : `0${completedPages}`,
+      underReviewPages:
+        underReviewPages > 9
+          ? underReviewPages.toString()
+          : `0${underReviewPages}`,
     };
   } catch (error) {
     console.error("Error fetching project files by user:", error);

@@ -90,18 +90,24 @@ const UserManage = ({ companyId }) => {
         },
         body: JSON.stringify({ userId }),
       });
-      console.log(response);
+  
+      // Check if the response was successful
       if (response.ok) {
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
             user.id === userId ? { ...user, disabled: true } : user
           )
         );
+        toast.success("User disabled successfully");
       } else {
-        toast.error("Failed to disable user");
+        // Handle errors from the response
+        const errorData = await response.json(); // Assuming your backend returns JSON error details
+        console.error("Failed to disable user:", errorData);
+        toast.error("Failed to disable user: " + (errorData.message || "Unknown error"));
       }
     } catch (error) {
       console.error("Error disabling user:", error);
+      toast.error("An error occurred while disabling the user");
     }
   };
 

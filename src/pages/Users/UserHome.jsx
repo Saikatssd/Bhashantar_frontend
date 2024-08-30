@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/ClientCompany/Sidebar";
 import { fetchUserNameById } from "../../utils/firestoreUtil";
 import { fetchClientUserProjectsCount } from "../../services/projectServices";
+import FolderIcon from "@mui/icons-material/Folder";
+import ArticleIcon from "@mui/icons-material/Article";
 
 export default function userHome({ companyId, userId }) {
   const [userName, setUserName] = useState("");
@@ -46,41 +48,57 @@ export default function userHome({ companyId, userId }) {
         </div>
 
         <div className="backdrop-blur-sm shadow-xl bg-white/30 mt-10 rounded-xl mx-auto">
-          <div className="flex justify-between py-5">
-            <div className="flex justify p-5 ">
+
+           <div className="flex justify-center gap-60 p-10">
+            <div className="flex flex-col items-center p-5 gap-5 ">
+              <div className=" ">
+                <p className="text-xl font-bold">Pending Works</p>
+              </div>
               <div
-                className="w-24 h-24 rounded-xl text-center flex justify-center items-center text-4xl text-red-500 font-bold"
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
                 style={{ background: "rgba(249, 145, 145, 0.5)" }}
               >
-                {projectCounts.pendingCount}
+                <div className="px-6">
+                  <FolderIcon className="mr-4" />
+                  {projectCounts.pendingCount}
+                </div>
               </div>
-              <div className="ml-5 my-auto ">
-                <p className="text-xl font-bold">Pending Works </p>
+              <div
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
+                style={{ background: "rgba(249, 145, 145, 0.5)" }}
+              >
+                <div className="px-6">
+                  <ArticleIcon className="mr-4" />
+                  {projectCounts.pendingPages}
+                </div>
               </div>
             </div>
-            <div className="flex justify p-5">
+            <div className="flex flex-col items-center p-5 gap-5">
+              <div className=" ">
+                <p className="text-xl font-bold">Completed Works</p>
+              </div>
               <div
-                className="w-24 h-24 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center text-4xl text-green-500 font-bold"
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
                 style={{ background: "rgba(191, 249, 191, 0.5)" }}
               >
-                {projectCounts.completedCount}
+                <div className="px-6">
+                  <FolderIcon className="mr-4" />
+                  {projectCounts.completedCount}
+                </div>
               </div>
-              <div className="ml-5 my-auto ">
-                <p className="text-xl font-bold">Completed Works </p>
-              </div>
-            </div>
-            <div className="flex justify p-5">
               <div
-                className="w-24 h-24 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center text-4xl text-yellow-500 font-bold"
-                style={{ background: "rgba(249, 246, 191, 0.5)" }}
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
+                style={{ background: "rgba(191, 249, 191, 0.5)" }}
               >
-                {projectCounts.underReviewCount}
-              </div>
-              <div className="ml-5 my-auto ">
-                <p className="text-xl font-bold">Downloaded</p>
+                <div className="px-6">
+                  <ArticleIcon className="mr-4" />
+                  {projectCounts.completedPages}
+                </div>
               </div>
             </div>
           </div>
+
+
         </div>
       </div>
     </div>

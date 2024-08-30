@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import KyroSidebar from "../../components/Kyrotics/KyroSidebar";
 import { fetchUserNameById } from "../../utils/firestoreUtil";
 import { fetchUserProjectsCount } from "../../services/projectServices";
+import FolderIcon from "@mui/icons-material/Folder";
+import ArticleIcon from "@mui/icons-material/Article";
 
 export default function KyroticsUserHome({ companyId, userId }) {
   const [userName, setUserName] = useState("");
@@ -35,7 +37,7 @@ export default function KyroticsUserHome({ companyId, userId }) {
           <div className="flex justify-between">
             <div className="my-auto">
               <h1 className="text-3xl font-bold py-5">
-                Hi ! &nbsp;{userName}&nbsp;  &nbsp;👋 ,
+                Hi ! &nbsp;{userName}&nbsp; &nbsp;👋 ,
               </h1>
               <p className="py-4 text-md">
                 Welcome to your daily tasks. Let's get you started for the day!
@@ -45,42 +47,76 @@ export default function KyroticsUserHome({ companyId, userId }) {
           </div>
         </div>
 
-
-
         <div className="backdrop-blur-sm shadow-xl bg-white/30 mt-10 rounded-xl mx-auto">
-          <div className="flex justify-between py-5">
-            <div className="flex justify p-5 ">
+          <div className="flex justify-between p-10">
+            <div className="flex flex-col items-center p-5 gap-5 ">
+              <div className=" ">
+                <p className="text-xl font-bold">Pending Works</p>
+              </div>
               <div
-                className="w-24 h-24 rounded-xl text-center flex justify-center items-center text-4xl text-red-500 font-bold"
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
                 style={{ background: "rgba(249, 145, 145, 0.5)" }}
               >
-                {projectCounts.pendingCount}
+                <div className="px-6">
+                  <FolderIcon className="mr-4" />
+                  {projectCounts.pendingCount}
+                </div>
               </div>
-              <div className="ml-5 my-auto ">
-                <p className="text-xl font-bold">Pending Works </p>
-                <p className="text-md mt-4">1000 pages</p>
+              <div
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
+                style={{ background: "rgba(249, 145, 145, 0.5)" }}
+              >
+                <div className="px-6">
+                  <ArticleIcon className="mr-4" />
+                  {projectCounts.pendingPages}
+                </div>
               </div>
             </div>
-            <div className="flex justify p-5">
+
+            <div className="flex flex-col items-center p-5 gap-5 ">
+              <div className=" ">
+                <p className="text-xl font-bold">Works under Review</p>
+              </div>
               <div
-                className="w-24 h-24 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center text-4xl text-yellow-500 font-bold"
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-yellow-500 font-bold"
                 style={{ background: "rgba(249, 246, 191, 0.5)" }}
               >
-                {projectCounts.underReviewCount}
+                <div className="px-6">
+                  <FolderIcon className="mr-4" />
+                  {projectCounts.underReviewCount}
+                </div>
               </div>
-              <div className="ml-5 my-auto ">
-                <p className="text-xl font-bold">Works under review</p>
+              <div
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-yellow-500 font-bold"
+                style={{ background: "rgba(249, 246, 191, 0.5)" }}
+              >
+                <div className="px-6">
+                  <ArticleIcon className="mr-4" />
+                  {projectCounts.underReviewPages}
+                </div>
               </div>
             </div>
-            <div className="flex justify p-5">
+            <div className="flex flex-col items-center p-5 gap-5">
+              <div className=" ">
+                <p className="text-xl font-bold">Completed Works</p>
+              </div>
               <div
-                className="w-24 h-24 bg-[#e3d2fa] rounded-xl text-center flex justify-center items-center text-4xl text-green-500 font-bold"
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
                 style={{ background: "rgba(191, 249, 191, 0.5)" }}
               >
-                {projectCounts.completedCount}
+                <div className="px-6">
+                  <FolderIcon className="mr-4" />
+                  {projectCounts.completedCount}
+                </div>
               </div>
-              <div className="ml-5 my-auto ">
-                <p className="text-xl font-bold">Completed Works </p>
+              <div
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
+                style={{ background: "rgba(191, 249, 191, 0.5)" }}
+              >
+                <div className="px-6">
+                  <ArticleIcon className="mr-4" />
+                  {projectCounts.completedPages}
+                </div>
               </div>
             </div>
           </div>

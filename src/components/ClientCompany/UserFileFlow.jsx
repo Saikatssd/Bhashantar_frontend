@@ -65,7 +65,7 @@ const UserFileFlow = () => {
             (file) => file.status === 6 && file.client_assignedTo === currentUser.uid
           );
           const projectCompletedFiles = project.files.filter(
-            (file) => file.status === 7 && file.client_assignedTo === currentUser.uid
+            (file) => file.status >= 7 && file.client_assignedTo === currentUser.uid
           );
 
           projectInProgressFiles.forEach((file) =>

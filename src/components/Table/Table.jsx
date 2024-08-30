@@ -93,7 +93,7 @@ function Table({
       >
         {projectName}
         <span className="ml-4 text-lg font-normal text-gray-600">
-          ({rows.length} files, {calculateTotalPages(rows)} pages)
+         ({rows.length} files, {calculateTotalPages(rows)} pages)
         </span>
       </h2>
 

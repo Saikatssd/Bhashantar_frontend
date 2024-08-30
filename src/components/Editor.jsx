@@ -47,6 +47,7 @@ const Editor = () => {
       if (user) {
         const token = await user.getIdTokenResult();
         user.companyId = token.claims.companyId;
+        user.roleName = token.claims.roleName;
         setUser(user);
         setCompanyId(user.companyId);
         setRole(user.roleName)
@@ -117,10 +118,18 @@ const Editor = () => {
   const handleSave = async () => {
     try {
       if (companyId === "cvy2lr5H0CUVH8o2vsVk") {
-        await updateFileStatus(projectId, documentId, {
-          status: 4,
-          kyro_completedDate: formatDate(new Date()),
-        });
+        if (role === 'QA' || role == 'admin'){
+          await updateFileStatus(projectId, documentId, {
+            status: 5,
+            kyro_completedDate: formatDate(new Date()),
+          });
+        }
+        else{
+          await updateFileStatus(projectId, documentId, {
+            status: 4,
+            kyro_completedDate: formatDate(new Date()),
+          });
+        }
       } else {
         await updateFileStatus(projectId, documentId, {
           status: 7,
