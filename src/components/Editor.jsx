@@ -15,8 +15,9 @@ import DownloadIcon from "@mui/icons-material/Download";
 import Tooltip from "@mui/material/Tooltip";
 import { server } from "../main";
 import axios from "axios";
-import { formatDate } from '../utils/formatDate';
+import { formatDate } from "../utils/formatDate";
 import { fetchFileNameById } from "../services/fileServices";
+import { toast, Toaster } from "react-hot-toast";
 
 const Editor = () => {
   const { projectId, documentId } = useParams();
@@ -32,7 +33,7 @@ const Editor = () => {
   const navigate = useNavigate();
   const debouncedHtmlContent = useDebounce(htmlContent, 3000);
   const [companyId, setCompanyId] = useState(null);
-  const [role,setRole] = useState()
+  const [role, setRole] = useState();
 
   const handleOpenDialog = () => {
     setDialogOpen(true);
@@ -50,7 +51,7 @@ const Editor = () => {
         user.roleName = token.claims.roleName;
         setUser(user);
         setCompanyId(user.companyId);
-        setRole(user.roleName)
+        setRole(user.roleName);
       } else {
         setUser(null);
       }
@@ -73,8 +74,8 @@ const Editor = () => {
         // const decodedUrl = decodeURIComponent(pdfUrl);
 
         // // Extract the filename from the full decoded path
-        // const fileNameWithQuery = decodedUrl.split("/").pop(); 
-        // const fileName = fileNameWithQuery.split("?")[0]; 
+        // const fileNameWithQuery = decodedUrl.split("/").pop();
+        // const fileName = fileNameWithQuery.split("?")[0];
 
         setIsInitialContentSet(true);
       } catch (err) {
@@ -113,18 +114,17 @@ const Editor = () => {
     saveContent();
   }, [debouncedHtmlContent, projectId, documentId]);
 
-  console.log(fileName)
+  console.log(fileName);
 
   const handleSave = async () => {
     try {
       if (companyId === "cvy2lr5H0CUVH8o2vsVk") {
-        if (role === 'QA' || role == 'admin'){
+        if (role == "QA") {
           await updateFileStatus(projectId, documentId, {
             status: 5,
             kyro_completedDate: formatDate(new Date()),
           });
-        }
-        else{
+        } else {
           await updateFileStatus(projectId, documentId, {
             status: 4,
             kyro_completedDate: formatDate(new Date()),
@@ -143,34 +143,88 @@ const Editor = () => {
     }
   };
 
+  // const handleDownload = async () => {
+  //   setError(null); // Clear any previous error
+
+  //   try {
+  //     const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
+  //     const response = await axios.get(endpoint, {
+  //       responseType: "blob",
+  //     });
+
+  //     // Extract filename from headers or use a fallback
+  //     const contentDisposition = response.headers["content-disposition"];
+  //     const filename = contentDisposition
+  //       ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+  //       : "document.zip";
+
+  //     const url = window.URL.createObjectURL(new Blob([response.data]));
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.setAttribute("download", filename);
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     link.remove();
+  //     // toast.success("Zip File Downloaded");
+
+  //     toast.promise(
+  //       saveSettings(settings),{
+  //         loading: "Downloading...",
+  //         success: <b>Zip File Downloaded!</b>,
+  //         error: <b>Could not save.</b>,
+  //       }
+  //     );
+      
+  //   } catch (err) {
+  //     console.log("Download error", err);
+  //     // setError("An error occurred while downloading the document."); // Set a descriptive error message
+  //     toast.error("Blank file can't be downloaded", { position: "top-right", style:{background: '#333', color: '#fff'} });
+  //     console.error("Error during document download:", err); // Log the actual error
+  //   }
+  // };
+
   const handleDownload = async () => {
     setError(null); // Clear any previous error
-
+  
     try {
       const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
-      const response = await axios.get(endpoint, {
-        responseType: "blob",
+  
+      // Use toast.promise to handle the download process
+      await toast.promise(
+        axios.get(endpoint, {
+          responseType: "blob",
+        }),
+        {
+          loading: "Downloading...",
+          success: "Zip File Downloaded!",
+          error: "An error occurred while downloading the document.",
+        }
+      ).then((response) => {
+        // Extract filename from headers or use a fallback
+        const contentDisposition = response.headers["content-disposition"];
+        const filename = contentDisposition
+          ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+          : "document.zip";
+  
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
       });
-
-      // Extract filename from headers or use a fallback
-      const contentDisposition = response.headers["content-disposition"];
-      const filename = contentDisposition
-        ? contentDisposition.split("filename=")[1].replace(/"/g, "")
-        : "document.zip";
-
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
+  
     } catch (err) {
-      setError("An error occurred while downloading the document."); // Set a descriptive error message
+      console.log("Download error", err);
+      toast.error("Blank file can't be downloaded", {
+        position: "top-right",
+        style: { background: '#333', color: '#fff' },
+      });
       console.error("Error during document download:", err); // Log the actual error
     }
   };
+  
 
   const handleBack = () => {
     navigate(-1);
@@ -236,7 +290,7 @@ const Editor = () => {
           value={htmlContent}
           init={{
             height: "calc(100vh)",
-            menubar: 'edit insert view format table tools',
+            menubar: "edit insert view format table tools",
             content_css: [
               // Load default content CSS and include the custom font
               "https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/skins/content/default/content.min.css",
@@ -286,7 +340,6 @@ const Editor = () => {
     }
     return null;
   }, [htmlContent, isInitialContentSet, documentId]);
-
 
   useEffect(() => {
     return () => {
@@ -346,7 +399,7 @@ const Editor = () => {
           Back
         </Button>
 
-
+        {/* <Toaster position="top-right" reverseOrder={false} /> */}
       </div>
       <div style={{ flex: 1, padding: "10px" }}>
         {initializeEditor()}
@@ -373,7 +426,7 @@ const Editor = () => {
             sx={{
               position: "fixed",
               top: 66,
-              right: 50,
+              right: 25,
               fontSize: "20px",
               zIndex: 10,
             }}

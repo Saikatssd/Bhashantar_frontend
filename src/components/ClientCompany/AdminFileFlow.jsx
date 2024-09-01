@@ -4,7 +4,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 import TabPanel from "../TabPanel.jsx";
 import {
@@ -23,7 +23,8 @@ import Table from "../Table/Table.jsx";
 import CompletedTable from "../Table/CompletedTable.jsx";
 import { server } from "../../main.jsx";
 import axios from "axios";
-import { formatDate } from '../../utils/formatDate.jsx';
+import { formatDate } from "../../utils/formatDate.jsx";
+import { toast } from "react-hot-toast";
 
 const columnsReadyForWork = [
   { id: "slNo", label: "Sl. No", minWidth: 50 },
@@ -218,30 +219,85 @@ const AdminFileFlow = () => {
       if (format === "word") {
         endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
       }
-      const response = await axios.get(endpoint, {
-        responseType: "blob",
-      });
 
-      // console.log("headers", response.headers);
-      // Extract filename from headers or use a fallback
-      const contentDisposition = response.headers["content-disposition"];
-      const filename = contentDisposition
-        ? contentDisposition.split("filename=")[1].replace(/"/g, "")
-        : "document.zip";
+      // Use toast.promise to handle the download process
+      await toast.promise(
+        axios
+          .get(endpoint, {
+            responseType: "blob",
+          })
+          .then((response) => {
+            // Extract filename from headers or use a fallback
+            const contentDisposition = response.headers["content-disposition"];
+            const filename = contentDisposition
+              ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+              : "document.zip";
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setCompletedFiles(files.filter((file) => file.id !== documentId));
-      await updateFileStatus(projectId, documentId, { status: 8, client_downloadedDate: formatDate(new Date()) });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            // Update the completed files list
+            setCompletedFiles(files.filter((file) => file.id !== documentId));
+            // Update file status
+            return updateFileStatus(projectId, documentId, {
+              status: 8,
+              client_downloadedDate: formatDate(new Date()),
+            });
+          }),
+        {
+          loading: "Downloading...",
+          success: "File downloaded successfully!",
+          error: "An error occurred while downloading the file.",
+        }
+      );
+      // navigate(1);
     } catch (err) {
       setError(err);
+      toast.error("An error occurred. Please try again.", {
+        position: "top-right",
+        style: { background: "#333", color: "#fff" },
+      });
+      console.error("Error during document download:", err);
     }
   };
+
+  // const handleDownload = async (projectId, documentId, format) => {
+  //   setError(null);
+
+  //   try {
+  //     let endpoint = `${server}/api/document/${projectId}/${documentId}/downloadPdf`;
+  //     if (format === "word") {
+  //       endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
+  //     }
+  //     const response = await axios.get(endpoint, {
+  //       responseType: "blob",
+  //     });
+
+  //     // console.log("headers", response.headers);
+  //     // Extract filename from headers or use a fallback
+  //     const contentDisposition = response.headers["content-disposition"];
+  //     const filename = contentDisposition
+  //       ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+  //       : "document.zip";
+
+  //     const url = window.URL.createObjectURL(new Blob([response.data]));
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.setAttribute("download", filename);
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     link.remove();
+  //     setCompletedFiles(files.filter((file) => file.id !== documentId));
+  //     await updateFileStatus(projectId, documentId, { status: 8, client_downloadedDate: formatDate(new Date()) });
+  //   } catch (err) {
+  //     setError(err);
+  //   }
+  // };
 
   const handleDownloadSelected = async (format) => {
     try {

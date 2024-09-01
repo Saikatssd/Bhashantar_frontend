@@ -202,9 +202,11 @@ const KyroAdminFileFlow = () => {
         });
       }
 
-      
-      setReadyForWorkFiles(files.filter((file) => file.id !== selectedFileId));
-      // navigate(1)
+      // setReadyForWorkFiles(files.filter((file) => file.id !== selectedFileId));
+      // setInProgressFiles(
+      //   files.filter((file) => file.id === selectedFileId || file.status === 3)
+      // );
+      navigate(1);
       handleCloseModal();
     } catch (err) {
       console.error("Error updating file status:", err);

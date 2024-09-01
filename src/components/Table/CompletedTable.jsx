@@ -36,7 +36,7 @@ function CompletedTable({
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentFile, setCurrentFile] = useState(null);
   const [selectedAnchorEl, setSelectedAnchorEl] = useState(null);
-  const [loading, setLoading] = useState(true);
+
 
   const handleCheckboxClick = (event, id) => {
     if (event.target.checked) {
@@ -86,11 +86,10 @@ function CompletedTable({
     <div>
       <h2 className="text-center py-4 font-bold text-2xl">
         {projectName}
-        {!loading && (
-          <span className="ml-4 text-lg font-normal text-gray-600">
-            ({rows.length} files, {calculateTotalPages(rows)} pages)
-          </span>
-        )}
+
+        <span className="ml-4 text-lg font-normal text-gray-600">
+          ({rows.length} files, {calculateTotalPages(rows)} pages)
+        </span>
       </h2>
       <div className="flex justify-between items-center mb-4 px-4">
         <Button
