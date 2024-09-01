@@ -102,8 +102,8 @@ const UserFileAssign = () => {
       });
 
       // await updateFileStatus(projectId, id, 5, currentUser.uid);
-      navigate(1);
       setFiles(files.filter((file) => file.id !== id));
+      // navigate(1);
     } catch (err) {
       console.error("Error updating file status:", err);
       setError(err);

@@ -63,7 +63,7 @@ const columnsDownloaded = [
 
 const AdminFileFlow = () => {
   const { projectId } = useParams();
-  const [files, setFiles] = useState([]);
+  // const [files, setFiles] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [companyId, setCompanyId] = useState("");
   const [readyForWorkFiles, setReadyForWorkFiles] = useState([]);
@@ -183,33 +183,86 @@ const AdminFileFlow = () => {
     setSelectedFileId(null);
   };
 
+  // const handleAssignToUser = async (userId) => {
+  //   try {
+  //     if (selectedRows.length != 0) {
+  //       for (const fileId of selectedRows) {
+  //         await updateFileStatus(projectId, fileId, {
+  //           status: 6,
+  //           client_assignedTo: userId,
+  //           client_assignedDate: formatDate(new Date()),
+  //         });
+  //       }
+  //     } else {
+  //       await updateFileStatus(projectId, selectedFileId, {
+  //         status: 6,
+  //         client_assignedTo: userId,
+  //         client_assignedDate: formatDate(new Date()),
+  //       });
+  //     }
+
+  //     // await updateFileStatus(projectId, selectedFileId, 5, userId);
+  //     // setReadyForWorkFiles(files.filter((file) => file.id !== selectedFileId));
+  //     handleCloseModal();
+  //     navigate(1);
+  //   } catch (err) {
+  //     console.error("Error updating file status:", err);
+  //     setError(err);
+  //   }
+  // };
+
   const handleAssignToUser = async (userId) => {
     try {
-      if (selectedRows.length != 0) {
+      if (selectedRows.length !== 0) {
         for (const fileId of selectedRows) {
           await updateFileStatus(projectId, fileId, {
-            status: 6,
+            status: 6,  // New status
             client_assignedTo: userId,
             client_assignedDate: formatDate(new Date()),
           });
+  
+          // Update the readyForWorkFiles and inProgressFiles state
+          setReadyForWorkFiles((prevFiles) =>
+            prevFiles.filter((file) => file.id !== fileId)
+          );
+  
+          setInProgressFiles((prevFiles) => [
+            ...prevFiles,
+            {
+              ...readyForWorkFiles.find((file) => file.id === fileId),
+              status: 6,
+            
+            },
+          ]);
         }
       } else {
         await updateFileStatus(projectId, selectedFileId, {
-          status: 6,
+          status: 6,  // New status
           client_assignedTo: userId,
           client_assignedDate: formatDate(new Date()),
         });
+  
+        // Update the readyForWorkFiles and inProgressFiles state
+        setReadyForWorkFiles((prevFiles) =>
+          prevFiles.filter((file) => file.id !== selectedFileId)
+        );
+  
+        setInProgressFiles((prevFiles) => [
+          ...prevFiles,
+          {
+            ...readyForWorkFiles.find((file) => file.id === selectedFileId),
+            status: 6,
+          },
+        ]);
       }
-
-      // await updateFileStatus(projectId, selectedFileId, 5, userId);
-      setReadyForWorkFiles(files.filter((file) => file.id !== selectedFileId));
+  
       handleCloseModal();
-      navigate(1);
     } catch (err) {
       console.error("Error updating file status:", err);
       setError(err);
     }
   };
+  
 
   const handleDownload = async (projectId, documentId, format) => {
     setError(null);
@@ -242,7 +295,19 @@ const AdminFileFlow = () => {
             link.remove();
 
             // Update the completed files list
-            setCompletedFiles(files.filter((file) => file.id !== documentId));
+            // setCompletedFiles(files.filter((file) => file.id !== documentId));
+            setCompletedFiles((prevFiles) =>
+              prevFiles.filter((file) => file.id !== documentId)
+            );
+
+            setDownloadedFiles((prevFiles) => [
+              ...prevFiles,
+              {
+                ...completedFiles.find((file) => file.id === documentId),
+                status: 8,
+              },
+            ]);
+
             // Update file status
             return updateFileStatus(projectId, documentId, {
               status: 8,
@@ -266,38 +331,7 @@ const AdminFileFlow = () => {
     }
   };
 
-  // const handleDownload = async (projectId, documentId, format) => {
-  //   setError(null);
-
-  //   try {
-  //     let endpoint = `${server}/api/document/${projectId}/${documentId}/downloadPdf`;
-  //     if (format === "word") {
-  //       endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
-  //     }
-  //     const response = await axios.get(endpoint, {
-  //       responseType: "blob",
-  //     });
-
-  //     // console.log("headers", response.headers);
-  //     // Extract filename from headers or use a fallback
-  //     const contentDisposition = response.headers["content-disposition"];
-  //     const filename = contentDisposition
-  //       ? contentDisposition.split("filename=")[1].replace(/"/g, "")
-  //       : "document.zip";
-
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.setAttribute("download", filename);
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     link.remove();
-  //     setCompletedFiles(files.filter((file) => file.id !== documentId));
-  //     await updateFileStatus(projectId, documentId, { status: 8, client_downloadedDate: formatDate(new Date()) });
-  //   } catch (err) {
-  //     setError(err);
-  //   }
-  // };
+ 
 
   const handleDownloadSelected = async (format) => {
     try {

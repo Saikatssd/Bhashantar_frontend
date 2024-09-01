@@ -193,6 +193,20 @@ const KyroAdminFileFlow = () => {
             kyro_assignedTo: userId,
             kyro_assignedDate: formatDate(new Date()),
           });
+
+          // Update the readyForWorkFiles and inProgressFiles state
+          setReadyForWorkFiles((prevFiles) =>
+            prevFiles.filter((file) => file.id !== fileId)
+          );
+
+          setInProgressFiles((prevFiles) => [
+            ...prevFiles,
+            {
+              ...readyForWorkFiles.find((file) => file.id === fileId),
+              status: 6,
+
+            },
+          ]);
         }
       } else {
         await updateFileStatus(projectId, selectedFileId, {
@@ -202,11 +216,21 @@ const KyroAdminFileFlow = () => {
         });
       }
 
-      // setReadyForWorkFiles(files.filter((file) => file.id !== selectedFileId));
-      // setInProgressFiles(
-      //   files.filter((file) => file.id === selectedFileId || file.status === 3)
-      // );
-      navigate(1);
+      // Update the readyForWorkFiles and inProgressFiles state
+      setReadyForWorkFiles((prevFiles) =>
+        prevFiles.filter((file) => file.id !== selectedFileId)
+      );
+
+      setInProgressFiles((prevFiles) => [
+        ...prevFiles,
+        {
+          ...readyForWorkFiles.find((file) => file.id === selectedFileId),
+          status: 6,
+        },
+      ]);
+
+      // navigate(1);
+
       handleCloseModal();
     } catch (err) {
       console.error("Error updating file status:", err);
