@@ -236,7 +236,7 @@ const AdminFileFlow = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      // Optionally, update the file status
+      setCompletedFiles(files.filter((file) => file.id !== documentId));
       await updateFileStatus(projectId, documentId, { status: 8, client_downloadedDate: formatDate(new Date()) });
     } catch (err) {
       setError(err);

@@ -20,6 +20,7 @@ import TableAdmin from "../Table/TableAdmin";
 import KyroCompletedTable from "../Table/KyroCompletedTable";
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../utils/formatDate";
+import { updateFileStatusNumber } from "../../services/fileServices";
 
 const columnsReadyForWork = [
   { id: "slNo", label: "Sl. No.", minWidth: 50 },
@@ -201,9 +202,9 @@ const KyroAdminFileFlow = () => {
         });
       }
 
-      // await updateFileStatus(projectId, selectedFileId, 3, userId);
+      
       setReadyForWorkFiles(files.filter((file) => file.id !== selectedFileId));
-      navigate(1)
+      // navigate(1)
       handleCloseModal();
     } catch (err) {
       console.error("Error updating file status:", err);

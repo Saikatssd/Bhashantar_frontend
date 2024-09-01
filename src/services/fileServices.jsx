@@ -153,3 +153,24 @@ export const fetchFileNameById = async (projectId, fileId) => {
     throw new Error(`Error fetching file name for projectId: ${projectId}, fileId: ${fileId}`);
   }
 };
+
+
+export const updateFileStatus = async (projectId, fileId, updates) => {
+  try {
+    const fileRef = doc(db, "projects", projectId, "files", fileId);
+    await updateDoc(fileRef, updates);
+  } catch (error) {
+    console.error("Error updating file status:", error);
+    throw new Error("Error updating file status:", error);
+  }
+};
+
+export const updateFileStatusNumber = async (projectId, fileId, status) => {
+  try {
+    const fileRef = doc(db, "projects", projectId, "files", fileId);
+    await updateDoc(fileRef, { status });
+  } catch (error) {
+    console.error("Error updating file status:", error);
+    throw new Error("Error updating file status:", error);
+  }
+};

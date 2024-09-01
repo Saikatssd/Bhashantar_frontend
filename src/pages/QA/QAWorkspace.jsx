@@ -131,7 +131,7 @@ const QAWorkspace = () => {
         const updatedFiles = await fetchProjectFiles(projectId);
         setFiles(updatedFiles);
 
-        navigate(-1);
+        navigate(1);
 
     };
 
@@ -144,7 +144,7 @@ const QAWorkspace = () => {
         const updatedFiles = await fetchProjectFiles(projectId);
         setFiles(updatedFiles);
 
-        navigate(-1);
+        navigate(1);
 
     };
 
