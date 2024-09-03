@@ -203,7 +203,6 @@ const KyroAdminFileFlow = () => {
             ...prevFiles,
             {
               ...readyForWorkFiles.find((file) => file.id === fileId),
-              status: 6,
 
             },
           ]);

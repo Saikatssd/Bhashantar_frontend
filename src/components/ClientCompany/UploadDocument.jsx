@@ -6,7 +6,8 @@ import AddIcon from '@mui/icons-material/Add';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { auth } from '../../utils/firebase';
-import { uploadFile, fetchProjectFiles, deleteFile } from '../../utils/firestoreUtil';
+import {fetchProjectFiles} from '../../services/projectServices'
+import { uploadFile,  deleteFile } from '../../services/fileServices';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import { server } from '../../main';

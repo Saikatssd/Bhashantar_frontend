@@ -3,7 +3,7 @@
 // // //(KyroticsSide) 2-->Ready-for-work//3-->Assigned to User//4-->completed
 // // //(ClientSide)4-->Ready-for-work//5-->Assigned to User//6-->completed //7-->Downloaded
 
-import { db, storage } from "../utils/firebase";
+import { db} from "../utils/firebase";
 import { PDFDocument } from "pdf-lib";
 import {
   collection,
@@ -32,39 +32,111 @@ import Docxtemplater from "docxtemplater";
 
 // --- File Operations ---
 
+// export const uploadFile = async (projectId, file) => {
+//   try {
+//     // Upload the PDF file to Firebase Storage
+//     const pdfStorageRef = ref(storage, `projects/${projectId}/${file.name}`);
+//     const pdfSnapshot = await uploadBytes(pdfStorageRef, file);
+//     const pdfDownloadURL = await getDownloadURL(pdfSnapshot.ref);
+
+//     // Convert PDF file to ArrayBuffer to read the number of pages
+//     const arrayBuffer = await file.arrayBuffer();
+//     // console.log('ArrayBuffer length:', arrayBuffer.byteLength); // Log the ArrayBuffer length
+
+//     const pdfDoc = await PDFDocument.load(arrayBuffer);
+//     const pageCount = pdfDoc.getPageCount();
+//     console.log("Page count:", pageCount); // Log the page count
+
+//     const htmlFileName = file.name.replace(".pdf", ".html");
+//     const htmlBlob = new Blob([""], { type: "text/html" });
+
+//     // Upload the HTML file to Firebase Storage
+//     const htmlStorageRef = ref(
+//       storage,
+//       `projects/${projectId}/${htmlFileName}`
+//     );
+//     const htmlSnapshot = await uploadBytes(htmlStorageRef, htmlBlob);
+//     const htmlDownloadURL = await getDownloadURL(htmlSnapshot.ref);
+
+//     // Add file metadata to Firestore
+//     const fileRef = await addDoc(
+//       collection(db, "projects", projectId, "files"),
+//       {
+//         name: file.name,
+//         pdfUrl: pdfDownloadURL,
+//         htmlUrl: htmlDownloadURL,
+//         uploadedDate: formatDate(new Date()),
+//         status: 0,
+//         projectId: projectId,
+//         pageCount: pageCount, // Store the number of pages
+//       }
+//     );
+
+//     return {
+//       id: fileRef.id,
+//       name: file.name,
+//       pdfUrl: pdfDownloadURL,
+//       htmlUrl: htmlDownloadURL,
+//       uploadedDate: formatDate(new Date()),
+//       status: 0,
+//       pageCount: pageCount, // Include the number of pages in the return object
+//     };
+//   } catch (error) {
+//     console.error("Error uploading file:", error);
+//     throw new Error("Error uploading file");
+//   }
+// };
+
+// import { storage } from "./firebaseConfig"; // Make sure to initialize Firebase and Firestore
+import {server} from '../main'
 export const uploadFile = async (projectId, file) => {
   try {
-    // Upload the PDF file to Firebase Storage
-    const pdfStorageRef = ref(storage, `projects/${projectId}/${file.name}`);
-    const pdfSnapshot = await uploadBytes(pdfStorageRef, file);
-    const pdfDownloadURL = await getDownloadURL(pdfSnapshot.ref);
+    // Step 1: Get a signed URL from the backend
+    const response = await fetch(`${server}/generateSignedUrl`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId, fileName: file.name }),
+    });
 
-    // Convert PDF file to ArrayBuffer to read the number of pages
+    if (!response.ok) {
+      throw new Error('Failed to get signed URL');
+    }
+
+    const { signedUrl } = await response.json();
+
+    // Step 2: Upload the file to GCS using the signed URL
+    const uploadResponse = await fetch(signedUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/pdf' }, // Set the appropriate content type
+      body: file,
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error('Failed to upload file to GCS');
+    }
+
+    console.log('File uploaded successfully to GCS');
+
+    // Step 3: Convert PDF file to ArrayBuffer to read the number of pages
     const arrayBuffer = await file.arrayBuffer();
-    // console.log('ArrayBuffer length:', arrayBuffer.byteLength); // Log the ArrayBuffer length
-
     const pdfDoc = await PDFDocument.load(arrayBuffer);
     const pageCount = pdfDoc.getPageCount();
-    console.log("Page count:", pageCount); // Log the page count
+    console.log('Page count:', pageCount);
 
+    // Step 4: Upload an HTML placeholder file to Firebase Storage
     const htmlFileName = file.name.replace(".pdf", ".html");
     const htmlBlob = new Blob([""], { type: "text/html" });
+    // const htmlStorageRef = ref(storage, `projects/${projectId}/${htmlFileName}`);
+    // const htmlSnapshot = await uploadBytes(htmlStorageRef, htmlBlob);
+    // const htmlDownloadURL = await getDownloadURL(htmlSnapshot.ref);
 
-    // Upload the HTML file to Firebase Storage
-    const htmlStorageRef = ref(
-      storage,
-      `projects/${projectId}/${htmlFileName}`
-    );
-    const htmlSnapshot = await uploadBytes(htmlStorageRef, htmlBlob);
-    const htmlDownloadURL = await getDownloadURL(htmlSnapshot.ref);
-
-    // Add file metadata to Firestore
+    // Step 5: Add file metadata to Firestore
     const fileRef = await addDoc(
       collection(db, "projects", projectId, "files"),
       {
         name: file.name,
-        pdfUrl: pdfDownloadURL,
-        htmlUrl: htmlDownloadURL,
+        pdfUrl: signedUrl, // Use the signed URL as the download URL
+        // htmlUrl: htmlDownloadURL,
         uploadedDate: formatDate(new Date()),
         status: 0,
         projectId: projectId,
@@ -72,20 +144,25 @@ export const uploadFile = async (projectId, file) => {
       }
     );
 
+    console.log("Metadata successfully stored in Firestore");
+
     return {
       id: fileRef.id,
       name: file.name,
-      pdfUrl: pdfDownloadURL,
-      htmlUrl: htmlDownloadURL,
+      pdfUrl: signedUrl,
+      // htmlUrl: htmlDownloadURL,
       uploadedDate: formatDate(new Date()),
       status: 0,
-      pageCount: pageCount, // Include the number of pages in the return object
+      pageCount: pageCount,
     };
+
   } catch (error) {
     console.error("Error uploading file:", error);
     throw new Error("Error uploading file");
   }
 };
+
+
 
 // Delete a file from a specific project
 export const deleteFile = async (projectId, fileId, fileName) => {
