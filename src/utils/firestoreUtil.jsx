@@ -239,25 +239,60 @@ export const fetchProjectFiles = async (projectId) => {
 };
 
 // Fetch document URLs for a specific file
+// export const fetchDocumentUrl = async (projectId, fileId) => {
+//   try {
+//     const fileDocRef = doc(db, "projects", projectId, "files", fileId);
+//     const fileDoc = await getDoc(fileDocRef);
+
+//     if (fileDoc.exists()) {
+//       const data = fileDoc.data();
+//       return {
+//         pdfUrl: data.pdfUrl,
+//         htmlUrl: data.htmlUrl,
+//       };
+//     } else {
+//       throw new Error("File does not exist");
+//     }
+//   } catch (error) {
+//     console.error("Error fetching document URLs:", error);
+//     throw new Error("Error fetching document URLs");
+//   }
+// };
 export const fetchDocumentUrl = async (projectId, fileId) => {
   try {
+    // Step 1: Fetch the file path from Firestore
     const fileDocRef = doc(db, "projects", projectId, "files", fileId);
     const fileDoc = await getDoc(fileDocRef);
 
-    if (fileDoc.exists()) {
-      const data = fileDoc.data();
-      return {
-        pdfUrl: data.pdfUrl,
-        htmlUrl: data.htmlUrl,
-      };
-    } else {
+    if (!fileDoc.exists()) {
       throw new Error("File does not exist");
     }
+
+    const data = fileDoc.data();
+    const filePath = data.pdfUrl; // Assuming 'pdfUrl' contains the actual file path in GCS
+
+    // Step 2: Request a new signed URL from the backend
+    const response = await fetch(`/generateSignedUrl`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filePath }), // Send the file path to the backend
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to generate signed URL");
+    }
+
+    const { signedUrl } = await response.json(); // Get the new signed URL from the backend
+
+    return {
+      pdfUrl: signedUrl, // Return the new signed URL
+    };
   } catch (error) {
-    console.error("Error fetching document URLs:", error);
-    throw new Error("Error fetching document URLs");
+    console.error("Error fetching document URL:", error);
+    throw new Error("Error fetching document URL");
   }
 };
+
 
 // Update the status of a specific file
 // export const updateFileStatus = async (projectId, fileId, status, userId) => {
