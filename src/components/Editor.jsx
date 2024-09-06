@@ -70,6 +70,7 @@ const Editor = () => {
         const text = await response.text();
         setHtmlContent(text);
         setPdfUrl(pdfUrl);
+        // console.log("html & pdf", htmlUrl, pdfUrl);
 
         // const decodedUrl = decodeURIComponent(pdfUrl);
 
@@ -114,7 +115,7 @@ const Editor = () => {
     saveContent();
   }, [debouncedHtmlContent, projectId, documentId]);
 
-  console.log(fileName);
+  // console.log(fileName);
 
   const handleSave = async () => {
     try {
@@ -174,7 +175,7 @@ const Editor = () => {
   //         error: <b>Could not save.</b>,
   //       }
   //     );
-      
+
   //   } catch (err) {
   //     console.log("Download error", err);
   //     // setError("An error occurred while downloading the document."); // Set a descriptive error message
@@ -185,46 +186,46 @@ const Editor = () => {
 
   const handleDownload = async () => {
     setError(null); // Clear any previous error
-  
+
     try {
       const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
-  
+
       // Use toast.promise to handle the download process
-      await toast.promise(
-        axios.get(endpoint, {
-          responseType: "blob",
-        }),
-        {
-          loading: "Downloading...",
-          success: "Zip File Downloaded!",
-          error: "An error occurred while downloading the document.",
-        }
-      ).then((response) => {
-        // Extract filename from headers or use a fallback
-        const contentDisposition = response.headers["content-disposition"];
-        const filename = contentDisposition
-          ? contentDisposition.split("filename=")[1].replace(/"/g, "")
-          : "document.zip";
-  
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", filename);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      });
-  
+      await toast
+        .promise(
+          axios.get(endpoint, {
+            responseType: "blob",
+          }),
+          {
+            loading: "Downloading...",
+            success: "Zip File Downloaded!",
+            error: "An error occurred while downloading the document.",
+          }
+        )
+        .then((response) => {
+          // Extract filename from headers or use a fallback
+          const contentDisposition = response.headers["content-disposition"];
+          const filename = contentDisposition
+            ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+            : "document.zip";
+
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", filename);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        });
     } catch (err) {
       console.log("Download error", err);
       toast.error("Blank file can't be downloaded", {
         position: "top-right",
-        style: { background: '#333', color: '#fff' },
+        style: { background: "#333", color: "#fff" },
       });
       console.error("Error during document download:", err); // Log the actual error
     }
   };
-  
 
   const handleBack = () => {
     navigate(-1);

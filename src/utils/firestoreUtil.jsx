@@ -25,7 +25,7 @@ import {
 } from "firebase/storage";
 import { formatDate } from "./formatDate";
 import {parse} from 'date-fns'
-
+import {server} from '../main'
 import JSZip from "jszip";
 import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
@@ -272,7 +272,7 @@ export const fetchDocumentUrl = async (projectId, fileId) => {
     const filePath = data.pdfUrl; // Assuming 'pdfUrl' contains the actual file path in GCS
 
     // Step 2: Request a new signed URL from the backend
-    const response = await fetch(`/generateSignedUrl`, {
+    const response = await fetch(`${server}/generateSignedReadUrl`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ filePath }), // Send the file path to the backend
@@ -281,9 +281,10 @@ export const fetchDocumentUrl = async (projectId, fileId) => {
     if (!response.ok) {
       throw new Error("Failed to generate signed URL");
     }
+    
 
     const { signedUrl } = await response.json(); // Get the new signed URL from the backend
-
+    console.log(signedUrl)
     return {
       pdfUrl: signedUrl, // Return the new signed URL
     };

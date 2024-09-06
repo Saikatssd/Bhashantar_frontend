@@ -216,53 +216,53 @@ const AdminFileFlow = () => {
       if (selectedRows.length !== 0) {
         for (const fileId of selectedRows) {
           await updateFileStatus(projectId, fileId, {
-            status: 6,  // New status
+            status: 6, // New status
             client_assignedTo: userId,
             client_assignedDate: formatDate(new Date()),
           });
-  
+
           // Update the readyForWorkFiles and inProgressFiles state
-          setReadyForWorkFiles((prevFiles) =>
-            prevFiles.filter((file) => file.id !== fileId)
-          );
-  
-          setInProgressFiles((prevFiles) => [
-            ...prevFiles,
-            {
-              ...readyForWorkFiles.find((file) => file.id === fileId),
-              status: 6,
-            
-            },
-          ]);
+          // setReadyForWorkFiles((prevFiles) =>
+          //   prevFiles.filter((file) => file.id !== fileId)
+          // );
+
+          // setInProgressFiles((prevFiles) => [
+          //   ...prevFiles,
+          //   {
+          //     ...readyForWorkFiles.find((file) => file.id === fileId),
+          //     status: 6,
+
+          //   },
+          // ]);
         }
       } else {
         await updateFileStatus(projectId, selectedFileId, {
-          status: 6,  // New status
+          status: 6, // New status
           client_assignedTo: userId,
           client_assignedDate: formatDate(new Date()),
         });
-  
+
         // Update the readyForWorkFiles and inProgressFiles state
-        setReadyForWorkFiles((prevFiles) =>
-          prevFiles.filter((file) => file.id !== selectedFileId)
-        );
-  
-        setInProgressFiles((prevFiles) => [
-          ...prevFiles,
-          {
-            ...readyForWorkFiles.find((file) => file.id === selectedFileId),
-            status: 6,
-          },
-        ]);
+        // setReadyForWorkFiles((prevFiles) =>
+        //   prevFiles.filter((file) => file.id !== selectedFileId)
+        // );
+
+        // setInProgressFiles((prevFiles) => [
+        //   ...prevFiles,
+        //   {
+        //     ...readyForWorkFiles.find((file) => file.id === selectedFileId),
+        //     status: 6,
+        //   },
+        // ]);
       }
-  
+      navigate(-1);
+
       handleCloseModal();
     } catch (err) {
       console.error("Error updating file status:", err);
       setError(err);
     }
   };
-  
 
   const handleDownload = async (projectId, documentId, format) => {
     setError(null);
@@ -330,8 +330,6 @@ const AdminFileFlow = () => {
       console.error("Error during document download:", err);
     }
   };
-
- 
 
   const handleDownloadSelected = async (format) => {
     try {
