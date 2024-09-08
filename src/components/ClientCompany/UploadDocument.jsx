@@ -1,24 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import { Fab, IconButton } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { auth } from '../../utils/firebase';
-import {fetchProjectFiles} from '../../services/projectServices'
-import { uploadFile,  deleteFile } from '../../services/fileServices';
-import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import { server } from '../../main';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
+import { Fab, IconButton } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { auth } from "../../utils/firebase";
+import { fetchProjectFiles } from "../../services/projectServices";
+import { uploadFile, deleteFile } from "../../services/fileServices";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import { server } from "../../main";
 import { toast, Toaster } from "react-hot-toast";
 import EditIcon from "@mui/icons-material/Edit";
-
-import TableUpload from '../Table/TableUpload';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import FolderIcon from '@mui/icons-material/Folder';
-import { fetchTotalProjectFilesCount } from '../../services/projectServices';
-
+import { fetchFileNameById } from "../../services/fileServices";
+import TableUpload from "../Table/TableUpload";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import FolderIcon from "@mui/icons-material/Folder";
+import { fetchTotalProjectFilesCount } from "../../services/projectServices";
 
 const UploadDocument = () => {
   const { companyId } = useParams();
@@ -26,11 +30,11 @@ const UploadDocument = () => {
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [newProjectName, setNewProjectName] = useState('');
+  const [newProjectName, setNewProjectName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [files, setFiles] = useState([]);
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const { currentUser } = useAuth();
@@ -44,7 +48,9 @@ const UploadDocument = () => {
     const fetchProjects = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${server}/api/project/${companyId}/getprojects`);
+        const response = await axios.get(
+          `${server}/api/project/${companyId}/getprojects`
+        );
         setProjects(response.data);
       } catch (err) {
         setError(err);
@@ -64,7 +70,6 @@ const UploadDocument = () => {
         user.companyId = token.claims.companyId;
 
         setRole(user.roleName);
-
       }
     });
     return () => unsubscribe();
@@ -83,7 +88,6 @@ const UploadDocument = () => {
 
     fetchCounts();
   }, [projects]);
-
 
   const newProject = async () => {
     try {
@@ -188,10 +192,10 @@ const UploadDocument = () => {
     setIsLoading(true);
     try {
       const projectFiles = await fetchProjectFiles(project.id);
-      const filteredFiles = projectFiles.filter(file => file.status === 0); // Filter files by status === 0
+      const filteredFiles = projectFiles.filter((file) => file.status === 0); // Filter files by status === 0
       setFiles(filteredFiles);
     } catch (err) {
-      console.error('Error fetching project files:', err);
+      console.error("Error fetching project files:", err);
       setError(err);
     } finally {
       setIsLoading(false);
@@ -199,15 +203,19 @@ const UploadDocument = () => {
   };
 
   const handleFileUpload = async (e) => {
-    const uploadedFiles = Array.from(e.target.files).filter(file => file.type === 'application/pdf');
+    const uploadedFiles = Array.from(e.target.files).filter(
+      (file) => file.type === "application/pdf"
+    );
     try {
       setIsLoading(true);
-      const uploadPromises = uploadedFiles.map(file => uploadFile(selectedProject.id, file));
+      const uploadPromises = uploadedFiles.map((file) =>
+        uploadFile(selectedProject.id, file)
+      );
       const uploadedFilesData = await Promise.all(uploadPromises);
       setFiles([...files, ...uploadedFilesData]);
       setIsLoading(false);
     } catch (err) {
-      console.error('Error uploading files:', err);
+      console.error("Error uploading files:", err);
       setError(err);
       setIsLoading(false);
     }
@@ -217,10 +225,10 @@ const UploadDocument = () => {
     try {
       setIsLoading(true);
       await deleteFile(selectedProject.id, fileId, fileName);
-      setFiles(files.filter(file => file.id !== fileId));
+      setFiles(files.filter((file) => file.id !== fileId));
       setIsLoading(false);
     } catch (err) {
-      console.error('Error deleting file:', err);
+      console.error("Error deleting file:", err);
       setError(err);
       setIsLoading(false);
     }
@@ -228,19 +236,22 @@ const UploadDocument = () => {
 
   const handleDeleteSelected = async () => {
     for (const row of selectedRows) {
-      await handleFileDelete(row.id, row.name);
+      // console.log("row",row)
+      let fileName = await fetchFileNameById(selectedProject.id, row);
+      // console.log("row",row, fileName);
+      await handleFileDelete(row, fileName);
     }
     setSelectedRows([]);
-    navigate(1);
-
+    setSelectedProject(null);
+    // navigate(-1);
   };
 
   const columns = [
-    { id: 'slNo', label: 'Sl. No', minWidth: 50 },
-    { id: 'name', label: 'File Name', minWidth: 170 },
-    { id: 'pageCount', label: 'Page Count', minWidth: 100 },
-    { id: 'uploadedDate', label: 'Uploaded At', minWidth: 170 },
-    { id: 'edit', label: 'Actions', minWidth: 100 },
+    { id: "slNo", label: "Sl. No", minWidth: 50 },
+    { id: "name", label: "File Name", minWidth: 170 },
+    { id: "pageCount", label: "Page Count", minWidth: 100 },
+    { id: "uploadedDate", label: "Uploaded At", minWidth: 170 },
+    { id: "edit", label: "Actions", minWidth: 100 },
   ];
 
   const handleChangePage = (event, newPage) => {
@@ -258,7 +269,7 @@ const UploadDocument = () => {
   };
 
   return (
-    <div className='flex flex-col items-center'>
+    <div className="flex flex-col items-center">
       <div className="p-20 w-full">
         {isLoading && <p>Loading...</p>}
         {error && <p>Error: {error.message}</p>}
@@ -270,16 +281,15 @@ const UploadDocument = () => {
                 className="relative flex flex-col items-center"
               >
                 <div
-
-
                   className=" cursor-pointer"
                   onClick={() => handleProjectClick(project)}
                 >
-
-                  <FolderIcon color="info" sx={{ fontSize: 130 }} className='hover:text-sky-500 hover:scale-110 ease-in duration-1000' />
-                  <div className="p-1 text-center">
-                    {project.name}
-                  </div>
+                  <FolderIcon
+                    color="info"
+                    sx={{ fontSize: 130 }}
+                    className="hover:text-sky-500 hover:scale-110 ease-in duration-1000"
+                  />
+                  <div className="p-1 text-center">{project.name}</div>
                 </div>
                 {fileCounts[project.id] === 0 ? (
                   <Fab
@@ -298,13 +308,14 @@ const UploadDocument = () => {
                   <></>
                 )}
               </div>
-
             ))}
           </div>
         )}
         {!isLoading && !error && selectedProject && (
           <div className="w-full">
-            <h2 className="text-2xl font-semibold mb-4">{selectedProject.name}</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              {selectedProject.name}
+            </h2>
 
             <div>
               <input
@@ -312,13 +323,13 @@ const UploadDocument = () => {
                 multiple
                 accept="application/pdf"
                 id="file-upload"
-                style={{ display: 'none' }}
+                style={{ display: "none" }}
                 onChange={handleFileUpload}
               />
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => document.getElementById('file-upload').click()}
+                onClick={() => document.getElementById("file-upload").click()}
                 sx={{ mb: 2 }}
               >
                 Upload Files
@@ -327,11 +338,16 @@ const UploadDocument = () => {
 
             {isLoading && <CircularProgress />}
             {error && <p>Error: {error.message}</p>}
-            {!isLoading && !error && files.length === 0 && <p>No files found.</p>}
+            {!isLoading && !error && files.length === 0 && (
+              <p>No files found.</p>
+            )}
             {!isLoading && !error && files.length > 0 && (
               <TableUpload
                 columns={columns}
-                rows={files.map((file, index) => ({ ...file, slNo: index + 1 }))}
+                rows={files.map((file, index) => ({
+                  ...file,
+                  slNo: index + 1,
+                }))}
                 page={page}
                 rowsPerPage={rowsPerPage}
                 handleChangePage={handleChangePage}
@@ -348,13 +364,13 @@ const UploadDocument = () => {
               <IconButton
                 onClick={handleBack}
                 sx={{
-                  backgroundColor: 'primary.main',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'primary.dark',
+                  backgroundColor: "primary.main",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "primary.dark",
                   },
-                  padding: '10px',
-                  boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
+                  padding: "10px",
+                  boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.2)",
                 }}
               >
                 <ArrowBackIcon sx={{ fontSize: 30 }} />
@@ -379,24 +395,25 @@ const UploadDocument = () => {
           </div>
         )}
 
-
-        {!selectedProject && (<Fab
-          variant="extended"
-          color="primary"
-          size="large"
-          sx={{
-            position: "fixed",
-            bottom: 40,
-            right: 16,
-            width: "220px",
-            height: "75px",
-            fontSize: "18px",
-          }}
-          onClick={() => setIsModalOpen(true)}
-        >
-          <AddIcon sx={{ mr: 1 }} />
-          New Project
-        </Fab>)}
+        {!selectedProject && (
+          <Fab
+            variant="extended"
+            color="primary"
+            size="large"
+            sx={{
+              position: "fixed",
+              bottom: 40,
+              right: 16,
+              width: "220px",
+              height: "75px",
+              fontSize: "18px",
+            }}
+            onClick={() => setIsModalOpen(true)}
+          >
+            <AddIcon sx={{ mr: 1 }} />
+            New Project
+          </Fab>
+        )}
 
         {/* Create Project Modal */}
         {isModalOpen && (
@@ -448,8 +465,6 @@ const UploadDocument = () => {
             </div>
           </Dialog>
         )}
-
-
 
         {/* Edit & Delete Project Modal */}
         {isEditModalOpen && (
@@ -508,13 +523,9 @@ const UploadDocument = () => {
             </div>
           </Dialog>
         )}
-
-
       </div>
     </div>
   );
 };
 
 export default UploadDocument;
-
-

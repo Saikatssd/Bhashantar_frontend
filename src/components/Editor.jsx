@@ -1,10 +1,4 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Editor as TinyMCEEditor } from "@tinymce/tinymce-react";
-import {
-  fetchDocumentUrl,
-  updateDocumentContent,
-  updateFileStatus,
-} from "../utils/firestoreUtil";
 import useDebounce from "../hooks/useDebounce";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
@@ -16,12 +10,85 @@ import Tooltip from "@mui/material/Tooltip";
 import { server } from "../main";
 import axios from "axios";
 import { formatDate } from "../utils/formatDate";
-import { fetchFileNameById } from "../services/fileServices";
-import { toast, Toaster } from "react-hot-toast";
+import {
+  fetchFileNameById,
+  fetchDocumentUrl,
+  updateDocumentContent,
+  updateFileStatus,
+} from "../services/fileServices";
+import { toast } from "react-hot-toast";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import {
+  DecoupledEditor,
+  AccessibilityHelp,
+  Alignment,
+  Autoformat,
+  AutoImage,
+  AutoLink,
+  Autosave,
+  BalloonToolbar,
+  Bold,
+  CloudServices,
+  Code,
+  Essentials,
+  FindAndReplace,
+  FontBackgroundColor,
+  FontColor,
+  FontFamily,
+  FontSize,
+  Heading,
+  HorizontalLine,
+  ImageBlock,
+  ImageCaption,
+  ImageInline,
+  ImageInsertViaUrl,
+  ImageResize,
+  ImageStyle,
+  ImageTextAlternative,
+  ImageToolbar,
+  ImageUpload,
+  Indent,
+  IndentBlock,
+  Italic,
+  Link,
+  LinkImage,
+  List,
+  ListProperties,
+  Markdown,
+  MediaEmbed,
+  PageBreak,
+  Paragraph,
+  PasteFromOffice,
+  RemoveFormat,
+  SelectAll,
+  SpecialCharacters,
+  SpecialCharactersArrows,
+  SpecialCharactersCurrency,
+  SpecialCharactersEssentials,
+  SpecialCharactersLatin,
+  SpecialCharactersMathematical,
+  SpecialCharactersText,
+  Strikethrough,
+  Subscript,
+  Superscript,
+  Table,
+  TableCaption,
+  TableCellProperties,
+  TableColumnResize,
+  TableProperties,
+  TableToolbar,
+  TextTransformation,
+  TodoList,
+  Underline,
+  Undo,
+} from "ckeditor5";
+
+import "ckeditor5/ckeditor5.css";
+
+import "../assets/editor.css";
 
 const Editor = () => {
   const { projectId, documentId } = useParams();
-  const editorRef = useRef(null);
   const [htmlContent, setHtmlContent] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
   const [fileName, setFileName] = useState("");
@@ -31,9 +98,281 @@ const Editor = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isInitialContentSet, setIsInitialContentSet] = useState(false);
   const navigate = useNavigate();
-  const debouncedHtmlContent = useDebounce(htmlContent, 3000);
+  const debouncedHtmlContent = useDebounce(htmlContent, 1000);
   const [companyId, setCompanyId] = useState(null);
   const [role, setRole] = useState();
+  const editorContainerRef = useRef(null);
+  const editorMenuBarRef = useRef(null);
+  const editorToolbarRef = useRef(null);
+  const editorRef = useRef(null);
+  const [isLayoutReady, setIsLayoutReady] = useState(false);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const { htmlUrl, pdfUrl } = await fetchDocumentUrl(
+          projectId,
+          documentId
+        );
+        const response = await fetch(htmlUrl);
+        const text = await response.text();
+        setHtmlContent(text);
+        // console.log("htmlcontent",htmlContent)
+        setPdfUrl(pdfUrl);
+        setIsInitialContentSet(true);
+      } catch (err) {
+        setError("Error fetching document");
+        console.error("Error fetching document:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContent();
+  }, [projectId, documentId]);
+
+  useEffect(() => {
+    const saveContent = async () => {
+      if (!debouncedHtmlContent) return;
+      try {
+        const blob = new Blob([debouncedHtmlContent], {
+          type: "text/html; charset=utf-8",
+        });
+        
+        let contentToLog;
+        
+        if (blob instanceof Blob) {
+          contentToLog = await blob.text(); // Convert Blob to text
+        } else {
+          contentToLog = blob; // If it's already a string
+        }
+        console.log("save", contentToLog);
+
+
+        await updateDocumentContent(projectId, documentId, blob);
+      } catch (err) {
+        console.error("Error saving document (debounced save):", err);
+      }
+    };
+
+    saveContent();
+  }, [debouncedHtmlContent, projectId, documentId]);
+
+  useEffect(() => {
+    setIsLayoutReady(true);
+
+    return () => setIsLayoutReady(false);
+  }, []);
+
+  const editorConfig = {
+    toolbar: {
+      items: [
+        "undo",
+        "redo",
+        "|",
+        "heading",
+        "|",
+        "fontSize",
+        "fontFamily",
+        "fontColor",
+        "fontBackgroundColor",
+        "|",
+        "bold",
+        "italic",
+        "underline",
+        "|",
+        "link",
+        "insertTable",
+        "|",
+        "alignment",
+        "|",
+        "bulletedList",
+        "numberedList",
+        "todoList",
+        "outdent",
+        "indent",
+      ],
+      shouldNotGroupWhenFull: false,
+    },
+    allowedContent: {
+      $1: {
+        // Use the $1 syntax to allow global rules
+        attributes: true, // Allow all attributes
+        styles: true, // Allow all styles
+        classes: true // Allow all classes
+      }
+    },
+  extraAllowedContent: '*[id](*){*}', // Allow custom attributes, styles
+    plugins: [
+      AccessibilityHelp,
+      Alignment,
+      Autoformat,
+      AutoImage,
+      AutoLink,
+      Autosave,
+      BalloonToolbar,
+      Bold,
+      CloudServices,
+      Code,
+      Essentials,
+      FindAndReplace,
+      FontBackgroundColor,
+      FontColor,
+      FontFamily,
+      FontSize,
+      Heading,
+      HorizontalLine,
+      ImageBlock,
+      ImageCaption,
+      ImageInline,
+      ImageInsertViaUrl,
+      ImageResize,
+      ImageStyle,
+      ImageTextAlternative,
+      ImageToolbar,
+      ImageUpload,
+      Indent,
+      IndentBlock,
+      Italic,
+      Link,
+      LinkImage,
+      List,
+      ListProperties,
+      Markdown,
+      MediaEmbed,
+      PageBreak,
+      Paragraph,
+      PasteFromOffice,
+      RemoveFormat,
+      SelectAll,
+      SpecialCharacters,
+      SpecialCharactersArrows,
+      SpecialCharactersCurrency,
+      SpecialCharactersEssentials,
+      SpecialCharactersLatin,
+      SpecialCharactersMathematical,
+      SpecialCharactersText,
+      Strikethrough,
+      Subscript,
+      Superscript,
+      Table,
+      TableCaption,
+      TableCellProperties,
+      TableColumnResize,
+      TableProperties,
+      TableToolbar,
+      TextTransformation,
+      TodoList,
+      Underline,
+      Undo,
+    ],
+    balloonToolbar: [
+      "bold",
+      "italic",
+      "|",
+      "link",
+      "|",
+      "bulletedList",
+      "numberedList",
+    ],
+    fontFamily: {
+      supportAllValues: true,
+    },
+    fontSize: {
+      options: [10, 12, 14, "default", 18, 20, 22],
+      supportAllValues: true,
+    },
+    heading: {
+      options: [
+        {
+          model: "paragraph",
+          title: "Paragraph",
+          class: "ck-heading_paragraph",
+        },
+        {
+          model: "heading1",
+          view: "h1",
+          title: "Heading 1",
+          class: "ck-heading_heading1",
+        },
+        {
+          model: "heading2",
+          view: "h2",
+          title: "Heading 2",
+          class: "ck-heading_heading2",
+        },
+        {
+          model: "heading3",
+          view: "h3",
+          title: "Heading 3",
+          class: "ck-heading_heading3",
+        },
+        {
+          model: "heading4",
+          view: "h4",
+          title: "Heading 4",
+          class: "ck-heading_heading4",
+        },
+        {
+          model: "heading5",
+          view: "h5",
+          title: "Heading 5",
+          class: "ck-heading_heading5",
+        },
+        {
+          model: "heading6",
+          view: "h6",
+          title: "Heading 6",
+          class: "ck-heading_heading6",
+        },
+      ],
+    },
+    image: {
+      toolbar: [
+        "toggleImageCaption",
+        "imageTextAlternative",
+        "|",
+        "imageStyle:inline",
+        "imageStyle:wrapText",
+        "imageStyle:breakText",
+        "|",
+        "resizeImage",
+      ],
+    },
+    initialData: htmlContent,
+    link: {
+      addTargetToExternalLinks: true,
+      defaultProtocol: "https://",
+      decorators: {
+        toggleDownloadable: {
+          mode: "manual",
+          label: "Downloadable",
+          attributes: {
+            download: "file",
+          },
+        },
+      },
+    },
+    list: {
+      properties: {
+        styles: true,
+        startIndex: true,
+        reversed: true,
+      },
+    },
+    menuBar: {
+      isVisible: true,
+    },
+    placeholder: "Type or paste your content here!",
+    table: {
+      contentToolbar: [
+        "tableColumn",
+        "tableRow",
+        "mergeTableCells",
+        "tableProperties",
+        "tableCellProperties",
+      ],
+    },
+  };
 
   const handleOpenDialog = () => {
     setDialogOpen(true);
@@ -60,36 +399,6 @@ const Editor = () => {
   }, []);
 
   useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const { htmlUrl, pdfUrl } = await fetchDocumentUrl(
-          projectId,
-          documentId
-        );
-        const response = await fetch(htmlUrl);
-        const text = await response.text();
-        setHtmlContent(text);
-        setPdfUrl(pdfUrl);
-        // console.log("html & pdf", htmlUrl, pdfUrl);
-
-        // const decodedUrl = decodeURIComponent(pdfUrl);
-
-        // // Extract the filename from the full decoded path
-        // const fileNameWithQuery = decodedUrl.split("/").pop();
-        // const fileName = fileNameWithQuery.split("?")[0];
-
-        setIsInitialContentSet(true);
-      } catch (err) {
-        setError("Error fetching document");
-        console.error("Error fetching document:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchContent();
-  }, [projectId, documentId]);
-
-  useEffect(() => {
     const fetchName = async () => {
       const name = await fetchFileNameById(projectId, documentId);
       setFileName(name);
@@ -98,29 +407,10 @@ const Editor = () => {
     fetchName();
   }, [projectId, documentId]);
 
-  useEffect(() => {
-    const saveContent = async () => {
-      if (!debouncedHtmlContent) return;
-
-      try {
-        const blob = new Blob([debouncedHtmlContent], {
-          type: "text/html; charset=utf-8",
-        });
-        await updateDocumentContent(projectId, documentId, blob);
-      } catch (err) {
-        console.error("Error saving document (debounced save):", err);
-      }
-    };
-
-    saveContent();
-  }, [debouncedHtmlContent, projectId, documentId]);
-
-  // console.log(fileName);
-
   const handleSave = async () => {
     try {
       if (companyId === "cvy2lr5H0CUVH8o2vsVk") {
-        if (role == "QA") {
+        if (role === "QA") {
           await updateFileStatus(projectId, documentId, {
             status: 5,
             kyro_completedDate: formatDate(new Date()),
@@ -144,46 +434,6 @@ const Editor = () => {
     }
   };
 
-  // const handleDownload = async () => {
-  //   setError(null); // Clear any previous error
-
-  //   try {
-  //     const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
-  //     const response = await axios.get(endpoint, {
-  //       responseType: "blob",
-  //     });
-
-  //     // Extract filename from headers or use a fallback
-  //     const contentDisposition = response.headers["content-disposition"];
-  //     const filename = contentDisposition
-  //       ? contentDisposition.split("filename=")[1].replace(/"/g, "")
-  //       : "document.zip";
-
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.setAttribute("download", filename);
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     link.remove();
-  //     // toast.success("Zip File Downloaded");
-
-  //     toast.promise(
-  //       saveSettings(settings),{
-  //         loading: "Downloading...",
-  //         success: <b>Zip File Downloaded!</b>,
-  //         error: <b>Could not save.</b>,
-  //       }
-  //     );
-
-  //   } catch (err) {
-  //     console.log("Download error", err);
-  //     // setError("An error occurred while downloading the document."); // Set a descriptive error message
-  //     toast.error("Blank file can't be downloaded", { position: "top-right", style:{background: '#333', color: '#fff'} });
-  //     console.error("Error during document download:", err); // Log the actual error
-  //   }
-  // };
-
   const handleDownload = async () => {
     setError(null); // Clear any previous error
 
@@ -203,7 +453,6 @@ const Editor = () => {
           }
         )
         .then((response) => {
-          // Extract filename from headers or use a fallback
           const contentDisposition = response.headers["content-disposition"];
           const filename = contentDisposition
             ? contentDisposition.split("filename=")[1].replace(/"/g, "")
@@ -223,7 +472,7 @@ const Editor = () => {
         position: "top-right",
         style: { background: "#333", color: "#fff" },
       });
-      console.error("Error during document download:", err); // Log the actual error
+      console.error("Error during document download:", err);
     }
   };
 
@@ -231,126 +480,58 @@ const Editor = () => {
     navigate(-1);
   };
 
-  // const initializeEditor = useCallback(() => {
-  //   if (isInitialContentSet) {
-  //     return (
-  //       <TinyMCEEditor
-  //         key={documentId}
-  //         apiKey="b49qe47leuw15e45amyl6s8hh2wojjif4ka6kfptu0tt0v1w"
-  //         value={htmlContent}
-  //         init={{
-  //           height: "calc(100vh)",
-  //           menubar: 'edit insert view format table tools',
-  //           // content_css: [ 'editor.css', 'mycontent2.css' ],
-
-  //           // plugins:
-  //           // "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount linkchecker tableofcontents mergetags autocorrect typography inlinecss markdown pagebreak",
-  //           plugins:
-  //             "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount linkchecker pagebreak",
-  //           toolbar:
-  //             "bold italic underline fontfamily| fontsizeinput | align lineheight | numlist bullist |indent outdent | paragraphSpacing ",
-  //           tinycomments_mode: "embedded",
-  //           pagebreak_split_block: true,
-  //           pagebreak_separator: "<!-- my page break -->",
-  //           fontsize_formats:
-  //             "8pt 9pt 10pt 11pt 12pt 14pt 18pt 24pt 30pt 36pt 48pt 60pt 72pt 96pt",
-  //           tinycomments_author: "Author name",
-  //           fullscreen_native: true,
-
-  //           setup: (editor) => {
-  //             editor.ui.registry.addButton("paragraphSpacing", {
-  //               text: "Paragraph Spacing",
-  //               onAction: () => {
-  //                 editor.execCommand("FormatBlock", false, "p");
-  //                 editor
-  //                   .getBody()
-  //                   .querySelectorAll("p")
-  //                   .forEach((paragraph) => {
-  //                     paragraph.style.textIndent = "80px";
-  //                   });
-  //               },
-  //             });
-  //           },
-  //         }}
-  //         onInit={(evt, editor) => {
-  //           editorRef.current = editor;
-  //         }}
-  //         onEditorChange={(content, editor) => setHtmlContent(content)}
-  //       />
-  //     );
-  //   }
-  //   return null;
-  // }, [htmlContent, isInitialContentSet, documentId]);
-
   const initializeEditor = useCallback(() => {
     if (isInitialContentSet) {
       return (
-        <TinyMCEEditor
-          key={documentId}
-          apiKey="b49qe47leuw15e45amyl6s8hh2wojjif4ka6kfptu0tt0v1w"
-          value={htmlContent}
-          init={{
-            height: "calc(100vh)",
-            menubar: "edit insert view format table tools",
-            content_css: [
-              // Load default content CSS and include the custom font
-              "https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.1/skins/content/default/content.min.css",
-              "https://fonts.googleapis.com/css2?family=Nirmala+UI&display=swap",
-            ],
-            plugins:
-              "anchor fullscreen autolink charmap codesample image link lists media searchreplace table visualblocks wordcount linkchecker pagebreak",
-            toolbar:
-              "bold italic underline fontfamily| fontsizeinput | align lineheight | numlist bullist |indent outdent | paragraphSpacing ",
-            tinycomments_mode: "embedded",
-            pagebreak_split_block: true,
-            pagebreak_separator: "<!-- my page break -->",
-            fontsize_formats:
-              "8pt 9pt 10pt 11pt 12pt 14pt 18pt 24pt 30pt 36pt 48pt 60pt 72pt 96pt",
-            tinycomments_author: "Author name",
-            fullscreen_native: true,
-
-            font_family_formats:
-              "Nirmala UI=nirmala ui, sans-serif;" +
-              "Arial=arial,helvetica,sans-serif;" +
-              "Courier New=courier new,courier,monospace;" +
-              "Georgia=georgia,palatino,serif;" +
-              "Tahoma=tahoma,arial,helvetica,sans-serif;" +
-              "Verdana=verdana,geneva,sans-serif;",
-
-            setup: (editor) => {
-              editor.ui.registry.addButton("paragraphSpacing", {
-                text: "Paragraph Spacing",
-                onAction: () => {
-                  editor.execCommand("FormatBlock", false, "p");
-                  editor
-                    .getBody()
-                    .querySelectorAll("p")
-                    .forEach((paragraph) => {
-                      paragraph.style.textIndent = "80px";
-                    });
-                },
-              });
-            },
-          }}
-          onInit={(evt, editor) => {
-            editorRef.current = editor;
-          }}
-          onEditorChange={(content, editor) => setHtmlContent(content)}
-        />
+        <div
+          className="editor-container editor-container_document-editor"
+          ref={editorContainerRef}
+        >
+          <div
+            className="editor-container__menu-bar"
+            ref={editorMenuBarRef}
+          ></div>
+          <div
+            className="editor-container__toolbar"
+            ref={editorToolbarRef}
+          ></div>
+          <div className="editor-container__editor-wrapper">
+            <div className="editor-container__editor">
+              <div ref={editorRef}>
+                {isLayoutReady && (
+                  <CKEditor
+                    onReady={(editor) => {
+                      editorToolbarRef.current.appendChild(
+                        editor.ui.view.toolbar.element
+                      );
+                      editorMenuBarRef.current.appendChild(
+                        editor.ui.view.menuBarView.element
+                      );
+                    }}
+                    onAfterDestroy={() => {
+                      Array.from(editorToolbarRef.current.children).forEach(
+                        (child) => child.remove()
+                      );
+                      Array.from(editorMenuBarRef.current.children).forEach(
+                        (child) => child.remove()
+                      );
+                    }}
+                    editor={DecoupledEditor}
+                    config={editorConfig}
+                    onChange={(event, editor) => {
+                      const data = editor.getData();
+                      setHtmlContent(data); // Update the state with the new content
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       );
     }
     return null;
-  }, [htmlContent, isInitialContentSet, documentId]);
-
-  useEffect(() => {
-    return () => {
-      if (editorRef.current) {
-        editorRef.current.remove();
-        editorRef.current = null;
-      }
-    };
-  }, [documentId]);
-
+  }, [htmlContent, isInitialContentSet]);
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -369,13 +550,8 @@ const Editor = () => {
           borderRight: "1px solid #ccc",
         }}
       >
-        {/* <div>
-          <div>{fileName}</div>
-          <iframe src={pdfUrl} title={fileName} width="100%" height="988px" />
-        </div> */}
         {fileName ? (
           <>
-            {/* <div>{fileName}</div> */}
             <iframe src={pdfUrl} title={fileName} width="100%" height="988px" />
           </>
         ) : (
@@ -399,8 +575,6 @@ const Editor = () => {
           <ArrowBackIcon sx={{ marginRight: "3px" }} />
           Back
         </Button>
-
-        {/* <Toaster position="top-right" reverseOrder={false} /> */}
       </div>
       <div style={{ flex: 1, padding: "10px" }}>
         {initializeEditor()}

@@ -187,7 +187,7 @@ const KyroAdminFileFlow = () => {
   const handleAssignToUser = async (userId) => {
     try {
       // console.log("user",userId)
-      // const currentDate = formatDate(new Date());
+      const currentDate = formatDate(new Date());
 
       if (selectedRows.length != 0) {
         for (const fileId of selectedRows) {

@@ -17,7 +17,6 @@ const calculateTotalPages = (rows) => {
   }, 0);
 };
 
-
 function TableUpload({
   columns,
   rows = [],
@@ -31,17 +30,19 @@ function TableUpload({
   handleDeleteSelected,
   projectName,
 }) {
-
-
-  const handleCheckboxClick = (event, id, name) => {
+  const handleCheckboxClick = (event, id) => {
     if (event.target.checked) {
-      setSelectedRows([...selectedRows, { id, name }]);
+      setSelectedRows([...selectedRows, id]);
     } else {
-      setSelectedRows(selectedRows.filter(row => row.id !== id));
+      setSelectedRows(selectedRows.filter((row) => row.id !== id));
     }
   };
-  
-  const selectedRowsData = rows.filter(row => selectedRows.includes(row.id));
+
+  const handleDeleteSelectedClick = () => {
+    handleDeleteSelected();
+  };
+
+  const selectedRowsData = rows.filter((row) => selectedRows.includes(row.id));
   const totalSelectedPages = calculateTotalPages(selectedRowsData);
 
   return (
@@ -61,17 +62,20 @@ function TableUpload({
       </h2>
       <div className="flex justify-between items-center mb-4 px-4">
         {selectedRows.length > 0 && (
-          <span>{selectedRows.length} selected, {totalSelectedPages} pages</span>
+          <span>
+            {selectedRows.length} selected, {totalSelectedPages} pages
+          </span>
         )}
         <Button
           variant="contained"
           color="warning"
-          onClick={() => { handleDeleteSelected()}}
+          onClick={() => {
+            handleDeleteSelectedClick();
+          }}
           disabled={selectedRows.length === 0}
         >
           Delete Selected
         </Button>
-
       </div>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer sx={{ maxHeight: 700 }}>
@@ -80,11 +84,16 @@ function TableUpload({
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox
-                    indeterminate={selectedRows.length > 0 && selectedRows.length < rows.length}
-                    checked={rows.length > 0 && selectedRows.length === rows.length}
+                    indeterminate={
+                      selectedRows.length > 0 &&
+                      selectedRows.length < rows.length
+                    }
+                    checked={
+                      rows.length > 0 && selectedRows.length === rows.length
+                    }
                     onChange={(event) => {
                       if (event.target.checked) {
-                        setSelectedRows(rows.map((row) => [row.id]));
+                        setSelectedRows(rows.map((row) => row.id));
                       } else {
                         setSelectedRows([]);
                       }
@@ -108,10 +117,9 @@ function TableUpload({
                 .map((row, index) => (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     <TableCell padding="checkbox">
-                   
                       <Checkbox
-                        checked={selectedRows.some(selectedRow => selectedRow.id === row.id)}
-                        onChange={(event) => handleCheckboxClick(event, row.id, row.name)}
+                        checked={selectedRows.includes(row.id)}
+                        onChange={(event) => handleCheckboxClick(event, row.id)}
                       />
                     </TableCell>
                     {columns.map((column) => {
@@ -123,7 +131,6 @@ function TableUpload({
                         >
                           {column.id === "edit" ? (
                             <div>
-
                               <Button
                                 variant="contained"
                                 color="primary"
@@ -135,7 +142,9 @@ function TableUpload({
                                 Delete
                               </Button>
                             </div>
-                          ) : value}
+                          ) : (
+                            value
+                          )}
                         </TableCell>
                       );
                     })}

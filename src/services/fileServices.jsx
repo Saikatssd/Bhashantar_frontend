@@ -24,9 +24,7 @@ import {
   deleteObject,
 } from "firebase/storage";
 
-
 import { formatDate } from "../utils/formatDate";
-
 
 // --- File Operations ---
 
@@ -163,7 +161,7 @@ import { server } from "../main";
 export const uploadFile = async (projectId, file) => {
   try {
     // Step 1: Get a signed URL from the backend
-    
+
     const response = await fetch(`${server}/generateSignedUrl`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -172,15 +170,17 @@ export const uploadFile = async (projectId, file) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Failed to get signed URL: ${response.status} - ${errorText}`);
+      console.error(
+        `Failed to get signed URL: ${response.status} - ${errorText}`
+      );
       throw new Error("Failed to get signed URL");
     }
 
-    const { signedUrl, filePath } = await response.json(); 
-    console.log("signedUrl, filePath ",signedUrl, filePath )
+    const { signedUrl, filePath } = await response.json();
+    // console.log("signedUrl, filePath ",signedUrl, filePath )
     if (!signedUrl || !filePath) {
       throw new Error("Invalid signed URL or file path from backend");
-    }// Receive both signed URL and file path
+    } // Receive both signed URL and file path
 
     // Step 2: Upload the file to GCS using the signed URL
     const uploadResponse = await fetch(signedUrl, {
@@ -193,7 +193,7 @@ export const uploadFile = async (projectId, file) => {
       throw new Error("Failed to upload file to GCS");
     }
 
-    console.log("File uploaded successfully to GCS");
+    // console.log("File uploaded successfully to GCS");
 
     // Step 3: Convert PDF file to ArrayBuffer to read the number of pages
     const arrayBuffer = await file.arrayBuffer();
@@ -214,7 +214,7 @@ export const uploadFile = async (projectId, file) => {
       }
     );
 
-    console.log("Metadata successfully stored in Firestore");
+    // console.log("Metadata successfully stored in Firestore");
 
     return {
       id: fileRef.id,
@@ -234,15 +234,15 @@ export const deleteFile = async (projectId, fileId, fileName) => {
   try {
     // Make a request to your backend to delete the file from GCS
     const response = await fetch(`${server}/api/document/deleteFile`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ projectId, fileName }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to delete file from GCS');
+      throw new Error("Failed to delete file from GCS");
     }
 
     // Continue to delete file metadata from Firestore
@@ -300,12 +300,12 @@ export const deleteFile = async (projectId, fileId, fileName) => {
 export const fetchFileNameById = async (projectId, fileId) => {
   try {
     // Log inputs to ensure they are correct
-    console.log(
-      "Fetching file name for projectId:",
-      projectId,
-      "fileId:",
-      fileId
-    );
+    // console.log(
+    //   "Fetching file name for projectId:",
+    //   projectId,
+    //   "fileId:",
+    //   fileId
+    // );
 
     const fileDocRef = doc(db, "projects", projectId, "files", fileId);
     const fileDoc = await getDoc(fileDocRef);
@@ -343,5 +343,130 @@ export const updateFileStatusNumber = async (projectId, fileId, status) => {
   } catch (error) {
     console.error("Error updating file status:", error);
     throw new Error("Error updating file status:", error);
+  }
+};
+
+export const fetchDocumentUrl = async (projectId, fileId) => {
+  try {
+    // Step 1: Fetch the file paths from Firestore
+    const fileDocRef = doc(db, "projects", projectId, "files", fileId);
+    const fileDoc = await getDoc(fileDocRef);
+
+    if (!fileDoc.exists()) {
+      throw new Error("File does not exist");
+    }
+
+    const data = fileDoc.data();
+    let fileName = data.name;
+    fileName = fileName.replace(".pdf", "");
+    // console.log("fileName", fileName);
+    // const pdfPath = data.pdfUrl;
+    // const htmlPath = data.htmlUrl;
+    // console.log("path", pdfPath, htmlPath);
+
+    // Step 2: Request new signed URLs from the backend
+    const responsePdf = await fetch(`${server}/generateReadSignedUrl`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId, fileName, fileType: "pdf" }), // Include fileType to specify it's a PDF
+    });
+
+    if (!responsePdf.ok) {
+      throw new Error("Failed to generate PDF signed URL");
+    }
+
+    const { signedUrl: pdfSignedUrl } = await responsePdf.json();
+
+    const responseHtml = await fetch(`${server}/generateReadSignedUrl`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId, fileName, fileType: "html" }), // Include fileType to specify it's an HTML file
+    });
+
+    if (!responseHtml.ok) {
+      throw new Error("Failed to generate HTML signed URL");
+    }
+
+    const { signedUrl: htmlSignedUrl } = await responseHtml.json();
+
+    // console.log("pdfurl", pdfSignedUrl, htmlSignedUrl);
+
+    // Return both signed URLs
+    return {
+      pdfUrl: pdfSignedUrl,
+      htmlUrl: htmlSignedUrl,
+    };
+  } catch (error) {
+    console.error("Error fetching document URLs:", error);
+    throw new Error("Error fetching document URLs");
+  }
+};
+
+// Update the content of a specific document
+// export const updateDocumentContent = async (projectId, fileId, blob) => {
+//   try {
+//     const fileDocRef = doc(db, "projects", projectId, "files", fileId);
+//     const fileDoc = await getDoc(fileDocRef);
+//     const fileData = fileDoc.data();
+//     const htmlFileName = fileData.name.replace(".pdf", ".html");
+
+//     const htmlStorageRef = ref(
+//       storage,
+//       `projects/${projectId}/${htmlFileName}`
+//     );
+//     await uploadBytes(htmlStorageRef, blob);
+//     const htmlDownloadURL = await getDownloadURL(htmlStorageRef);
+
+//     await updateDoc(doc(db, "projects", projectId, "files", fileId), {
+//       htmlUrl: htmlDownloadURL,
+//     });
+//   } catch (error) {
+//     console.error("Error updating document content:", error);
+//     throw new Error("Error updating document content");
+//   }
+// };
+export const updateDocumentContent = async (
+  projectId,
+  fileId,
+  newHtmlContent
+) => {
+  try {
+
+    // console.log("newContent",newHtmlContent)
+
+    
+    // Step 1: Request the signed URL for the update
+    const signedUrlResponse = await fetch(
+      `${server}/api/document/generateSignedUrlForHtmlUpdate`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId, fileId }),
+      }
+    );
+
+    if (!signedUrlResponse.ok) {
+      throw new Error("Failed to generate signed URL");
+    }
+
+    const { signedUrl, gcsFilePath } = await signedUrlResponse.json();
+    // console.log("signedurl", signedUrl);
+
+    // Step 2: Upload the new HTML content to the signed URL
+    const uploadResponse = await fetch(signedUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "text/html",
+      },
+      body: newHtmlContent, // The HTML content to be updated
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error("Failed to upload new HTML content");
+    }
+
+    // console.log("HTML content updated successfully at:", gcsFilePath);
+  } catch (error) {
+    console.error("Error updating HTML content:", error);
   }
 };

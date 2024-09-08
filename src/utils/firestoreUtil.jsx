@@ -403,29 +403,7 @@ export const fetchProjectFilesCount = async (status, projectId) => {
 
 
 
-// Update the content of a specific document
-export const updateDocumentContent = async (projectId, fileId, blob) => {
-  try {
-    const fileDocRef = doc(db, "projects", projectId, "files", fileId);
-    const fileDoc = await getDoc(fileDocRef);
-    const fileData = fileDoc.data();
-    const htmlFileName = fileData.name.replace(".pdf", ".html");
 
-    const htmlStorageRef = ref(
-      storage,
-      `projects/${projectId}/${htmlFileName}`
-    );
-    await uploadBytes(htmlStorageRef, blob);
-    const htmlDownloadURL = await getDownloadURL(htmlStorageRef);
-
-    await updateDoc(doc(db, "projects", projectId, "files", fileId), {
-      htmlUrl: htmlDownloadURL,
-    });
-  } catch (error) {
-    console.error("Error updating document content:", error);
-    throw new Error("Error updating document content");
-  }
-};
 
 // --- Project Operations ---
 
