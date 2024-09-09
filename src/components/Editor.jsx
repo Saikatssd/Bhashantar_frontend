@@ -19,24 +19,25 @@ import {
 import { toast } from "react-hot-toast";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import {
-  DecoupledEditor,
+  ClassicEditor,
   AccessibilityHelp,
   Alignment,
   Autoformat,
   AutoImage,
-  AutoLink,
   Autosave,
   BalloonToolbar,
+  BlockQuote,
   Bold,
   CloudServices,
-  Code,
   Essentials,
-  FindAndReplace,
   FontBackgroundColor,
   FontColor,
   FontFamily,
   FontSize,
+  FullPage,
+  GeneralHtmlSupport,
   Heading,
+  Highlight,
   HorizontalLine,
   ImageBlock,
   ImageCaption,
@@ -58,9 +59,11 @@ import {
   MediaEmbed,
   PageBreak,
   Paragraph,
+  PasteFromMarkdownExperimental,
   PasteFromOffice,
   RemoveFormat,
   SelectAll,
+  SourceEditing,
   SpecialCharacters,
   SpecialCharactersArrows,
   SpecialCharactersCurrency,
@@ -69,6 +72,7 @@ import {
   SpecialCharactersMathematical,
   SpecialCharactersText,
   Strikethrough,
+  Style,
   Subscript,
   Superscript,
   Table,
@@ -78,14 +82,15 @@ import {
   TableProperties,
   TableToolbar,
   TextTransformation,
-  TodoList,
   Underline,
   Undo,
 } from "ckeditor5";
 
 import "ckeditor5/ckeditor5.css";
 
-import "../assets/editor.css";
+import "../App.css";
+
+// import "../assets/editor.css";
 
 const Editor = () => {
   const { projectId, documentId } = useParams();
@@ -137,16 +142,10 @@ const Editor = () => {
         const blob = new Blob([debouncedHtmlContent], {
           type: "text/html; charset=utf-8",
         });
-        
-        let contentToLog;
-        
-        if (blob instanceof Blob) {
-          contentToLog = await blob.text(); // Convert Blob to text
-        } else {
-          contentToLog = blob; // If it's already a string
-        }
-        console.log("save", contentToLog);
+        const contentToLog = await blob.text(); // Convert Blob to text for debugging
+        console.log("blob", contentToLog);
 
+        console.log("htmlcontent", debouncedHtmlContent);
 
         await updateDocumentContent(projectId, documentId, blob);
       } catch (err) {
@@ -169,57 +168,59 @@ const Editor = () => {
         "undo",
         "redo",
         "|",
-        "heading",
+        "bold",
+        "italic",
+        "underline",
         "|",
         "fontSize",
         "fontFamily",
         "fontColor",
         "fontBackgroundColor",
         "|",
-        "bold",
-        "italic",
-        "underline",
-        "|",
         "link",
         "insertTable",
+        "highlight",
+        "blockQuote",
         "|",
+        "lineheight",
         "alignment",
         "|",
         "bulletedList",
         "numberedList",
-        "todoList",
         "outdent",
         "indent",
+        "|",
       ],
       shouldNotGroupWhenFull: false,
     },
-    allowedContent: {
-      $1: {
-        // Use the $1 syntax to allow global rules
-        attributes: true, // Allow all attributes
-        styles: true, // Allow all styles
-        classes: true // Allow all classes
+     styles: [
+      {
+        name: 'First Line Indent',
+        element: 'p',
+        styles: {
+          'text-indent': '30px'
+        }
       }
-    },
-  extraAllowedContent: '*[id](*){*}', // Allow custom attributes, styles
+    ],
     plugins: [
       AccessibilityHelp,
       Alignment,
       Autoformat,
       AutoImage,
-      AutoLink,
       Autosave,
       BalloonToolbar,
+      BlockQuote,
       Bold,
       CloudServices,
-      Code,
       Essentials,
-      FindAndReplace,
       FontBackgroundColor,
       FontColor,
       FontFamily,
       FontSize,
+      FullPage,
+      GeneralHtmlSupport,
       Heading,
+      Highlight,
       HorizontalLine,
       ImageBlock,
       ImageCaption,
@@ -241,9 +242,11 @@ const Editor = () => {
       MediaEmbed,
       PageBreak,
       Paragraph,
+      PasteFromMarkdownExperimental,
       PasteFromOffice,
       RemoveFormat,
       SelectAll,
+      SourceEditing,
       SpecialCharacters,
       SpecialCharactersArrows,
       SpecialCharactersCurrency,
@@ -252,6 +255,7 @@ const Editor = () => {
       SpecialCharactersMathematical,
       SpecialCharactersText,
       Strikethrough,
+      Style,
       Subscript,
       Superscript,
       Table,
@@ -261,7 +265,6 @@ const Editor = () => {
       TableProperties,
       TableToolbar,
       TextTransformation,
-      TodoList,
       Underline,
       Undo,
     ],
@@ -274,12 +277,31 @@ const Editor = () => {
       "bulletedList",
       "numberedList",
     ],
+    // fontFamily: {
+    //   supportAllValues: true,
+    // },
+
     fontFamily: {
+      options: [
+          'default',
+          'Nirmala UI, sans-serif',
+          'Arial, sans-serif',
+          'Courier New, Courier, monospace',
+          'Georgia, serif',
+          'Lucida Sans Unicode, Lucida Grande, sans-serif',
+          'Tahoma, Geneva, sans-serif',
+          'Times New Roman, Times, serif',
+          'Trebuchet MS, Helvetica, sans-serif',
+          'Verdana, Geneva, sans-serif'
+      ],
       supportAllValues: true,
-    },
+  },
     fontSize: {
-      options: [10, 12, 14, "default", 18, 20, 22],
-      supportAllValues: true,
+      options: [
+        8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+        25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 'default'
+      ],
+      supportAllValues: true
     },
     heading: {
       options: [
@@ -326,6 +348,16 @@ const Editor = () => {
         },
       ],
     },
+    htmlSupport: {
+      allow: [
+        {
+          name: /^.*$/,
+          styles: true,
+          attributes: true,
+          classes: true,
+        },
+      ],
+    },
     image: {
       toolbar: [
         "toggleImageCaption",
@@ -363,6 +395,55 @@ const Editor = () => {
       isVisible: true,
     },
     placeholder: "Type or paste your content here!",
+    style: {
+      definitions: [
+        {
+          name: "Article category",
+          element: "h3",
+          classes: ["category"],
+        },
+        {
+          name: "Title",
+          element: "h2",
+          classes: ["document-title"],
+        },
+        {
+          name: "Subtitle",
+          element: "h3",
+          classes: ["document-subtitle"],
+        },
+        {
+          name: "Info box",
+          element: "p",
+          classes: ["info-box"],
+        },
+        {
+          name: "Side quote",
+          element: "blockquote",
+          classes: ["side-quote"],
+        },
+        {
+          name: "Marker",
+          element: "span",
+          classes: ["marker"],
+        },
+        {
+          name: "Spoiler",
+          element: "span",
+          classes: ["spoiler"],
+        },
+        {
+          name: "Code (dark)",
+          element: "pre",
+          classes: ["fancy-code", "fancy-code-dark"],
+        },
+        {
+          name: "Code (bright)",
+          element: "pre",
+          classes: ["fancy-code", "fancy-code-bright"],
+        },
+      ],
+    },
     table: {
       contentToolbar: [
         "tableColumn",
@@ -484,47 +565,26 @@ const Editor = () => {
     if (isInitialContentSet) {
       return (
         <div
-          className="editor-container editor-container_document-editor"
+          className="editor-container editor-container_classic-editor editor-container_include-style"
           ref={editorContainerRef}
+          style={{ width: "100%", height: "100%" }}
         >
           <div
-            className="editor-container__menu-bar"
-            ref={editorMenuBarRef}
-          ></div>
-          <div
-            className="editor-container__toolbar"
-            ref={editorToolbarRef}
-          ></div>
-          <div className="editor-container__editor-wrapper">
-            <div className="editor-container__editor">
-              <div ref={editorRef}>
-                {isLayoutReady && (
-                  <CKEditor
-                    onReady={(editor) => {
-                      editorToolbarRef.current.appendChild(
-                        editor.ui.view.toolbar.element
-                      );
-                      editorMenuBarRef.current.appendChild(
-                        editor.ui.view.menuBarView.element
-                      );
-                    }}
-                    onAfterDestroy={() => {
-                      Array.from(editorToolbarRef.current.children).forEach(
-                        (child) => child.remove()
-                      );
-                      Array.from(editorMenuBarRef.current.children).forEach(
-                        (child) => child.remove()
-                      );
-                    }}
-                    editor={DecoupledEditor}
-                    config={editorConfig}
-                    onChange={(event, editor) => {
-                      const data = editor.getData();
-                      setHtmlContent(data); // Update the state with the new content
-                    }}
-                  />
-                )}
-              </div>
+            className="editor-container__editor"
+            style={{ width: "100%", height: "100%" }}
+          >
+            <div ref={editorRef} style={{ width: "100%", height: "100%" }}>
+              {isLayoutReady && (
+                <CKEditor
+                  editor={ClassicEditor}
+                  config={editorConfig}
+                  onChange={(event, editor) => {
+                    const data = editor.getData();
+                    console.log(data);
+                    setHtmlContent(data); // Update the state with the new content
+                  }}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -541,18 +601,19 @@ const Editor = () => {
   }
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div style={{ display: "flex", height: "100vh", width: "100vw" }}>
       <div
         style={{
           flex: 1,
           overflow: "auto",
           padding: "10px",
           borderRight: "1px solid #ccc",
+          width: "50%",
         }}
       >
         {fileName ? (
           <>
-            <iframe src={pdfUrl} title={fileName} width="100%" height="988px" />
+            <iframe src={pdfUrl} title={fileName} width="100%" height="100%" />
           </>
         ) : (
           <div>Loading...</div>
@@ -564,10 +625,10 @@ const Editor = () => {
           size="large"
           sx={{
             position: "fixed",
-            top: 15,
-            right: 110,
+            top: 12,
+            right: 120,
             width: "80px",
-            height: "36px",
+            height: "29px",
             fontSize: "14px",
             zIndex: 10,
           }}
@@ -576,7 +637,7 @@ const Editor = () => {
           Back
         </Button>
       </div>
-      <div style={{ flex: 1, padding: "10px" }}>
+      <div style={{ flex: 1, padding: "10px", overflowY: "auto", width: "1" }}>
         {initializeEditor()}
         <Button
           onClick={handleOpenDialog}
@@ -585,10 +646,10 @@ const Editor = () => {
           size="large"
           sx={{
             position: "fixed",
-            top: 15,
-            right: 17,
+            top: 12,
+            right: 30,
             width: "80px",
-            height: "36px",
+            height: "29px",
             fontSize: "14px",
             zIndex: 10,
           }}
@@ -600,8 +661,8 @@ const Editor = () => {
             onClick={handleDownload}
             sx={{
               position: "fixed",
-              top: 66,
-              right: 25,
+              top: 53,
+              right: 50,
               fontSize: "20px",
               zIndex: 10,
             }}
