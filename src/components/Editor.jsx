@@ -88,7 +88,7 @@ import {
 
 import "ckeditor5/ckeditor5.css";
 
-import "../App.css";
+// import "../App.css";
 
 // import "../assets/editor.css";
 
@@ -142,10 +142,10 @@ const Editor = () => {
         const blob = new Blob([debouncedHtmlContent], {
           type: "text/html; charset=utf-8",
         });
-        const contentToLog = await blob.text(); // Convert Blob to text for debugging
-        console.log("blob", contentToLog);
+        // const contentToLog = await blob.text(); // Convert Blob to text for debugging
+        // console.log("blob", contentToLog);
 
-        console.log("htmlcontent", debouncedHtmlContent);
+        // console.log("htmlcontent", debouncedHtmlContent);
 
         await updateDocumentContent(projectId, documentId, blob);
       } catch (err) {
@@ -515,12 +515,13 @@ const Editor = () => {
     }
   };
 
+
   const handleDownload = async () => {
     setError(null); // Clear any previous error
-
+  
     try {
       const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
-
+  
       // Use toast.promise to handle the download process
       await toast
         .promise(
@@ -538,7 +539,12 @@ const Editor = () => {
           const filename = contentDisposition
             ? contentDisposition.split("filename=")[1].replace(/"/g, "")
             : "document.zip";
-
+  
+          // Check if the response data is valid
+          if (!response.data || response.data.size === 0) {
+            throw new Error("File is empty or not valid.");
+          }
+  
           const url = window.URL.createObjectURL(new Blob([response.data]));
           const link = document.createElement("a");
           link.href = url;
@@ -549,13 +555,58 @@ const Editor = () => {
         });
     } catch (err) {
       console.log("Download error", err);
-      toast.error("Blank file can't be downloaded", {
+  
+      // If the file is blank or other error occurs
+      toast.error("Error: File can't be downloaded or is blank", {
         position: "top-right",
         style: { background: "#333", color: "#fff" },
       });
+  
       console.error("Error during document download:", err);
     }
   };
+  
+  // const handleDownload = async () => {
+  //   setError(null); // Clear any previous error
+
+  //   try {
+  //     const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
+
+  //     // Use toast.promise to handle the download process
+  //     await toast
+  //       .promise(
+  //         axios.get(endpoint, {
+  //           responseType: "blob",
+  //         }),
+  //         {
+  //           loading: "Downloading...",
+  //           success: "Zip File Downloaded!",
+  //           error: "An error occurred while downloading the document.",
+  //         }
+  //       )
+  //       .then((response) => {
+  //         const contentDisposition = response.headers["content-disposition"];
+  //         const filename = contentDisposition
+  //           ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+  //           : "document.zip";
+
+  //         const url = window.URL.createObjectURL(new Blob([response.data]));
+  //         const link = document.createElement("a");
+  //         link.href = url;
+  //         link.setAttribute("download", filename);
+  //         document.body.appendChild(link);
+  //         link.click();
+  //         link.remove();
+  //       });
+  //   } catch (err) {
+  //     console.log("Download error", err);
+  //     toast.error("Blank file can't be downloaded", {
+  //       position: "top-right",
+  //       style: { background: "#333", color: "#fff" },
+  //     });
+  //     console.error("Error during document download:", err);
+  //   }
+  // };
 
   const handleBack = () => {
     navigate(-1);
@@ -580,7 +631,7 @@ const Editor = () => {
                   config={editorConfig}
                   onChange={(event, editor) => {
                     const data = editor.getData();
-                    console.log(data);
+                    // console.log(data);
                     setHtmlContent(data); // Update the state with the new content
                   }}
                 />
@@ -661,8 +712,8 @@ const Editor = () => {
             onClick={handleDownload}
             sx={{
               position: "fixed",
-              top: 53,
-              right: 50,
+              top: 18,
+              right: 400,
               fontSize: "20px",
               zIndex: 10,
             }}
