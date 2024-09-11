@@ -88,8 +88,8 @@ import {
 
 import "ckeditor5/ckeditor5.css";
 
-// import "../App.css";
-
+import "../App.css";
+import { LineHeight } from '@rickx/ckeditor5-line-height';
 // import "../assets/editor.css";
 
 const Editor = () => {
@@ -193,7 +193,7 @@ const Editor = () => {
       ],
       shouldNotGroupWhenFull: false,
     },
-     styles: [
+    styles: [
       {
         name: 'First Line Indent',
         element: 'p',
@@ -267,12 +267,14 @@ const Editor = () => {
       TextTransformation,
       Underline,
       Undo,
+      LineHeight,
+
     ],
     balloonToolbar: [
       "bold",
       "italic",
       "|",
-      "link",
+      "alignment",
       "|",
       "bulletedList",
       "numberedList",
@@ -283,25 +285,46 @@ const Editor = () => {
 
     fontFamily: {
       options: [
-          'default',
-          'Nirmala UI, sans-serif',
-          'Arial, sans-serif',
-          'Courier New, Courier, monospace',
-          'Georgia, serif',
-          'Lucida Sans Unicode, Lucida Grande, sans-serif',
-          'Tahoma, Geneva, sans-serif',
-          'Times New Roman, Times, serif',
-          'Trebuchet MS, Helvetica, sans-serif',
-          'Verdana, Geneva, sans-serif'
+        'default',
+        'Nirmala UI, sans-serif',
+        'Arial, sans-serif',
+        'Courier New, Courier, monospace',
+        'Georgia, serif',
+        'Lucida Sans Unicode, Lucida Grande, sans-serif',
+        'Tahoma, Geneva, sans-serif',
+        'Times New Roman, Times, serif',
+        'Trebuchet MS, Helvetica, sans-serif',
+        'Verdana, Geneva, sans-serif'
       ],
       supportAllValues: true,
-  },
+    },
     fontSize: {
       options: [
         8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
         25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 'default'
       ],
       supportAllValues: true
+    },
+    lineHeight: {
+      // You can specify custom line height values
+      options: [
+        'default',
+        '10px',
+        1,
+        1.1,
+        1.2,
+        1.3,
+        1.4,
+        1.5,
+        1.6,
+        2,
+        '150%',
+        '2.5',
+        {
+          title: 'Custom Title',
+          model: '48px', // You can add custom titles and values here
+        },
+      ],
     },
     heading: {
       options: [
@@ -518,10 +541,10 @@ const Editor = () => {
 
   const handleDownload = async () => {
     setError(null); // Clear any previous error
-  
+
     try {
       const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
-  
+
       // Use toast.promise to handle the download process
       await toast
         .promise(
@@ -539,12 +562,12 @@ const Editor = () => {
           const filename = contentDisposition
             ? contentDisposition.split("filename=")[1].replace(/"/g, "")
             : "document.zip";
-  
+
           // Check if the response data is valid
           if (!response.data || response.data.size === 0) {
             throw new Error("File is empty or not valid.");
           }
-  
+
           const url = window.URL.createObjectURL(new Blob([response.data]));
           const link = document.createElement("a");
           link.href = url;
@@ -555,17 +578,17 @@ const Editor = () => {
         });
     } catch (err) {
       console.log("Download error", err);
-  
+
       // If the file is blank or other error occurs
       toast.error("Error: File can't be downloaded or is blank", {
         position: "top-right",
         style: { background: "#333", color: "#fff" },
       });
-  
+
       console.error("Error during document download:", err);
     }
   };
-  
+
   // const handleDownload = async () => {
   //   setError(null); // Clear any previous error
 
