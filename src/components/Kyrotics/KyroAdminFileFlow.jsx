@@ -234,7 +234,7 @@ const KyroAdminFileFlow = () => {
         // ]);
       }
 
-      navigate(1);
+      navigate(-1);
 
       handleCloseModal();
     } catch (err) {

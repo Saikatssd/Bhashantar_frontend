@@ -277,10 +277,22 @@ const AdminFileFlow = () => {
       await toast.promise(
         axios
           .get(endpoint, {
-            responseType: "blob",
+            responseType: "blob",  // Expecting a blob for successful downloads
           })
-          .then((response) => {
-            // Extract filename from headers or use a fallback
+          .then(async (response) => {
+            // Check if response size is very small, it might be an error message in blob
+            if (response.data.size < 100) {
+              // Try converting blob to text for an error message
+              const text = await response.data.text();
+              try {
+                const errorData = JSON.parse(text);
+                throw new Error(errorData.message || "An unknown error occurred.");
+              } catch (err) {
+                throw new Error("Error occurred during file download.");
+              }
+            }
+
+            // Proceed with file download if it's valid
             const contentDisposition = response.headers["content-disposition"];
             const filename = contentDisposition
               ? contentDisposition.split("filename=")[1].replace(/"/g, "")
@@ -295,7 +307,6 @@ const AdminFileFlow = () => {
             link.remove();
 
             // Update the completed files list
-            // setCompletedFiles(files.filter((file) => file.id !== documentId));
             setCompletedFiles((prevFiles) =>
               prevFiles.filter((file) => file.id !== documentId)
             );
@@ -305,6 +316,7 @@ const AdminFileFlow = () => {
               {
                 ...completedFiles.find((file) => file.id === documentId),
                 status: 8,
+                client_downloadedDate: formatDate(new Date()),
               },
             ]);
 
@@ -320,16 +332,17 @@ const AdminFileFlow = () => {
           error: "An error occurred while downloading the file.",
         }
       );
-      // navigate(1);
     } catch (err) {
-      setError(err);
-      toast.error("An error occurred. Please try again.", {
-        position: "top-right",
-        style: { background: "#333", color: "#fff" },
-      });
+      console.log("error", err)
+      // Display the error using toast
+      // toast.error(err.message || "An error occurred. Please try again.", {
+      //   position: "top-right",
+      //   style: { background: "#333", color: "#fff" },
+      // });
       console.error("Error during document download:", err);
     }
   };
+
 
   const handleDownloadSelected = async (format) => {
     try {
