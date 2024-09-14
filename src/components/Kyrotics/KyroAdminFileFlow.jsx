@@ -188,6 +188,7 @@ const KyroAdminFileFlow = () => {
     try {
       // console.log("user",userId)
       const currentDate = formatDate(new Date());
+      const userName = await fetchUserNameById(userId);
 
       if (selectedRows.length != 0) {
         for (const fileId of selectedRows) {
@@ -198,18 +199,18 @@ const KyroAdminFileFlow = () => {
           });
 
           // Update the readyForWorkFiles and inProgressFiles state
-          // setReadyForWorkFiles((prevFiles) =>
-          //   prevFiles.filter((file) => file.id !== fileId)
-          // );
+          setReadyForWorkFiles((prevFiles) =>
+            prevFiles.filter((file) => file.id !== fileId)
+          );
 
-          // setInProgressFiles((prevFiles) => [
-          //   ...prevFiles,
-          //   {
-          //     ...readyForWorkFiles.find((file) => file.id == fileId),
-          //     kyro_assignedDate: currentDate,
-          //     kyro_assignedTo: userId,
-          //   },
-          // ]);
+          setInProgressFiles((prevFiles) => [
+            ...prevFiles,
+            {
+              ...readyForWorkFiles.find((file) => file.id == fileId),
+              kyro_assignedDate: currentDate,
+              kyro_assignedTo: userName,
+            },
+          ]);
         }
       } else {
         await updateFileStatus(projectId, selectedFileId, {
@@ -218,23 +219,23 @@ const KyroAdminFileFlow = () => {
           kyro_assignedTo: userId,
         });
 
-        // // Update the readyForWorkFiles and inProgressFiles state
-        // setReadyForWorkFiles((prevFiles) =>
-        //   prevFiles.filter((file) => file.id !== selectedFileId)
-        // );
+        // Update the readyForWorkFiles and inProgressFiles state
+        setReadyForWorkFiles((prevFiles) =>
+          prevFiles.filter((file) => file.id !== selectedFileId)
+        );
 
-        // setInProgressFiles((prevFiles) => [
-        //   ...prevFiles,
-        //   {
-        //     ...readyForWorkFiles.find((file) => file.id == selectedFileId),
-        //     status: 3,
-        //     kyro_assignedDate: currentDate,
-        //     kyro_assignedTo: userId,
-        //   },
-        // ]);
+        setInProgressFiles((prevFiles) => [
+          ...prevFiles,
+          {
+            ...readyForWorkFiles.find((file) => file.id == selectedFileId),
+            status: 3,
+            kyro_assignedDate: currentDate,
+            kyro_assignedTo: userName,
+          },
+        ]);
       }
 
-      navigate(-1);
+      // navigate(-1);
 
       handleCloseModal();
     } catch (err) {

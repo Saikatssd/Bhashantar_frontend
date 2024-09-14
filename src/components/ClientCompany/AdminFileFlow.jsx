@@ -213,6 +213,11 @@ const AdminFileFlow = () => {
 
   const handleAssignToUser = async (userId) => {
     try {
+
+      const currentDate = formatDate(new Date());
+      const userName = await fetchUserNameById(userId);
+
+      
       if (selectedRows.length !== 0) {
         for (const fileId of selectedRows) {
           await updateFileStatus(projectId, fileId, {

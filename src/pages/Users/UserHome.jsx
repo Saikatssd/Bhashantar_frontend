@@ -5,7 +5,9 @@ import { fetchClientUserProjectsCount } from "../../services/projectServices";
 import FolderIcon from "@mui/icons-material/Folder";
 import ArticleIcon from "@mui/icons-material/Article";
 
-export default function userHome({ companyId, userId }) {
+
+
+const UserHome = ({ companyId, userId })=> {
   const [userName, setUserName] = useState("");
   const [projectCounts, setProjectCounts] = useState({
     pendingCount: 0,
@@ -104,3 +106,5 @@ export default function userHome({ companyId, userId }) {
     </div>
   );
 }
+
+export default UserHome;

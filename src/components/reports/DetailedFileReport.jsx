@@ -238,7 +238,7 @@ const DetailedFileReport = () => {
               <option value="5.5">Delivered</option> */}
 
               <option value="">All Status</option>
-              <option value="Processing ">Processing</option>
+              <option value="Processing">Processing</option>
               <option value="NotStarted">Ready for Work</option>
               <option value="InProgress">Work in Progress</option>
               <option value="QA">QA</option>
