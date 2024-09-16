@@ -67,6 +67,10 @@ export const fetchClientProjectDetails = async (companyId) => {
         const files = await fetchProjectFiles(project.id);
         const totalFiles = files.length;
 
+        const receivedFiles = files.filter(
+          (file) => file.status >= 5
+        ).length;
+
         const readyForWorkFiles = files.filter(
           (file) => file.status == 5
         ).length;
@@ -79,6 +83,7 @@ export const fetchClientProjectDetails = async (companyId) => {
         return {
           name: project.name,
           totalFiles,
+          receivedFiles,
           readyForWorkFiles,
           inProgressFiles,
           completedFiles,

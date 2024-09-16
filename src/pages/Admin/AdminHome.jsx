@@ -201,7 +201,10 @@ const AdminHome = ({ companyId, role }) => {
                                 Project Name
                               </th>
                               <th className="whitespace-nowrap px-6 py-2 font-medium">
-                                File Count
+                                Total Files
+                              </th>
+                              <th className="whitespace-nowrap px-6 py-2 font-medium">
+                                Received Files
                               </th>
                               <th className="whitespace-nowrap px-6 py-2 font-medium">
                                 Not Started
@@ -230,6 +233,9 @@ const AdminHome = ({ companyId, role }) => {
                                   {project.totalFiles}
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                                  {project.receivedFiles}
+                                </td>
+                                <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
                                   {project.readyForWorkFiles}
                                 </td>
                                 <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
@@ -248,6 +254,9 @@ const AdminHome = ({ companyId, role }) => {
                               </td>
                               <td className="whitespace-nowrap px-6 py-2 text-center">
                                 {totals.totalFiles}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.receivedFiles}
                               </td>
                               <td className="whitespace-nowrap px-6 py-2 text-center">
                                 {totals.readyForWorkFiles}
