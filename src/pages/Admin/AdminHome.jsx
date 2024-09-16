@@ -198,7 +198,7 @@ const AdminHome = ({ companyId, role }) => {
                                 Sl No
                               </th>
                               <th className="whitespace-nowrap px-6 py-2 font-medium">
-                                Project Name
+                                Judgements
                               </th>
                               <th className="whitespace-nowrap px-6 py-2 font-medium">
                                 Total Files
@@ -214,6 +214,9 @@ const AdminHome = ({ companyId, role }) => {
                               </th>
                               <th className="whitespace-nowrap px-6 py-2 font-medium">
                                 Completed Files
+                              </th>
+                              <th className="whitespace-nowrap px-6 py-2 font-medium">
+                                Downloads
                               </th>
                             </tr>
                           </thead>
@@ -244,6 +247,9 @@ const AdminHome = ({ companyId, role }) => {
                                 <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
                                   {project.completedFiles}
                                 </td>
+                                <td className="whitespace-nowrap px-6 py-2 text-center text-gray-700">
+                                  {project.downloadedFiles}
+                                </td>
                               </tr>
                             ))}
                             {/* Add the totals row */}
@@ -266,6 +272,9 @@ const AdminHome = ({ companyId, role }) => {
                               </td>
                               <td className="whitespace-nowrap px-6 py-2 text-center">
                                 {totals.completedFiles}
+                              </td>
+                              <td className="whitespace-nowrap px-6 py-2 text-center">
+                                {totals.downloadedFiles}
                               </td>
                             </tr>
                           </tbody>

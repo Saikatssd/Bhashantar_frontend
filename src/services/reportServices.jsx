@@ -77,9 +77,9 @@ export const fetchClientProjectDetails = async (companyId) => {
 
         const inProgressFiles = files.filter((file) => file.status == 6).length;
 
-        const completedFiles = files.filter((file) => file.status >= 7).length;
+        const completedFiles = files.filter((file) => file.status == 7).length;
 
-        // const downloadedFiles = files.filter((file) => file.status == 8).length;
+        const downloadedFiles = files.filter((file) => file.status == 8).length;
         return {
           name: project.name,
           totalFiles,
@@ -87,7 +87,7 @@ export const fetchClientProjectDetails = async (companyId) => {
           readyForWorkFiles,
           inProgressFiles,
           completedFiles,
-          // downloadedFiles,
+          downloadedFiles,
         };
       })
     );
