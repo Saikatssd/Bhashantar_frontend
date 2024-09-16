@@ -223,22 +223,24 @@ const AdminFileFlow = () => {
           await updateFileStatus(projectId, fileId, {
             status: 6, // New status
             client_assignedTo: userId,
-            client_assignedDate: formatDate(new Date()),
+            client_assignedDate:currentDate,
           });
 
           // Update the readyForWorkFiles and inProgressFiles state
-          // setReadyForWorkFiles((prevFiles) =>
-          //   prevFiles.filter((file) => file.id !== fileId)
-          // );
+          setReadyForWorkFiles((prevFiles) =>
+            prevFiles.filter((file) => file.id !== fileId)
+          );
 
-          // setInProgressFiles((prevFiles) => [
-          //   ...prevFiles,
-          //   {
-          //     ...readyForWorkFiles.find((file) => file.id === fileId),
-          //     status: 6,
+          setInProgressFiles((prevFiles) => [
+            ...prevFiles,
+            {
+              ...readyForWorkFiles.find((file) => file.id === fileId),
+              status: 6,
+              client_assignedTo: userName,
+              client_assignedDate:currentDate,
 
-          //   },
-          // ]);
+            },
+          ]);
         }
       } else {
         await updateFileStatus(projectId, selectedFileId, {
@@ -248,19 +250,21 @@ const AdminFileFlow = () => {
         });
 
         // Update the readyForWorkFiles and inProgressFiles state
-        // setReadyForWorkFiles((prevFiles) =>
-        //   prevFiles.filter((file) => file.id !== selectedFileId)
-        // );
+        setReadyForWorkFiles((prevFiles) =>
+          prevFiles.filter((file) => file.id !== selectedFileId)
+        );
 
-        // setInProgressFiles((prevFiles) => [
-        //   ...prevFiles,
-        //   {
-        //     ...readyForWorkFiles.find((file) => file.id === selectedFileId),
-        //     status: 6,
-        //   },
-        // ]);
+        setInProgressFiles((prevFiles) => [
+          ...prevFiles,
+          {
+            ...readyForWorkFiles.find((file) => file.id === selectedFileId),
+            status: 6,
+            client_assignedTo: userName,
+            client_assignedDate:currentDate,
+          },
+        ]);
       }
-      navigate(-1);
+      // navigate(-1);
 
       handleCloseModal();
     } catch (err) {

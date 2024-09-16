@@ -267,7 +267,23 @@ const KyroAdminFileFlow = () => {
     setSelectedRows([]);
     const updatedFiles = await fetchProjectFiles(projectId);
     setFiles(updatedFiles);
+    
     navigate(-1);
+
+
+    // setCompletedFiles((prevFiles) =>
+    //   prevFiles.filter((file) => file.id !== selectedFileId)
+    // );
+
+    // setQaFiles((prevFiles) => [
+    //   ...prevFiles,
+    //   {
+    //     ...completedFiles.find((file) => file.id == selectedFileId),
+    //     kyro_deliveredDate: formatDate(new Date()),
+    //   },
+    // ]);
+
+
   };
 
   if (isLoading) {

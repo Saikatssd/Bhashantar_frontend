@@ -31,7 +31,7 @@ export const fetchProjectDetails = async (companyId) => {
         ).length;
 
         const inProgressFiles = files.filter(
-          (file) => file.status == 3 || file.status == 4
+          (file) => file.status == 3 
         ).length;
         const qaFiles = files.filter((file) => file.status == 4).length;
 
