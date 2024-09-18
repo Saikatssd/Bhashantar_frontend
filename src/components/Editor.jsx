@@ -162,6 +162,23 @@ const Editor = () => {
     return () => setIsLayoutReady(false);
   }, []);
 
+  
+  function tabSpacing(editor) {
+    editor.editing.view.document.on('keydown', (evt, data) => {
+      if (data.keyCode === 9 /* Tab */) {
+        editor.model.change(writer => {
+          const insertion = writer.createText('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0'); // Four non-breaking spaces
+          // const insertion = writer.createText('             '); // Four non-breaking spaces
+          // const insertion = writer.createText('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'); // Four non-breaking spaces
+          editor.model.insertContent(insertion);
+        });
+        data.preventDefault();
+        evt.stop();
+      }
+    });
+  }
+
+
   const editorConfig = {
     toolbar: {
       items: [
@@ -270,6 +287,7 @@ const Editor = () => {
       LineHeight,
 
     ],
+    extraPlugins: [tabSpacing],
     balloonToolbar: [
       "bold",
       "italic",

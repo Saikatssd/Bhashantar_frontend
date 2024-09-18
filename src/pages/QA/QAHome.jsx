@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from "react";
 import KyroSidebar from "../../components/Kyrotics/KyroSidebar";
+import { fetchQAProjectsCount } from "../../services/projectServices";
+import FolderIcon from "@mui/icons-material/Folder";
+import ArticleIcon from "@mui/icons-material/Article";
+
 import { fetchUserNameById } from "../../utils/firestoreUtil";
 
 const QAHome = ({ companyId, userId }) => {
   const [userName, setUserName] = useState("");
+  const [projectCounts, setProjectCounts] = useState({
+    pendingCount: 0,
+    completedCount: 0,
+  });
+
   useEffect(() => {
     const fetchContent = async () => {
       try {
         const userName = await fetchUserNameById(userId);
         setUserName(userName);
-        console
+        const counts = await fetchQAProjectsCount();
+        setProjectCounts(counts);
+        // console.log(projectCounts);
       } catch (error) {
         console.error("Error fetcing user name:", error);
       }
@@ -33,6 +44,60 @@ const QAHome = ({ companyId, userId }) => {
               <img src="user.png" alt="user" className="w-80" />
             </div>
           </div>
+
+          <div className="backdrop-blur-sm shadow-xl bg-white/30 mt-10 rounded-xl mx-auto">
+
+           <div className="flex justify-center gap-60 p-10">
+            <div className="flex flex-col items-center p-5 gap-5 ">
+              <div className=" ">
+                <p className="text-xl font-bold">Pending Works</p>
+              </div>
+              <div
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
+                style={{ background: "rgba(249, 145, 145, 0.5)" }}
+              >
+                <div className="px-6">
+                  <FolderIcon className="mr-4" />
+                  {projectCounts.pendingCount}
+                </div>
+              </div>
+              <div
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
+                style={{ background: "rgba(249, 145, 145, 0.5)" }}
+              >
+                <div className="px-6">
+                  <ArticleIcon className="mr-4" />
+                  {projectCounts.pendingPages}
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col items-center p-5 gap-5">
+              <div className=" ">
+                <p className="text-xl font-bold">Completed Works</p>
+              </div>
+              <div
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
+                style={{ background: "rgba(191, 249, 191, 0.5)" }}
+              >
+                <div className="px-6">
+                  <FolderIcon className="mr-4" />
+                  {projectCounts.completedCount}
+                </div>
+              </div>
+              <div
+                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
+                style={{ background: "rgba(191, 249, 191, 0.5)" }}
+              >
+                <div className="px-6">
+                  <ArticleIcon className="mr-4" />
+                  {projectCounts.completedPages}
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
       </div>
     </div>
   );

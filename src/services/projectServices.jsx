@@ -303,6 +303,63 @@ export const fetchUserProjectsCount = async (userId) => {
   }
 };
 
+export const fetchQAProjectsCount = async () => {
+  try {
+    // Fetch all projects
+    const projectsSnapshot = await getDocs(collection(db, "projects"));
+    let pendingCount = 0;
+    let completedCount = 0;
+    // let underReviewCount = 0;
+    let pendingPages = 0;
+    let completedPages = 0;
+    // let underReviewPages = 0;
+
+    for (const projectDoc of projectsSnapshot.docs) {
+      const projectId = projectDoc.id;
+
+      // Fetch files for each project where kyro_assignedTo matches the userId
+      const filesCollection = collection(db, "projects", projectId, "files");
+      const filesQuery = query(
+        filesCollection,
+        where("status", "in", [ 4, 5, 6, 7, 8]) // Add all the statuses to filter for
+      );
+
+      const filesSnapshot = await getDocs(filesQuery);
+
+      // Count the files based on their status
+      filesSnapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        const pages = data.pageCount || 0;
+        if (data.status == 4) {
+          pendingCount++;
+          pendingPages += pages;
+        } else if (data.status >= 5) {
+          completedCount++;
+          completedPages += pages;
+        }
+      });
+    }
+
+    return {
+      pendingCount:
+        pendingCount > 9 ? pendingCount.toString() : `0${pendingCount}`,
+      completedCount:
+        completedCount > 9 ? completedCount.toString() : `0${completedCount}`,
+      pendingPages:
+        pendingPages > 9 ? pendingPages.toString() : `0${pendingPages}`,
+      completedPages:
+        completedPages > 9 ? completedPages.toString() : `0${completedPages}`,
+
+    };
+
+    
+  } catch (error) {
+    console.error("Error fetching project files by user:", error);
+    throw new Error("Error fetching project files by user");
+  }
+};
+
+
 export const fetchClientUserProjectsCount = async (userId) => {
   try {
     // Fetch all projects
