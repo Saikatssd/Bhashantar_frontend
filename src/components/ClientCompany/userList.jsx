@@ -55,7 +55,7 @@ const UserList = ({ companyId }) => {
   return (
     <div className="container mx-auto p-8">
       <Typography variant="h4" className="text-xl font-bold mb-4 p-4">
-        Manage Users
+        Users
       </Typography>
       <TableContainer component={Paper} className="shadow-md">
         <Table className="min-w-full" aria-label="users table">

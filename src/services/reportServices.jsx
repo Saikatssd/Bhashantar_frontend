@@ -168,6 +168,7 @@ export const fetchClientDetailedFileReport = async (companyId) => {
               pageCount: file.pageCount,
               uploadedDate: file.uploadedDate,
               assignedDate: file.client_assignedDate,
+              completedDate: file.client_completedDate,
               deliveryDate: file.client_downloadedDate,
               assigneeName,
               projectName: project.name,

@@ -47,9 +47,10 @@ const columns = [
   { id: "pageCount", label: "Page Count", minWidth: 70 },
   { id: "uploadedDate", label: "Uploaded Date", minWidth: 90 },
   { id: "assignedDate", label: "Assigned Date", minWidth: 130 },
+  { id: "completedDate", label: "Completed Date", minWidth: 130 },
   { id: "deliveryDate", label: "Downloaded Date", minWidth: 130 },
   { id: "assigneeName", label: "Assignee Name", minWidth: 130 },
-  { id: "projectName", label: "Project Name", minWidth: 130 },
+  { id: "projectName", label: "Judgement", minWidth: 130 },
 ];
 
 // const date1 = parse('28/08/2024', 'dd/MM/yyyy', new Date());
@@ -189,7 +190,7 @@ const ClientFileDetailedReport = ({ companyId }) => {
   };
 
   return (
-    <div className="p-4">
+    <div className="">
       <div className="text-3xl font-bold p-4"><h1 >Detailed File Overview</h1></div>
       <div className="flex justify-between pb-4 mt-10">
         <div className="flex gap-6 ">
@@ -314,7 +315,7 @@ const ClientFileDetailedReport = ({ companyId }) => {
       </Collapse>
 
       <Paper sx={{ width: "100%", overflow: "hidden", borderRadius: 2 }}>
-        <TableContainer sx={{ maxHeight: 700 }}>
+        <TableContainer sx={{ maxHeight: 850 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -325,6 +326,7 @@ const ClientFileDetailedReport = ({ companyId }) => {
                       minWidth: column.minWidth,
                       backgroundColor: "#6c7ae0",
                       color: "#ffffff",
+                      textAlign:"center",
                     }}
                   >
                     {column.label}
@@ -352,6 +354,7 @@ const ClientFileDetailedReport = ({ companyId }) => {
                     <TableCell align="center">{file.pageCount}</TableCell>
                     <TableCell align="center">{file.uploadedDate}</TableCell>
                     <TableCell align="center">{file.assignedDate}</TableCell>
+                    <TableCell align="center">{file.completedDate}</TableCell>
                     <TableCell align="center">{file.deliveryDate}</TableCell>
                     <TableCell>{file.assigneeName}</TableCell>
                     <TableCell>{file.projectName}</TableCell>

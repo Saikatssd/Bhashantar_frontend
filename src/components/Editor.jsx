@@ -729,7 +729,7 @@ const Editor = () => {
           Back
         </Button>
       </div>
-      <div style={{ flex: 1, padding: "10px", overflowY: "auto", width: "1" }}>
+      <div style={{ flex: 1, padding: "10px", overflowY: "auto" }}>
         {initializeEditor()}
         <Button
           onClick={handleOpenDialog}
