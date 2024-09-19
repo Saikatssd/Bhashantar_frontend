@@ -18,7 +18,9 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import ConfirmationDialog from "../ConfirmationDialog";
 import { Description, Dashboard } from "@mui/icons-material";
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import ManageHistoryRoundedIcon from '@mui/icons-material/ManageHistoryRounded';
 import { Collapse } from "@mui/material";
+import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
 
 
 export default function KyroSidebar({ companyId, role }) {
@@ -55,8 +57,8 @@ export default function KyroSidebar({ companyId, role }) {
               <Link
                 to="/home"
                 className={`block rounded-lg justify-center  px-4 py-3 text-md font-semibold ${isActive("/home")
-                    ? "bg-[#e3d2fa] text-gray-700"
-                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                  ? "bg-[#e3d2fa] text-gray-700"
+                  : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
                   }`}
               >
                 <HomeIcon className="mr-5" />
@@ -67,8 +69,8 @@ export default function KyroSidebar({ companyId, role }) {
               <Link
                 to={`/kyro/${companyId}/clientCompanies`}
                 className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/clientCompanies`)
-                    ? "bg-[#e3d2fa] text-gray-700"
-                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                  ? "bg-[#e3d2fa] text-gray-700"
+                  : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
                   }`}
               >
                 <FolderCopyIcon className="mr-5" />
@@ -81,8 +83,8 @@ export default function KyroSidebar({ companyId, role }) {
                   <Link
                     to={`/kyro/${companyId}/mywork`}
                     className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/mywork`)
-                        ? "bg-[#e3d2fa] text-gray-700"
-                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                      ? "bg-[#e3d2fa] text-gray-700"
+                      : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
                       }`}
                   >
                     <StorageTwoToneIcon className="mr-5" />
@@ -91,88 +93,124 @@ export default function KyroSidebar({ companyId, role }) {
                 </li>
               </>
             )}
-            <li>
-              <Link
-                to={`/kyro/${companyId}/profile`}
-                className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/profile`)
-                    ? "bg-[#e3d2fa] text-gray-700"
-                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                  }`}
-              >
-                <PersonIcon className="mr-5" />
-                Profile
-              </Link>
-            </li>
+
+
 
             {(role === "admin" || role === "superAdmin") && (
               <>
+
                 <li>
-                  <div
-                    className="flex justify-between rounded-lg px-4 py-3 mb-3 text-md font-medium text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                    onClick={() => setShowSettings(!showSettings)}
+                  <Link
+                    to={`/kyro/${companyId}/fileStatus`}
+                    className={`block rounded-lg ml-3 pl-2 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/fileStatus`)
+                      ? "bg-[#e3d2fa] text-gray-700"
+                      : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                      }`}
                   >
-                    <div>
-                      <SettingsIcon className="mr-5" />
-                      Settings
-                    </div>
-                    {showSettings ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
-                  </div>
-                  <Collapse in={showSettings} timeout="auto" unmountOnExit className="border-l-4 ml-6">
-                    <ul className="space-y-2">
-                      <li>
-                        <Link
-                          to={`/kyro/${companyId}/userManage`}
-                          className={`block rounded-lg ml-3 pl-2 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/userManage`)
-                              ? "bg-[#e3d2fa] text-gray-700"
-                              : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                            }`}
-                        >
-                          <ManageAccountsIcon className="mr-5" />
-                          Manage Users
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to={`/kyro/${companyId}/roleManage`}
-                          className={`block rounded-lg ml-3 pl-2 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/roleManage`)
-                              ? "bg-[#e3d2fa] text-gray-700"
-                              : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                            }`}
-                        >
-                          <AdminPanelSettingsRoundedIcon className="mr-5" />
-                          Manage Roles
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          to={`/kyro/${companyId}/fileStatus`}
-                          className={`block rounded-lg ml-3 pl-2 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/fileStatus`)
-                              ? "bg-[#e3d2fa] text-gray-700"
-                              : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                            }`}
-                        >
-                          <TaskIcon className="mr-5" />
-                          File Status
-                        </Link>
-                      </li>
-                    </ul>
-                  </Collapse>
-
+                    <ManageHistoryRoundedIcon className="mr-5" />
+                    File Status
+                  </Link>
                 </li>
-
                 <li>
                   <Link
                     to={`/kyro/${companyId}/userReport`}
                     className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/userReport`)
-                        ? "bg-[#e3d2fa] text-gray-700"
-                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                      ? "bg-[#e3d2fa] text-gray-700"
+                      : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
                       }`}
                   >
                     <AssignmentTurnedInIcon className="mr-5" />
                     User Report
                   </Link>
                 </li>
-                {/* <li>
+
+
+              </>
+            )}
+
+            {role === "admin" && (
+              <li>
+                <Link
+                  to={`/kyro/${companyId}/userList`}
+                  className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/register`)
+                    ? "bg-[#e3d2fa] text-gray-700"
+                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                    }`}
+                >
+                  <PeopleRoundedIcon className="mr-5" />
+                  Users
+                </Link>
+              </li>
+            )}
+
+            {role === "superAdmin" && (
+
+              <>
+
+                <div
+                  className="flex justify-between rounded-lg px-4 py-3 mb-3 text-md font-medium text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                  onClick={() => setShowSettings(!showSettings)}
+                >
+                  <div>
+                    <SettingsIcon className="mr-5" />
+                    More
+                  </div>
+                  {showSettings ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                </div>
+                <Collapse in={showSettings} timeout="auto" unmountOnExit className="border-l-4 ml-6">
+                  <ul className="space-y-2">
+
+                    <li>
+                      <Link
+                        to={`/company/${companyId}/register`}
+                        className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/register`)
+                          ? "bg-[#e3d2fa] text-gray-700"
+                          : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                          }`}
+                      >
+                        <PersonAddAltRoundedIcon className="mr-5" />
+                        Register
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to={`/kyro/${companyId}/report`}
+                        className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/report`)
+                          ? "bg-[#e3d2fa] text-gray-700"
+                          : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                          }`}
+                      >
+                        <Description className="mr-5" />
+                        Project Report
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to={`/kyro/${companyId}/userManage`}
+                        className={`block rounded-lg ml-3 pl-2 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/userManage`)
+                          ? "bg-[#e3d2fa] text-gray-700"
+                          : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                          }`}
+                      >
+                        <ManageAccountsIcon className="mr-5" />
+                        Manage Users
+                      </Link>
+                    </li>
+
+                    <li>
+                      <Link
+                        to={`/kyro/${companyId}/roleManage`}
+                        className={`block rounded-lg ml-3 pl-2 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/roleManage`)
+                          ? "bg-[#e3d2fa] text-gray-700"
+                          : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                          }`}
+                      >
+                        <AdminPanelSettingsRoundedIcon className="mr-5" />
+                        Manage Roles
+                      </Link>
+                    </li>
+
+                    {/* <li>
                   <Link
                     to={`/kyro/${companyId}/permissionManage`}
                     className={`block rounded-lg px-4 py-3 text-md font-medium ${
@@ -186,58 +224,26 @@ export default function KyroSidebar({ companyId, role }) {
                   </Link>
                 </li> */}
 
+
+                  </ul>
+                </Collapse>
+
               </>
             )}
 
-            {/* {role === 'admin' && ( */}
+            <li>
+              <Link
+                to={`/kyro/${companyId}/profile`}
+                className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/profile`)
+                  ? "bg-[#e3d2fa] text-gray-700"
+                  : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                  }`}
+              >
+                <PersonIcon className="mr-5" />
+                Profile
+              </Link>
+            </li>
 
-            {role === "superAdmin" && (
-              <>
-                <li>
-                  <Link
-                    to={`/company/${companyId}/register`}
-                    className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/register`)
-                        ? "bg-[#e3d2fa] text-gray-700"
-                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                      }`}
-                  >
-                    <PersonAddAltRoundedIcon className="mr-5" />
-                    Register
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to={`/kyro/${companyId}/report`}
-                    className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/report`)
-                        ? "bg-[#e3d2fa] text-gray-700"
-                        : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                      }`}
-                  >
-                    <Description className="mr-5" />
-                    Report
-                  </Link>
-                </li>
-              </>
-            )}
-            {/* )} */}
-
-            {/* {role === 'QA' && (
-                            <>
-                                <li>
-                                    <Link to={`/kyro/${companyId}/project`} className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/project`) ? 'bg-[#e3d2fa] text-gray-700' : 'text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700'}`}>
-                                        Project
-                                    </Link>
-                                </li>
-
-                            </>
-                        )} */}
-            {/* {role === 'superAdmin' && (
-                            <li>
-                                <Link to="/register" className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive('/register') ? 'bg-[#e3d2fa] text-gray-700' : 'text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700'}`}>
-                                    Register
-                                </Link>
-                            </li>
-                        )} */}
             <li>
               <button
                 onClick={handleOpenDialog}

@@ -1,3 +1,5 @@
+/* Editor css */
+
 @import url("https://fonts.googleapis.com/css2?family=Oswald&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
@@ -8,14 +10,14 @@
 }
 
 .main-container {
-  font-family: "Lato";
+  /* font-family: "Lato"; */
   width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
 
 .ck-content {
-  font-family: "Lato";
+  /* font-family: "Lato"; */
   line-height: 1.6;
   word-break: break-word;
 }

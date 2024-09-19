@@ -283,6 +283,60 @@ export const fetchUserCompletedFilesReport = async (
   return formattedData;
 };
 
+
+export const fetchClientUserCompletedFilesReport = async (
+  companyId,
+  startDate,
+  endDate
+) => {
+  const projects = await fetchCompanyProjects(companyId);
+  const userFiles = {};
+
+  for (const project of projects) {
+    const files = await fetchProjectFiles(project.id);
+
+    // Filter files based on the completed date range
+    const filteredFiles = files.filter((file) => {
+      const completedDate = file.client_completedDate
+        ? parse(file.client_completedDate, "dd/MM/yyyy", new Date())
+        : null;
+
+      // Filter based on completedDate within the range
+      return (
+        completedDate && completedDate >= startDate && completedDate <= endDate
+      );
+    });
+
+    // Process filtered files
+    for (const file of filteredFiles) {
+      const userName = file.client_assignedTo
+        ? await fetchUserNameById(file.client_assignedTo)
+        : "Unknown";
+
+      // Skip if userName is 'Unknown'
+      if (userName === "Unknown") {
+        continue;
+      }
+
+      if (!userFiles[userName]) {
+        userFiles[userName] = { fileCount: 0, pageCount: 0 };
+      }
+
+      userFiles[userName].fileCount += 1;
+      userFiles[userName].pageCount += file.pageCount || 0;
+    }
+  }
+
+  // Convert userFiles object to an array of objects
+  const formattedData = Object.keys(userFiles).map((userName) => ({
+    userName,
+    totalFiles: userFiles[userName].fileCount,
+    totalPages: userFiles[userName].pageCount,
+  }));
+
+  return formattedData;
+};
+
 export const fetchUserDetailedReport = async (companyId) => {
   try {
     // Step 1: Fetch all projects for the company

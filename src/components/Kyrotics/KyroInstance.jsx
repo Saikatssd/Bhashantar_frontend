@@ -16,6 +16,7 @@ import FileStatusManager from "../FileStatusManager";
 import Register from "../../pages/auth/Register";
 import KyroAdminHome from "../../pages/Admin/KyroticsAdminHome";
 import UserReport from "../reports/UserReport";
+import UserList from "../../pages/userList";
 
 export default function KyroInstance({ role }) {
   const [userCompanyId, setUserCompanyId] = useState("");
@@ -72,9 +73,10 @@ export default function KyroInstance({ role }) {
               <Route path="roleManage" element={<RoleManage />} />
               <Route path="fileStatus" element={<FileStatusManager />} />
               <Route path="userReport" element={<UserReport />} />
-              <Route
-                path="userManage"
-                element={<UserManage companyId={userCompanyId} />}
+             
+               <Route
+                path="userList"
+                element={<UserList companyId={userCompanyId} />}
               />
 
             </>
@@ -88,6 +90,10 @@ export default function KyroInstance({ role }) {
               <Route
                 path="/report"
                 element={<KyroAdminHome instanceCompanyId={companyId} />}
+              />
+               <Route
+                path="userManage"
+                element={<UserManage companyId={companyId} />}
               />
             </>
           )}
