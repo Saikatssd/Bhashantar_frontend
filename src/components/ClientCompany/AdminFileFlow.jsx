@@ -10,11 +10,9 @@ import TabPanel from "../TabPanel.jsx";
 import {
   fetchProjectFiles,
   fetchProjectName,
-  fetchUserNameById,
-  updateFileStatus,
-  updateFileStatusNumber,
-  exportFiles,
-} from "../../utils/firestoreUtil.jsx";
+} from "../../services/projectServices.jsx";
+import { updateFileStatus } from '../../services/fileServices.jsx'
+import { fetchUserNameById } from "../../utils/firestoreUtil.jsx";
 import { useParams } from "react-router-dom";
 import UserSelectModal from "../UserSelectModal.jsx";
 import { auth } from "../../utils/firebase.jsx";
@@ -183,33 +181,7 @@ const AdminFileFlow = () => {
     setSelectedFileId(null);
   };
 
-  // const handleAssignToUser = async (userId) => {
-  //   try {
-  //     if (selectedRows.length != 0) {
-  //       for (const fileId of selectedRows) {
-  //         await updateFileStatus(projectId, fileId, {
-  //           status: 6,
-  //           client_assignedTo: userId,
-  //           client_assignedDate: formatDate(new Date()),
-  //         });
-  //       }
-  //     } else {
-  //       await updateFileStatus(projectId, selectedFileId, {
-  //         status: 6,
-  //         client_assignedTo: userId,
-  //         client_assignedDate: formatDate(new Date()),
-  //       });
-  //     }
 
-  //     // await updateFileStatus(projectId, selectedFileId, 5, userId);
-  //     // setReadyForWorkFiles(files.filter((file) => file.id !== selectedFileId));
-  //     handleCloseModal();
-  //     navigate(1);
-  //   } catch (err) {
-  //     console.error("Error updating file status:", err);
-  //     setError(err);
-  //   }
-  // };
 
   const handleAssignToUser = async (userId) => {
     try {
@@ -217,13 +189,13 @@ const AdminFileFlow = () => {
       const currentDate = formatDate(new Date());
       const userName = await fetchUserNameById(userId);
 
-      
+
       if (selectedRows.length !== 0) {
         for (const fileId of selectedRows) {
           await updateFileStatus(projectId, fileId, {
             status: 6, // New status
             client_assignedTo: userId,
-            client_assignedDate:currentDate,
+            client_assignedDate: currentDate,
           });
 
           // Update the readyForWorkFiles and inProgressFiles state
@@ -237,7 +209,7 @@ const AdminFileFlow = () => {
               ...readyForWorkFiles.find((file) => file.id === fileId),
               status: 6,
               client_assignedTo: userName,
-              client_assignedDate:currentDate,
+              client_assignedDate: currentDate,
 
             },
           ]);
@@ -260,7 +232,7 @@ const AdminFileFlow = () => {
             ...readyForWorkFiles.find((file) => file.id === selectedFileId),
             status: 6,
             client_assignedTo: userName,
-            client_assignedDate:currentDate,
+            client_assignedDate: currentDate,
           },
         ]);
       }
@@ -353,16 +325,78 @@ const AdminFileFlow = () => {
   };
 
 
-  const handleDownloadSelected = async (format) => {
+  // const handleDownloadSelected = async (format) => {
+  //   try {
+  //     for (const documentId of selectedRows) {
+  //       await handleDownload(projectId, documentId, format);
+  //     }
+  //     setSelectedRows([]);
+  //   } catch (err) {
+  //     console.error("Error downloading selected files:", err);
+  //   }
+  // };
+
+  // console.log("rows",selectedRows)
+  const handleDownloadSelected = async () => {
+    setError(null);
+
     try {
-      for (const documentId of selectedRows) {
-        await handleDownload(projectId, documentId, format);
-      }
+      const endpoint = `${server}/api/document/downloadSelected`;
+
+      await toast.promise(
+        axios
+          .post(endpoint, {
+            projectId,
+            documentIds: selectedRows, // Send all selected rows
+          }, {
+            responseType: 'blob', // Expect a blob for download
+          })
+          .then((response) => {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${projectName}.zip`);
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            for (const documentId of selectedRows) {
+              setCompletedFiles((prevFiles) =>
+                prevFiles.filter((file) => file.id !== documentId)
+              );
+
+              setDownloadedFiles((prevFiles) => [
+                ...prevFiles,
+                {
+                  ...completedFiles.find((file) => file.id === documentId),
+                  status: 8,
+                  client_downloadedDate: formatDate(new Date()),
+                },
+              ]);
+
+              updateFileStatus(projectId, documentId, {
+                status: 8,
+                client_downloadedDate: formatDate(new Date()),
+              });
+
+
+            }
+          }),
+        {
+          loading: "Downloading files...",
+          success: "Files downloaded successfully!",
+          error: "Error downloading files.",
+        }
+      );
+
       setSelectedRows([]);
     } catch (err) {
       console.error("Error downloading selected files:", err);
+      toast.error("Error downloading selected files.");
     }
   };
+
 
   if (isLoading) {
     return <CircularProgress />;

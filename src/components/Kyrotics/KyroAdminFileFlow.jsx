@@ -21,6 +21,10 @@ import KyroCompletedTable from "../Table/KyroCompletedTable";
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../utils/formatDate";
 import { updateFileStatusNumber } from "../../services/fileServices";
+import Button from '@mui/material/Button';
+import { toast } from "react-hot-toast";
+import { server } from "../../main.jsx";
+import axios from "axios";
 
 const columnsReadyForWork = [
   { id: "slNo", label: "Sl. No.", minWidth: 50 },
@@ -192,12 +196,6 @@ const KyroAdminFileFlow = () => {
 
       if (selectedRows.length != 0) {
         for (const fileId of selectedRows) {
-          await updateFileStatus(projectId, fileId, {
-            status: 3,
-            kyro_assignedDate: currentDate,
-            kyro_assignedTo: userId,
-          });
-
           // Update the readyForWorkFiles and inProgressFiles state
           setReadyForWorkFiles((prevFiles) =>
             prevFiles.filter((file) => file.id !== fileId)
@@ -211,14 +209,14 @@ const KyroAdminFileFlow = () => {
               kyro_assignedTo: userName,
             },
           ]);
+          await updateFileStatus(projectId, fileId, {
+            status: 3,
+            kyro_assignedDate: currentDate,
+            kyro_assignedTo: userId,
+          });
+
         }
       } else {
-        await updateFileStatus(projectId, selectedFileId, {
-          status: 3,
-          kyro_assignedDate: currentDate,
-          kyro_assignedTo: userId,
-        });
-
         // Update the readyForWorkFiles and inProgressFiles state
         setReadyForWorkFiles((prevFiles) =>
           prevFiles.filter((file) => file.id !== selectedFileId)
@@ -233,6 +231,12 @@ const KyroAdminFileFlow = () => {
             kyro_assignedTo: userName,
           },
         ]);
+        await updateFileStatus(projectId, selectedFileId, {
+          status: 3,
+          kyro_assignedDate: currentDate,
+          kyro_assignedTo: userId,
+        });
+
       }
 
       // navigate(-1);
@@ -267,7 +271,7 @@ const KyroAdminFileFlow = () => {
     setSelectedRows([]);
     const updatedFiles = await fetchProjectFiles(projectId);
     setFiles(updatedFiles);
-    
+
     navigate(-1);
 
 
@@ -286,6 +290,66 @@ const KyroAdminFileFlow = () => {
 
   };
 
+
+  const handleDownloadSelected = async () => {
+    setError(null);
+
+    try {
+      const endpoint = `${server}/api/document/downloadSelected`;
+
+      await toast.promise(
+        axios
+          .post(endpoint, {
+            projectId,
+            documentIds: selectedRows, // Send all selected rows
+          }, {
+            responseType: 'blob', // Expect a blob for download
+          })
+          .then((response) => {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${projectName}.zip`);
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            for (const documentId of selectedRows) {
+              setCompletedFiles((prevFiles) =>
+                prevFiles.filter((file) => file.id !== documentId)
+              );
+
+              setQaFiles((prevFiles) => [
+                ...prevFiles,
+                {
+                  ...completedFiles.find((file) => file.id == documentId),
+                  kyro_deliveredDate: formatDate(new Date()),
+                },
+              ]);
+              updateFileStatus(projectId, documentId, {
+                status: 8,
+                kyro_deliveredDate: formatDate(new Date()),
+              });
+
+
+            }
+          }),
+        {
+          loading: "Downloading files...",
+          success: "Files downloaded successfully!",
+          error: "Error downloading files.",
+        }
+      );
+
+      setSelectedRows([]);
+    } catch (err) {
+      console.error("Error downloading selected files:", err);
+      toast.error("Error downloading selected files.");
+    }
+  };
+
+
   if (isLoading) {
     return <CircularProgress />;
   }
@@ -296,6 +360,7 @@ const KyroAdminFileFlow = () => {
 
   return (
     <Box>
+
       <Box
         sx={{ borderBottom: 1, borderColor: "divider" }}
         className="backdrop-blur-sm pt-3 shadow-md bg-white/30"
@@ -343,6 +408,22 @@ const KyroAdminFileFlow = () => {
           status={3}
         />
       </TabPanel>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() =>
+          handleDownloadSelected()
+        }
+        sx={{
+          position: "fixed",
+          top: 105,
+          right: 30,
+          fontSize: "14px",
+          zIndex: 10,
+        }}
+      >
+        Download Selected
+      </Button>
 
       <TabPanel value={tabValue} index={2}>
         <KyroCompletedTable
