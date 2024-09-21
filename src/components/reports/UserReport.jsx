@@ -74,6 +74,9 @@ const UserReport = () => {
           startDate,
           endDate
         );
+        console.log(startDate);
+        console.log(endDate);
+
 
         setFileDetails(data);
         setFilteredDetails(data);

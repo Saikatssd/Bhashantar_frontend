@@ -19,6 +19,7 @@ import { auth } from "../../utils/firebase.jsx";
 import TableAdmin from "../Table/TableAdmin.jsx";
 import Table from "../Table/Table.jsx";
 import CompletedTable from "../Table/CompletedTable.jsx";
+import Button from '@mui/material/Button';
 import { server } from "../../main.jsx";
 import axios from "axios";
 import { formatDate } from "../../utils/formatDate.jsx";
@@ -391,10 +392,13 @@ const AdminFileFlow = () => {
       );
 
       setSelectedRows([]);
+      navigate(0)
+
     } catch (err) {
       console.error("Error downloading selected files:", err);
       toast.error("Error downloading selected files.");
     }
+    
   };
 
 
@@ -475,7 +479,7 @@ const AdminFileFlow = () => {
       </TabPanel>
 
       <TabPanel value={tabValue} index={3}>
-        <Table
+        <CompletedTable
           columns={columnsDownloaded}
           rows={downloadedFiles}
           page={page}
@@ -487,6 +491,7 @@ const AdminFileFlow = () => {
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
+          handleDownloadSelected={handleDownloadSelected}
         />
       </TabPanel>
       <UserSelectModal

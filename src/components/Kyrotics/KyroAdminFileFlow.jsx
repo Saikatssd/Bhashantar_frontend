@@ -408,22 +408,7 @@ const KyroAdminFileFlow = () => {
           status={3}
         />
       </TabPanel>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() =>
-          handleDownloadSelected()
-        }
-        sx={{
-          position: "fixed",
-          top: 105,
-          right: 30,
-          fontSize: "14px",
-          zIndex: 10,
-        }}
-      >
-        Download Selected
-      </Button>
+      
 
       <TabPanel value={tabValue} index={2}>
         <KyroCompletedTable
@@ -441,6 +426,22 @@ const KyroAdminFileFlow = () => {
           projectId={projectId}
           status={4}
         />
+        <Button
+        variant="contained"
+        color="primary"
+        onClick={() =>
+          handleDownloadSelected()
+        }
+        sx={{
+          position: "fixed",
+          top: 105,
+          right: 30,
+          fontSize: "14px",
+          zIndex: 10,
+        }}
+      >
+        Download Selected
+      </Button>
       </TabPanel>
 
       <TabPanel value={tabValue} index={3}>

@@ -59,7 +59,9 @@ const ClientUserReport = (companyId) => {
           startDate,
           endDate
         );
-
+        console.log(startDate);
+        console.log(endDate);
+        console.log(data);
         setFileDetails(data);
         setFilteredDetails(data);
       } catch (error) {
@@ -77,7 +79,7 @@ const ClientUserReport = (companyId) => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">User Report</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">USER REPORT</h1>
 
       {error && <div className="text-red-500 mb-4">{error}</div>}
       <div className="mb-4 flex justify-between items-center w-full mt-14">

@@ -154,6 +154,12 @@
   box-shadow: 5px 5px 0 #b3b3b3;
 }
 
+.ck ol{
+  margin-bottom:0;
+  margin-top:0;
+  padding-inline-start:48px;
+}
+
 /* .ck-content p {
   text-indent: 500px; 
 } */
