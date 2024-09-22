@@ -13,7 +13,7 @@ import { format } from "date-fns";
 import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
 import { FilePageSum } from "../../utils/FilepageSum";
 
-const ClientUserReport = (companyId) => {
+const ClientUserReport = ({companyId}) => {
   const today = format(new Date().setHours(0, 0, 0, 0), "yyyy-MM-dd");
 
   const [fileDetails, setFileDetails] = useState([]);

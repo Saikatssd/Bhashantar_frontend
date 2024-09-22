@@ -159,7 +159,14 @@
   margin-top:0;
   padding-inline-start:48px;
 }
-
-/* .ck-content p {
-  text-indent: 500px; 
+.ck ul{
+  margin-bottom:0;
+  margin-top:0;
+  padding-inline-start:48px;
+}
+/* .ck p {
+  text-indent: 50px; 
 } */
+.ck.ck-content p.line-indent {
+  text-indent: 50px; 
+}

@@ -89,7 +89,7 @@ import {
 import "ckeditor5/ckeditor5.css";
 
 import "../App.css";
-import { LineHeight } from '@rickx/ckeditor5-line-height';
+import { LineHeight } from "@rickx/ckeditor5-line-height";
 // import "../assets/editor.css";
 
 const Editor = () => {
@@ -162,12 +162,13 @@ const Editor = () => {
     return () => setIsLayoutReady(false);
   }, []);
 
-  
   function tabSpacing(editor) {
-    editor.editing.view.document.on('keydown', (evt, data) => {
+    editor.editing.view.document.on("keydown", (evt, data) => {
       if (data.keyCode === 9 /* Tab */) {
-        editor.model.change(writer => {
-          const insertion = writer.createText('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0'); // Four non-breaking spaces
+        editor.model.change((writer) => {
+          const insertion = writer.createText(
+            "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"
+          ); // Four non-breaking spaces
           // const insertion = writer.createText('             '); // Four non-breaking spaces
           // const insertion = writer.createText('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'); // Four non-breaking spaces
           editor.model.insertContent(insertion);
@@ -178,13 +179,9 @@ const Editor = () => {
     });
   }
 
-
   const editorConfig = {
     toolbar: {
       items: [
-        "undo",
-        "redo",
-        "|",
         "bold",
         "italic",
         "underline",
@@ -194,10 +191,7 @@ const Editor = () => {
         "fontColor",
         "fontBackgroundColor",
         "|",
-        "link",
         "insertTable",
-        "highlight",
-        "blockQuote",
         "|",
         "lineheight",
         "alignment",
@@ -207,18 +201,23 @@ const Editor = () => {
         "outdent",
         "indent",
         "|",
+        "superscript",
+        "subscript",
+        "undo",
+        "redo",
+        "style",
       ],
       shouldNotGroupWhenFull: false,
     },
-    styles: [
-      {
-        name: 'First Line Indent',
-        element: 'p',
-        styles: {
-          'text-indent': '30px'
-        }
-      }
-    ],
+    // style: {
+    //   definitions: [
+    //     {
+    //       name: 'First Line Indent', // Name to show in the dropdown
+    //       element: 'p', // Applies to 'p' tags
+    //       classes: [ 'line-indent' ]
+    //     }
+    //   ]
+    // },
     plugins: [
       AccessibilityHelp,
       Alignment,
@@ -285,7 +284,6 @@ const Editor = () => {
       Underline,
       Undo,
       LineHeight,
-
     ],
     extraPlugins: [tabSpacing],
     balloonToolbar: [
@@ -303,31 +301,59 @@ const Editor = () => {
 
     fontFamily: {
       options: [
-        'default',
-        'Nirmala UI, sans-serif',
-        'Arial, sans-serif',
-        'Courier New, Courier, monospace',
-        'Georgia, serif',
-        'Lucida Sans Unicode, Lucida Grande, sans-serif',
-        'Tahoma, Geneva, sans-serif',
-        'Times New Roman, Times, serif',
-        'Trebuchet MS, Helvetica, sans-serif',
-        'Verdana, Geneva, sans-serif'
+        "default",
+        "Nirmala UI, sans-serif",
+        "Arial, sans-serif",
+        "Courier New, Courier, monospace",
+        "Georgia, serif",
+        "Lucida Sans Unicode, Lucida Grande, sans-serif",
+        "Tahoma, Geneva, sans-serif",
+        "Times New Roman, Times, serif",
+        "Trebuchet MS, Helvetica, sans-serif",
+        "Verdana, Geneva, sans-serif",
       ],
       supportAllValues: true,
     },
     fontSize: {
       options: [
-        8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-        25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 'default'
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        "default",
       ],
-      supportAllValues: true
+      supportAllValues: true,
     },
     lineHeight: {
       // You can specify custom line height values
       options: [
-        'default',
-        '10px',
+        "default",
+        "10px",
         1,
         1.1,
         1.2,
@@ -336,11 +362,11 @@ const Editor = () => {
         1.5,
         1.6,
         2,
-        '150%',
-        '2.5',
+        "150%",
+        "2.5",
         {
-          title: 'Custom Title',
-          model: '48px', // You can add custom titles and values here
+          title: "Custom Title",
+          model: "48px", // You can add custom titles and values here
         },
       ],
     },
@@ -439,49 +465,10 @@ const Editor = () => {
     style: {
       definitions: [
         {
-          name: "Article category",
-          element: "h3",
-          classes: ["category"],
-        },
-        {
-          name: "Title",
-          element: "h2",
-          classes: ["document-title"],
-        },
-        {
-          name: "Subtitle",
-          element: "h3",
-          classes: ["document-subtitle"],
-        },
-        {
-          name: "Info box",
-          element: "p",
-          classes: ["info-box"],
-        },
-        {
-          name: "Side quote",
-          element: "blockquote",
-          classes: ["side-quote"],
-        },
-        {
-          name: "Marker",
-          element: "span",
-          classes: ["marker"],
-        },
-        {
-          name: "Spoiler",
-          element: "span",
-          classes: ["spoiler"],
-        },
-        {
-          name: "Code (dark)",
-          element: "pre",
-          classes: ["fancy-code", "fancy-code-dark"],
-        },
-        {
-          name: "Code (bright)",
-          element: "pre",
-          classes: ["fancy-code", "fancy-code-bright"],
+          name: "First Line Indent", // Name to show in the dropdown
+          element: "p", // Applies to 'p' tags
+          classes: ["line-indent"],
+          styles: { "text-indent": "50px" },
         },
       ],
     },
@@ -556,7 +543,6 @@ const Editor = () => {
     }
   };
 
-
   const handleDownload = async () => {
     setError(null); // Clear any previous error
 
@@ -606,48 +592,6 @@ const Editor = () => {
       console.error("Error during document download:", err);
     }
   };
-
-  // const handleDownload = async () => {
-  //   setError(null); // Clear any previous error
-
-  //   try {
-  //     const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
-
-  //     // Use toast.promise to handle the download process
-  //     await toast
-  //       .promise(
-  //         axios.get(endpoint, {
-  //           responseType: "blob",
-  //         }),
-  //         {
-  //           loading: "Downloading...",
-  //           success: "Zip File Downloaded!",
-  //           error: "An error occurred while downloading the document.",
-  //         }
-  //       )
-  //       .then((response) => {
-  //         const contentDisposition = response.headers["content-disposition"];
-  //         const filename = contentDisposition
-  //           ? contentDisposition.split("filename=")[1].replace(/"/g, "")
-  //           : "document.zip";
-
-  //         const url = window.URL.createObjectURL(new Blob([response.data]));
-  //         const link = document.createElement("a");
-  //         link.href = url;
-  //         link.setAttribute("download", filename);
-  //         document.body.appendChild(link);
-  //         link.click();
-  //         link.remove();
-  //       });
-  //   } catch (err) {
-  //     console.log("Download error", err);
-  //     toast.error("Blank file can't be downloaded", {
-  //       position: "top-right",
-  //       style: { background: "#333", color: "#fff" },
-  //     });
-  //     console.error("Error during document download:", err);
-  //   }
-  // };
 
   const handleBack = () => {
     navigate(-1);
