@@ -1,4 +1,4 @@
-import React from 'react';
+import React,  { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
@@ -27,36 +27,68 @@ function UserTable({
   handleEditClick,
   projectName,
 }) {
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" }); // Sort config state
+
+  // Handle sorting logic
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Sort rows based on current sort configuration
+  const sortedRows = [...rows].sort((a, b) => {
+    if (sortConfig.key) {
+      const valueA = a[sortConfig.key];
+      const valueB = b[sortConfig.key];
+      if (sortConfig.direction === "asc") {
+        return valueA > valueB ? 1 : -1;
+      } else {
+        return valueA < valueB ? 1 : -1;
+      }
+    }
+    return 0;
+  });
+
+
   return (
     <div>
-      <h2 style={{ textAlign: 'center', padding: '16px', fontWeight: 'bold', fontSize: "24px" }}>{projectName}<span className="ml-4 text-lg font-normal text-gray-600">
+      <h2 style={{ textAlign: 'center', fontWeight: 'bold', fontSize: "24px" }} className='py-10'>{projectName}<span className="ml-4 text-lg font-normal text-gray-600">
        ({rows.length} files, {calculateTotalPages(rows)} pages)
       </span></h2>
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      <Paper sx={{ width: '95%', overflow: 'hidden', margin:'auto' }}>
         <TableContainer sx={{ maxHeight: 700 }}>
           <MuiTable stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    align={column.align || 'left'}
-                    style={{ minWidth: column.minWidth }}
-                  >
-                    {column.label}
-                  </TableCell>
+                   <TableCell
+                   key={column.id}
+                   align={column.align || "left"}
+                   style={{ minWidth: column.minWidth, cursor: 'pointer' }}
+                   onClick={() => handleSort(column.id)} // Click to sort by column
+                 >
+                   {column.label}
+                   {sortConfig.key === column.id && (
+                     <span>
+                       {sortConfig.direction === "asc" ? "  🔼" : "   🔽"}
+                     </span>
+                   )}
+                 </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows
+              {sortedRows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (
-                        <TableCell key={column.id} align={column.align || 'left'}>
+                        <TableCell key={column.id} align={column.align || 'left'} >
                           {column.id === 'assign' ? (
                             <Button
                               variant="contained"

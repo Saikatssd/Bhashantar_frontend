@@ -36,7 +36,30 @@ function CompletedTable({
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentFile, setCurrentFile] = useState(null);
   const [selectedAnchorEl, setSelectedAnchorEl] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" }); // Sort config state
 
+  // Handle sorting logic
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Sort rows based on current sort configuration
+  const sortedRows = [...rows].sort((a, b) => {
+    if (sortConfig.key) {
+      const valueA = a[sortConfig.key];
+      const valueB = b[sortConfig.key];
+      if (sortConfig.direction === "asc") {
+        return valueA > valueB ? 1 : -1;
+      } else {
+        return valueA < valueB ? 1 : -1;
+      }
+    }
+    return 0;
+  });
 
   const handleCheckboxClick = (event, id) => {
     if (event.target.checked) {
@@ -141,15 +164,21 @@ function CompletedTable({
                   <TableCell
                     key={column.id}
                     align={column.align || "left"}
-                    style={{ minWidth: column.minWidth }}
+                    style={{ minWidth: column.minWidth, cursor: "pointer" }}
+                    onClick={() => handleSort(column.id)} // Click to sort by column
                   >
                     {column.label}
+                    {sortConfig.key === column.id && (
+                      <span>
+                        {sortConfig.direction === "asc" ? "  🔼" : "   🔽"}
+                      </span>
+                    )}
                   </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows
+              {sortedRows
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
