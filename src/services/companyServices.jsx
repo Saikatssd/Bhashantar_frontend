@@ -77,8 +77,9 @@ export const fetchClientCompanies = async () => {
 
 export const fetchCompanyNameByCompanyId = async (companyId) => {
   try {
-    if (!companyId) {
-      throw new Error("Invalid companyId");
+    if (!companyId || companyId === "") {
+      // If companyId is invalid or empty, return a default value
+      return "No company";
     }
 
     const companyDocRef = doc(db, "companies", companyId);
@@ -94,6 +95,35 @@ export const fetchCompanyNameByCompanyId = async (companyId) => {
     throw error;
   }
 };
+
+
+export const kyroCompanyId = async () => {
+  try {
+    // Fetch all documents from the companies collection
+    const companiesSnapshot = await getDocs(collection(db, "companies"));
+    
+    // Map through the documents to extract company data
+    const companies = companiesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    // Find the company where the name is 'Kyrotics'
+    const kyroticsCompany = companies.find(company => company.name === "Kyrotics");
+
+    // If company not found, throw an error
+    if (!kyroticsCompany) {
+      throw new Error("Kyrotics company not found");
+    }
+
+    // Return the ID of the Kyrotics company
+    return kyroticsCompany.id;
+  } catch (error) {
+    console.error("Error fetching Kyrotics company:", error);
+    throw new Error("Error fetching Kyrotics company");
+  }
+};
+
 
 
 // Fetch all projects for a specific company

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Route, Routes } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import ProjectList from "../../pages/ProjectList";
@@ -15,24 +15,33 @@ import KyroSidebar from "../Kyrotics/KyroSidebar";
 import UserManage from "../../pages/UserManage";
 import ClientUserReport from "../reports/ClientUserReport";
 import AdminHome from "../../pages/Admin/AdminHome";
+import { kyroCompanyId } from "../../services/companyServices";
+
 
 const CompanyInstance = ({ role }) => {
   const { companyId } = useParams();
-
-  const [companyName,setCompanyName] = useState()
+  const [companyName, setCompanyName] = useState()
+  const [kyroId, setKyroId] = useState()
 
   useEffect(() => {
-    const fetchCompanyName = async()=>{
-        const companyName = await fetchCompanyNameByCompanyId(companyId)
-        setCompanyName(companyName);
-    }
-    fetchCompanyName()
-  });
+    const fetchKyroticsCompanyId = async () => {
+      try {
+        const kyroId = await kyroCompanyId();
+        setKyroId(kyroId);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+  
+    fetchKyroticsCompanyId();
+  }, []);
+
 
 
   return (
     <div className="flex">
-      {companyName === 'Kyrotics' ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />}
+      {companyId == kyroId ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />}
+      {/* {companyId === 'jpG7fAhdeGKAOzgCiaK5' ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />} */}
 
       <div className="flex-grow">
         <Routes>
@@ -46,7 +55,7 @@ const CompanyInstance = ({ role }) => {
                 path="/register"
                 element={<Register instanceCompanyId={companyId} />}
               />
-                <Route
+              <Route
                 path="/report"
                 element={<AdminHome companyId={companyId} />}
               />
@@ -72,7 +81,7 @@ const CompanyInstance = ({ role }) => {
               <Route path="uploadDocument" element={<UploadDocument />} />
               <Route path="permissionManage" element={<PermissionsManage />} />
               <Route path="roleManage" element={<RoleManage />} />
-              <Route path="userReport" element={<ClientUserReport companyId={companyId}/>} />
+              <Route path="userReport" element={<ClientUserReport companyId={companyId} />} />
               <Route
                 path="userList"
                 element={<UserList companyId={companyId} />}

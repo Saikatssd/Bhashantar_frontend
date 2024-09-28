@@ -7,7 +7,7 @@ import SuperAdminHome from "../pages/SuperAdmin/SuperAdminHome";
 import QAHome from "../pages/QA/QAHome";
 import KyroticsUserHome from "../pages/Users/KyroticsUserHome";
 import KyroticsAdminHome from "../pages/Admin/KyroticsAdminHome";
-import { fetchCompanyNameByCompanyId } from "../services/companyServices";
+import {  kyroCompanyId } from "../services/companyServices";
 
 const DashboardWrapper = () => {
   // console.log("dashboard ");
@@ -18,6 +18,7 @@ const DashboardWrapper = () => {
   const [companyId, setCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [companyName, setCompanyName] = useState()
+  const [kyroId, setKyroId] = useState()
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -43,12 +44,18 @@ const DashboardWrapper = () => {
 
 
   useEffect(() => {
-    const fetchCompanyName = async () => {
-      const companyName = await fetchCompanyNameByCompanyId(companyId)
-      setCompanyName(companyName);
-    }
-    fetchCompanyName()
-  });
+    const fetchKyroticsCompanyId = async () => {
+      try {
+        const kyroId = await kyroCompanyId();
+        // console.log("Kyrotics company ID:", kyroId);
+        setKyroId(kyroId);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+  
+    fetchKyroticsCompanyId();
+  }, []);
 
 //   // Component useEffect
 // useEffect(() => {
@@ -76,7 +83,7 @@ const DashboardWrapper = () => {
     return <Navigate to="/" />;
   }
 
-  if (companyName === "Kyrotics") {
+  if (companyId == kyroId) {
     if (role === "user") {
       return <KyroticsUserHome userId={userId} userCompanyId={companyId} />;
     }

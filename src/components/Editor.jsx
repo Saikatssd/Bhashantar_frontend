@@ -90,6 +90,7 @@ import "ckeditor5/ckeditor5.css";
 
 import "../App.css";
 import { LineHeight } from "@rickx/ckeditor5-line-height";
+import { kyroCompanyId } from "../services/companyServices";
 // import "../assets/editor.css";
 
 const Editor = () => {
@@ -98,6 +99,7 @@ const Editor = () => {
   const [pdfUrl, setPdfUrl] = useState("");
   const [fileName, setFileName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [kyroId, setKyroId] = useState()
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -164,13 +166,21 @@ const Editor = () => {
   }, []);
 
 
+ 
+
   useEffect(() => {
-    const fetchCompanyName = async()=>{
-        const companyName = await fetchCompanyNameByCompanyId(companyId)
-        setCompanyName(companyName);
-    }
-    fetchCompanyName()
-  });
+    const fetchKyroticsCompanyId = async () => {
+      try {
+        const kyroId = await kyroCompanyId();
+        // console.log("Kyrotics company ID:", kyroId);
+        setKyroId(kyroId);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+  
+    fetchKyroticsCompanyId();
+  }, []);
 
   function tabSpacing(editor) {
     editor.editing.view.document.on("keydown", (evt, data) => {
@@ -528,7 +538,7 @@ const Editor = () => {
 
   const handleSave = async () => {
     try {
-      if (companyName === "Kyrotics") {
+      if (companyId === kyroId) {
         if (role === "QA") {
           await updateFileStatus(projectId, documentId, {
             status: 5,
