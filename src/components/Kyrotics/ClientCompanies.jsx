@@ -1,34 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { Card, CardContent, Typography, Grid } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { server } from '../../main';
+import { fetchClientCompanies } from '../../services/companyServices';
 
 
 const ClientCompanies = () => {
-    // const ClientCompanies = ({ userCompanyId }) => {
-    const userCompanyId = 'cvy2lr5H0CUVH8o2vsVk'
+    
 
     const [companies, setCompanies] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+ 
 
     useEffect(() => {
         const fetchCompanies = async () => {
-            setIsLoading(true);
-            try {
-                const response = await axios.get(`${server}/api/company`);
-                const filteredCompanies = response.data.filter(company => company.id !== userCompanyId);
-                setCompanies(filteredCompanies);
-            } catch (err) {
-                setError(err);
-            } finally {
-                setIsLoading(false);
-            }
+          setIsLoading(true);
+          try {
+            const companies = await fetchClientCompanies();
+            setCompanies(companies);
+          } catch (err) {
+            setError(err);
+          } finally {
+            setIsLoading(false);
+          }
         };
         fetchCompanies();
-    }, [userCompanyId]);
+      }, []);
+      
 
     return (
         <div className="flex flex-col items-center p-20">

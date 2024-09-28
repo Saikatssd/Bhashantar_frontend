@@ -45,7 +45,7 @@ export default function KyroInstance({ role }) {
         <Routes>
           <Route path="/profile" element={<Profile />} />
           <Route path="project" element={<ClientProjects />} />
-          <Route path="clientCompanies" element={<ClientCompanies />} />
+          <Route path="clientCompanies" element={<ClientCompanies companyId={companyId}/>} />
 
           {role === "user" && (
             <>

@@ -5,67 +5,112 @@
 
 import { db, storage } from "../utils/firebase";
 import {
-    collection,
-    addDoc,
-    getDocs,
-    getDoc,
-    doc,
-    updateDoc,
-    serverTimestamp,
-    query,
-    where,
-    deleteDoc,
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+  serverTimestamp,
+  query,
+  where,
+  deleteDoc,
 } from "firebase/firestore";
 
 // --- Company Operations ---
 
 // Fetch all companies
 export const fetchAllCompanies = async () => {
-    try {
-      const companiesSnapshot = await getDocs(collection(db, "companies"));
-      const companies = companiesSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      return companies;
-    } catch (error) {
-      console.error("Error fetching companies:", error);
-      throw new Error("Error fetching companies");
-    }
-  };
-  
-  export const fetchCompanyNameByCompanyId = async (companyId) => {
-    try {
-      const companyDocRef = doc(db, "companies", companyId);
-      const companyDoc = await getDoc(companyDocRef);
-      if (companyDoc.exists()) {
-        return companyDoc.data().name;
-      } else {
-        throw new Error("Company not found");
-      }
-    } catch (error) {
-      console.error("Error fetching company name:", error);
-      throw error;
-    }
-  };
+  try {
+    const companiesSnapshot = await getDocs(collection(db, "companies"));
+    const companies = companiesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return companies;
+  } catch (error) {
+    console.error("Error fetching companies:", error);
+    throw new Error("Error fetching companies");
+  }
+};
 
-  
 
-  // Fetch all projects for a specific company
+export const fetchClientCompanies = async () => {
+  try {
+    const companiesSnapshot = await getDocs(collection(db, "companies"));
+    const companies = companiesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    // Find the company with name 'Kyrotics'
+    const kyroticsCompany = companies.find(company => company.name === "Kyrotics");
+
+    if (!kyroticsCompany) {
+      throw new Error("Kyrotics company not found");
+    }
+
+    // Filter out 'Kyrotics' and return the rest
+    const filteredCompanies = companies.filter(company => company.id !== kyroticsCompany.id);
+
+    return filteredCompanies;
+  } catch (error) {
+    console.error("Error fetching companies:", error);
+    throw new Error("Error fetching companies");
+  }
+};
+// export const fetchCompanyNameByCompanyId = async (companyId) => {
+//   try {
+//     const companyDocRef = doc(db, "companies", companyId);
+//     const companyDoc = await getDoc(companyDocRef);
+//     if (companyDoc.exists()) {
+//       return companyDoc.data().name;
+//     } else {
+//       throw new Error("Company not found");
+//     }
+//   } catch (error) {
+//     console.error("Error fetching company name:", error);
+//     throw error;
+//   }
+// };
+
+
+export const fetchCompanyNameByCompanyId = async (companyId) => {
+  try {
+    if (!companyId) {
+      throw new Error("Invalid companyId");
+    }
+
+    const companyDocRef = doc(db, "companies", companyId);
+    const companyDoc = await getDoc(companyDocRef);
+
+    if (companyDoc.exists()) {
+      return companyDoc.data().name;
+    } else {
+      throw new Error("Company not found");
+    }
+  } catch (error) {
+    console.error("Error fetching company name:", error);
+    throw error;
+  }
+};
+
+
+// Fetch all projects for a specific company
 export const fetchCompanyProjects = async (companyId) => {
-    try {
-        const projectsQuery = query(
-            collection(db, "projects"),
-            where("companyId", "==", companyId)
-        );
-        const projectsSnapshot = await getDocs(projectsQuery);
-        const projects = projectsSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-        return projects;
-    } catch (error) {
-        console.error("Error fetching projects:", error);
-        throw new Error("Error fetching projects");
-    }
+  try {
+    const projectsQuery = query(
+      collection(db, "projects"),
+      where("companyId", "==", companyId)
+    );
+    const projectsSnapshot = await getDocs(projectsQuery);
+    const projects = projectsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return projects;
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    throw new Error("Error fetching projects");
+  }
 };

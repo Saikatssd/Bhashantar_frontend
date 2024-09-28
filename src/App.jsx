@@ -26,6 +26,7 @@ const App = () => {
         user.companyId = token.claims.companyId;
         setUser(user);
         setRole(user.roleName);
+        // console.log('token',token)
       } else {
         setUser(null);
       }

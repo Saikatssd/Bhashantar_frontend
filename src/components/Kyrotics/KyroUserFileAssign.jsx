@@ -56,7 +56,7 @@ const KyroUserFileAssign = () => {
           const projectFiles = await fetchProjectFiles(projectId);
           const projectName = await fetchProjectName(projectId);
           const filteredFiles = projectFiles.filter(
-            (file) => file.status === 2 && companyId === "cvy2lr5H0CUVH8o2vsVk"
+            (file) => file.status === 2
           );
           setFiles(filteredFiles);
           setProjectName(projectName);

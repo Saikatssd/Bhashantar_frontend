@@ -105,6 +105,7 @@ const Editor = () => {
   const navigate = useNavigate();
   const debouncedHtmlContent = useDebounce(htmlContent, 1000);
   const [companyId, setCompanyId] = useState(null);
+  const [companyName,setCompanyName] = useState()
   const [role, setRole] = useState();
   const editorContainerRef = useRef(null);
   const editorMenuBarRef = useRef(null);
@@ -161,6 +162,15 @@ const Editor = () => {
 
     return () => setIsLayoutReady(false);
   }, []);
+
+
+  useEffect(() => {
+    const fetchCompanyName = async()=>{
+        const companyName = await fetchCompanyNameByCompanyId(companyId)
+        setCompanyName(companyName);
+    }
+    fetchCompanyName()
+  });
 
   function tabSpacing(editor) {
     editor.editing.view.document.on("keydown", (evt, data) => {
@@ -518,7 +528,7 @@ const Editor = () => {
 
   const handleSave = async () => {
     try {
-      if (companyId === "cvy2lr5H0CUVH8o2vsVk") {
+      if (companyName === "Kyrotics") {
         if (role === "QA") {
           await updateFileStatus(projectId, documentId, {
             status: 5,

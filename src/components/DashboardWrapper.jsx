@@ -7,19 +7,23 @@ import SuperAdminHome from "../pages/SuperAdmin/SuperAdminHome";
 import QAHome from "../pages/QA/QAHome";
 import KyroticsUserHome from "../pages/Users/KyroticsUserHome";
 import KyroticsAdminHome from "../pages/Admin/KyroticsAdminHome";
+import { fetchCompanyNameByCompanyId } from "../services/companyServices";
 
 const DashboardWrapper = () => {
+  // console.log("dashboard ");
+
   const [user, setUser] = useState(null);
   const [userId, setUserId] = useState(null);
   const [role, setRole] = useState(null);
   const [companyId, setCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [companyName, setCompanyName] = useState()
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         const token = await user.getIdTokenResult();
-        // console.log(token);
+        // console.log("token",token);
         // user.name = tokens.claims.name;
         user.roleName = token.claims.roleName;
         user.companyId = token.claims.companyId;
@@ -37,6 +41,33 @@ const DashboardWrapper = () => {
     return () => unsubscribe();
   }, []);
 
+
+  useEffect(() => {
+    const fetchCompanyName = async () => {
+      const companyName = await fetchCompanyNameByCompanyId(companyId)
+      setCompanyName(companyName);
+    }
+    fetchCompanyName()
+  });
+
+//   // Component useEffect
+// useEffect(() => {
+//   const fetchCompanyName = async () => {
+//     try {
+//       if (!userCompanyId) {
+//         throw new Error("Invalid userCompanyId");
+//       }
+
+//       const companyName = await fetchCompanyNameByCompanyId(userCompanyId);
+//       setCompanyName(companyName);
+//     } catch (error) {
+//       console.error("Error fetching company name:", error);
+//     }
+//   };
+
+//   fetchCompanyName();
+// }, [userCompanyId]);
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -45,7 +76,7 @@ const DashboardWrapper = () => {
     return <Navigate to="/" />;
   }
 
-  if (companyId === "cvy2lr5H0CUVH8o2vsVk") {
+  if (companyName === "Kyrotics") {
     if (role === "user") {
       return <KyroticsUserHome userId={userId} userCompanyId={companyId} />;
     }
@@ -57,16 +88,12 @@ const DashboardWrapper = () => {
     }
   }
 
-  // Allow specific company user to access SuperAdminHome
-  // if (role === 'user' && companyId === 'cvy2lr5H0CUVH8o2vsVk') {
-  //     return <SuperAdminHome />;
-  // }
 
   if (role === "user") {
     return <UserHome userId={userId} companyId={companyId} />;
   }
   if (role === "admin") {
-    return <AdminHome companyId={companyId} />;
+    return <AdminHome companyId={companyId} role={'admin'} />;
   }
   if (role === "superAdmin") {
     return <SuperAdminHome />;

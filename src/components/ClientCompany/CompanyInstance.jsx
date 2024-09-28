@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Route, Routes } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import ProjectList from "../../pages/ProjectList";
@@ -14,13 +14,25 @@ import Register from "../../pages/auth/Register";
 import KyroSidebar from "../Kyrotics/KyroSidebar";
 import UserManage from "../../pages/UserManage";
 import ClientUserReport from "../reports/ClientUserReport";
+import AdminHome from "../../pages/Admin/AdminHome";
 
 const CompanyInstance = ({ role }) => {
   const { companyId } = useParams();
 
+  const [companyName,setCompanyName] = useState()
+
+  useEffect(() => {
+    const fetchCompanyName = async()=>{
+        const companyName = await fetchCompanyNameByCompanyId(companyId)
+        setCompanyName(companyName);
+    }
+    fetchCompanyName()
+  });
+
+
   return (
     <div className="flex">
-      {companyId === 'cvy2lr5H0CUVH8o2vsVk' ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />}
+      {companyName === 'Kyrotics' ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />}
 
       <div className="flex-grow">
         <Routes>
@@ -33,6 +45,10 @@ const CompanyInstance = ({ role }) => {
               <Route
                 path="/register"
                 element={<Register instanceCompanyId={companyId} />}
+              />
+                <Route
+                path="/report"
+                element={<AdminHome companyId={companyId} />}
               />
 
               <Route

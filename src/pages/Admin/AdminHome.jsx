@@ -103,7 +103,11 @@ const AdminHome = ({ companyId, role }) => {
   return (
     <div className="flex w-screen">
       {/* {role == 'admin' && (<> */}
-      <Sidebar companyId={companyId} role={"admin"} />
+      {role == "admin" && (
+        <>
+          <Sidebar companyId={companyId} role={"admin"} />
+        </>
+      )}
       {/* </>)} */}
       <div className="p-2 h-screen w-full overflow-y-auto">
         <div className="">

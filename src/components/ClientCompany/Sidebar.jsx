@@ -19,6 +19,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import { Collapse } from "@mui/material";
+import { Description, Dashboard } from "@mui/icons-material";
 
 export default function Sidebar({ companyId, role }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -162,6 +163,18 @@ export default function Sidebar({ companyId, role }) {
                       >
                         <PersonAddAltRoundedIcon className="mr-5" />
                         Register
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to={`/company/${companyId}/report`}
+                        className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/report`)
+                          ? "bg-[#e3d2fa] text-gray-700"
+                          : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                          }`}
+                      >
+                        <Description className="mr-5" />
+                        Project Report
                       </Link>
                     </li>
                     <li>
