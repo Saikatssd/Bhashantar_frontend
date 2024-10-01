@@ -40,8 +40,8 @@ const CompanyInstance = ({ role }) => {
 
   return (
     <div className="flex">
-      {companyId == kyroId ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />}
-      {/* {companyId === 'jpG7fAhdeGKAOzgCiaK5' ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />} */}
+      {/* {companyId == kyroId ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />} */}
+      {companyId === 'jpG7fAhdeGKAOzgCiaK5' ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />}
 
       <div className="flex-grow">
         <Routes>

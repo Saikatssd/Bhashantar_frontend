@@ -170,3 +170,7 @@
 .ck.ck-content p.line-indent {
   text-indent: 50px; 
 }
+
+.ck-content .default {
+  font-size: 11pt;
+}

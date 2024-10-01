@@ -84,6 +84,7 @@ import {
   TextTransformation,
   Underline,
   Undo,
+  FindAndReplace,
 } from "ckeditor5";
 
 import "ckeditor5/ckeditor5.css";
@@ -205,6 +206,7 @@ const Editor = () => {
         "bold",
         "italic",
         "underline",
+        "findAndReplace",
         "|",
         "fontSize",
         "fontFamily",
@@ -218,14 +220,14 @@ const Editor = () => {
         "|",
         "bulletedList",
         "numberedList",
-        "outdent",
-        "indent",
+        // "outdent",
+        // "indent",
         "|",
         "superscript",
         "subscript",
         "undo",
         "redo",
-        "style",
+        // "style",
       ],
       shouldNotGroupWhenFull: false,
     },
@@ -304,6 +306,7 @@ const Editor = () => {
       Underline,
       Undo,
       LineHeight,
+      FindAndReplace
     ],
     extraPlugins: [tabSpacing],
     balloonToolbar: [
@@ -343,7 +346,7 @@ const Editor = () => {
         12,
         13,
         14,
-        15,
+        'default',
         16,
         17,
         18,

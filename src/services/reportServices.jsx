@@ -362,8 +362,8 @@ export const fetchUserDetailedReport = async (companyId) => {
       } = data;
 
       if (!kyro_assignedTo) continue; // Skip if no user assigned
-
       const userName = await fetchUserNameById(kyro_assignedTo);
+      
 
       if (!aggregatedData[userName]) {
         aggregatedData[userName] = {

@@ -65,7 +65,7 @@ const KyroAdminFileFlow = () => {
   const { projectId } = useParams();
   const [files, setFiles] = useState([]);
   const [tabValue, setTabValue] = useState(0);
-  const [companyId, setCompanyId] = useState("");
+  // const [companyId, setCompanyId] = useState("");
   const [readyForWorkFiles, setReadyForWorkFiles] = useState([]);
   const [inProgressFiles, setInProgressFiles] = useState([]);
   const [completedFiles, setCompletedFiles] = useState([]);
@@ -82,6 +82,8 @@ const KyroAdminFileFlow = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const navigate = useNavigate();
 
+  const {companyId} = useParams();
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -91,7 +93,7 @@ const KyroAdminFileFlow = () => {
         user.companyId = token.claims.companyId;
 
         setRole(user.roleName);
-        setCompanyId(user.companyId);
+        // setCompanyId(user.companyId);
       }
     });
     return () => unsubscribe();
