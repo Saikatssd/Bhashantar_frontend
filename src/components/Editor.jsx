@@ -623,30 +623,56 @@ const Editor = () => {
   const initializeEditor = useCallback(() => {
     if (isInitialContentSet) {
       return (
-        <div
-          className="editor-container editor-container_classic-editor editor-container_include-style"
-          ref={editorContainerRef}
-          style={{ width: "100%", height: "100%" }}
-        >
-          <div
-            className="editor-container__editor"
-            style={{ width: "100%", height: "100%" }}
-          >
-            <div ref={editorRef} style={{ width: "100%", height: "100%" }}>
-              {isLayoutReady && (
-                <CKEditor
-                  editor={ClassicEditor}
-                  config={editorConfig}
-                  onChange={(event, editor) => {
-                    const data = editor.getData();
-                    // console.log(data);
-                    setHtmlContent(data); // Update the state with the new content
-                  }}
-                />
-              )}
-            </div>
-          </div>
-        </div>
+        // <div
+        //   className="editor-container editor-container_classic-editor editor-container_include-style"
+        //   ref={editorContainerRef}
+        //   style={{ width: "100%", height: "100%" }}
+        // >
+        //   <div
+        //     className="editor-container__editor"
+        //     style={{ width: "100%", height: "100%" }}
+        //   >
+        //     <div ref={editorRef} style={{ width: "100%", height: "100%" }}>
+        //       {isLayoutReady && (
+        //         <CKEditor
+        //           editor={ClassicEditor}
+        //           config={editorConfig}
+        //           onChange={(event, editor) => {
+        //             const data = editor.getData();
+        //             // console.log(data);
+        //             setHtmlContent(data); // Update the state with the new content
+        //           }}
+        //         />
+        //       )}
+        //     </div>
+        //   </div>
+        // </div>
+        
+			
+				<div className="editor-container editor-container_document-editor editor-container_include-style" ref={editorContainerRef}>
+					<div className="editor-container__menu-bar" ref={editorMenuBarRef}></div>
+					<div className="editor-container__toolbar" ref={editorToolbarRef}></div>
+					<div className="editor-container__editor-wrapper">
+						<div className="editor-container__editor">
+							<div ref={editorRef}>
+								{isLayoutReady && (
+									<CKEditor
+                            editor={ClassicEditor}
+                            config={editorConfig}
+                            onChange={(event, editor) => {
+                              const data = editor.getData();
+                              // console.log(data);
+                              setHtmlContent(data); // Update the state with the new content
+                            }}
+                          />
+								)}
+							</div>
+						</div>
+					</div>
+				</div>
+			
+		
+
       );
     }
     return null;
