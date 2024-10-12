@@ -65,7 +65,7 @@ const KyroAdminFileFlow = () => {
   const { projectId } = useParams();
   const [files, setFiles] = useState([]);
   const [tabValue, setTabValue] = useState(0);
-  // const [companyId, setCompanyId] = useState("");
+  const [kyroId, setKyroId] = useState("");
   const [readyForWorkFiles, setReadyForWorkFiles] = useState([]);
   const [inProgressFiles, setInProgressFiles] = useState([]);
   const [completedFiles, setCompletedFiles] = useState([]);
@@ -83,6 +83,7 @@ const KyroAdminFileFlow = () => {
   const navigate = useNavigate();
 
   const {companyId} = useParams();
+  // console.log(companyId)
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -93,7 +94,7 @@ const KyroAdminFileFlow = () => {
         user.companyId = token.claims.companyId;
 
         setRole(user.roleName);
-        // setCompanyId(user.companyId);
+        setKyroId(user.companyId);
       }
     });
     return () => unsubscribe();
@@ -463,7 +464,7 @@ const KyroAdminFileFlow = () => {
         open={openModal}
         handleClose={handleCloseModal}
         handleAssign={handleAssignToUser}
-        companyId={companyId}
+        companyId={kyroId}
       />
     </Box>
   );

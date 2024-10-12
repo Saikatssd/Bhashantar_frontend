@@ -53,7 +53,7 @@ const UserList = ({ companyId }) => {
   }
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto  overflow-y-auto h-screen p-8">
       <Typography variant="h4" className="text-xl font-bold mb-4 p-4">
         Users
       </Typography>
