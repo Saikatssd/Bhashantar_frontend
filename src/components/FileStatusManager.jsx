@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   fetchProjectFiles,
-  fetchAllCompanies,
-  fetchCompanyProjects,
+  // fetchCompanyProjects,
   fetchProjects,
   updateFileStatusNumber,
 } from '../utils/firestoreUtil';
+import {fetchClientCompanies,fetchCompanyProjects } from "./../services/companyServices";
+
 import {
   Button,
   Select,
@@ -52,7 +53,7 @@ const FileStatusManager = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const companies = await fetchAllCompanies();
+        const companies = await fetchClientCompanies();
         setCompanies(companies);
       } catch (error) {
         console.error('Error fetching companies:', error);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   fetchAllCompanies,
+  fetchClientCompanies
 } from "../../services/companyServices";
 import {
   fetchDeliveryReportDetails,
@@ -96,7 +97,7 @@ const KyroAdminHome = ({ companyId, role }) => {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const companies = await fetchAllCompanies();
+        const companies = await fetchClientCompanies();
         setCompanies(companies);
       } catch (error) {
         console.error("Error fetching companies:", error);

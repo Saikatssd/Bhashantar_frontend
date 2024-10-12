@@ -156,8 +156,8 @@ import {
   TextTransformation,
   TodoList,
   Underline,
-  Undo
-} from 'ckeditor5';
+  Undo,
+} from "ckeditor5";
 
 import "ckeditor5/ckeditor5.css";
 
@@ -172,7 +172,7 @@ const Editor = () => {
   const [pdfUrl, setPdfUrl] = useState("");
   const [fileName, setFileName] = useState("");
   const [loading, setLoading] = useState(true);
-  const [kyroId, setKyroId] = useState()
+  const [kyroId, setKyroId] = useState();
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -180,7 +180,7 @@ const Editor = () => {
   const navigate = useNavigate();
   const debouncedHtmlContent = useDebounce(htmlContent, 1000);
   const [companyId, setCompanyId] = useState(null);
-  const [companyName, setCompanyName] = useState()
+  const [companyName, setCompanyName] = useState();
   const [role, setRole] = useState();
   const editorContainerRef = useRef(null);
   const editorMenuBarRef = useRef(null);
@@ -237,9 +237,6 @@ const Editor = () => {
 
     return () => setIsLayoutReady(false);
   }, []);
-
-
-
 
   useEffect(() => {
     const fetchKyroticsCompanyId = async () => {
@@ -380,7 +377,7 @@ const Editor = () => {
       TodoList,
       Underline,
       Undo,
-      LineHeight
+      LineHeight,
     ],
     extraPlugins: [tabSpacing],
     balloonToolbar: [
@@ -420,7 +417,7 @@ const Editor = () => {
         12,
         13,
         14,
-        'default',
+        "default",
         16,
         17,
         18,
@@ -699,23 +696,41 @@ const Editor = () => {
       return (
         <div>
           <div className="main-container">
-            <div className="editor-container editor-container_document-editor" ref={editorContainerRef}>
-              <div className="editor-container__menu-bar" ref={editorMenuBarRef}></div>
-              <div className="editor-container__toolbar" ref={editorToolbarRef}></div>
+            <div
+              className="editor-container editor-container_document-editor"
+              ref={editorContainerRef}
+            >
+              <div
+                className="editor-container__menu-bar"
+                ref={editorMenuBarRef}
+              ></div>
+              <div
+                className="editor-container__toolbar"
+                ref={editorToolbarRef}
+              ></div>
               <div className="editor-container__editor-wrapper">
                 <div className="editor-container__editor">
                   <div ref={editorRef}>
                     {isLayoutReady && (
                       <CKEditor
-                        onReady={editor => {
-                          editorToolbarRef.current.appendChild(editor.ui.view.toolbar.element);
-                          editorMenuBarRef.current.appendChild(editor.ui.view.menuBarView.element);
+                        onReady={(editor) => {
+                          editorToolbarRef.current.appendChild(
+                            editor.ui.view.toolbar.element
+                          );
+                          editorMenuBarRef.current.appendChild(
+                            editor.ui.view.menuBarView.element
+                          );
                         }}
                         onAfterDestroy={() => {
-                          Array.from(editorToolbarRef.current.children).forEach(child => child.remove());
-                          Array.from(editorMenuBarRef.current.children).forEach(child => child.remove());
+                          Array.from(editorToolbarRef.current.children).forEach(
+                            (child) => child.remove()
+                          );
+                          Array.from(editorMenuBarRef.current.children).forEach(
+                            (child) => child.remove()
+                          );
                         }}
                         editor={DecoupledEditor}
+                        // editor={ClassicEditor}
                         config={editorConfig}
                         onChange={(event, editor) => {
                           const data = editor.getData();
@@ -730,7 +745,6 @@ const Editor = () => {
             </div>
           </div>
         </div>
-
 
         // <div className="editor-container editor-container_document-editor editor-container_include-style" ref={editorContainerRef}>
         //   <div className="editor-container__menu-bar" ref={editorMenuBarRef}></div>
@@ -753,9 +767,6 @@ const Editor = () => {
         //     </div>
         //   </div>
         // </div>
-
-
-
       );
     }
     return null;

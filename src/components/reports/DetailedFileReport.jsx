@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { fetchAllCompanies } from "../../services/companyServices";
+import { fetchAllCompanies,fetchClientCompanies } from "../../services/companyServices";
 import { fetchDetailedFileReport } from "../../services/reportServices";
 import { exportToExcel } from "../../utils/exportExcel";
 import SearchIcon from "@mui/icons-material/Search";
@@ -74,7 +74,7 @@ const DetailedFileReport = () => {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const companies = await fetchAllCompanies();
+        const companies = await fetchClientCompanies();
         setCompanies(companies);
       } catch (error) {
         console.error("Error fetching companies:", error);
@@ -119,7 +119,7 @@ const DetailedFileReport = () => {
         ? parse(filters.assignedStartDate, "yyyy-MM-dd", new Date())
         : //? new Date(filters.assignedStartDate)
           null;
-      console.log("assignStartDate", assignedStartDate);
+      // console.log("assignStartDate", assignedStartDate);
 
       const assignedEndDate = filters.assignedEndDate
         ? parse(filters.assignedEndDate, "yyyy-MM-dd", new Date())
@@ -164,7 +164,7 @@ const DetailedFileReport = () => {
     setFilteredDetails(filtered);
   }, [filters, fileDetails]);
 
-  console.log(filters.assignedStartDate);
+  // console.log(filters.assignedStartDate);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;

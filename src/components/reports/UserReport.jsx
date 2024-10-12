@@ -7,7 +7,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { fetchAllCompanies } from "../../utils/firestoreUtil";
+import { fetchAllCompanies,fetchClientCompanies } from "../../services/companyServices";
 import { fetchUserCompletedFilesReport } from "../../services/reportServices";
 import { exportToExcel } from "../../utils/exportExcel";
 import { format } from "date-fns";
@@ -42,7 +42,7 @@ const UserReport = () => {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const companies = await fetchAllCompanies();
+        const companies = await fetchClientCompanies();
         setCompanies(companies);
       } catch (error) {
         console.error("Error fetching companies:", error);
@@ -235,7 +235,7 @@ export default UserReport;
 //   fetchCompanyProjects,
 //   fetchProjectFiles,
 //   fetchUserNameById,
-//   fetchAllCompanies,
+//   fetchClientCompanies,
 // } from "../../utils/firestoreUtil";
 // import {
 //   MenuItem,
@@ -291,7 +291,7 @@ export default UserReport;
 //   useEffect(() => {
 //     const fetchCompanies = async () => {
 //       try {
-//         const companies = await fetchAllCompanies();
+//         const companies = await fetchClientCompanies();
 //         setCompanies(companies);
 //       } catch (error) {
 //         console.error("Error fetching companies:", error);

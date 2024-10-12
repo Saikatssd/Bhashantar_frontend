@@ -28,9 +28,9 @@
 }
 
 .main-container {
-	--ckeditor5-preview-height: 700px;
+	--ckeditor5-preview-height: 850px;
 	font-family: 'Lato';
-	width: fit-content;
+	/* width: fit-content; */
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -43,7 +43,7 @@
 
 .editor-container__editor-wrapper {
 	display: flex;
-	width: fit-content;
+	/* width: fit-content; */
 }
 
 .editor-container_document-editor {
@@ -81,26 +81,28 @@
 	background: var(--ck-color-base-foreground);
 }
 
-/* .editor-container_document-editor .editor-container__editor {
+.editor-container_document-editor .editor-container__editor {
 	margin-top: 28px;
 	margin-bottom: 28px;
 	height: 100%;
-} */
+	margin-left: auto;
+	margin-right: auto;
+}
 
 .editor-container_document-editor .editor-container__editor .ck.ck-editor__editable {
 	box-sizing: border-box;
-	min-width: calc(192mm + 2px);
+	min-width: calc(193mm + 2px);
 	max-width: calc(193mm + 2px);
 	min-height: 297mm;
 	height: fit-content;
-	padding: 20mm 12mm;
+	padding: 20mm;
 	border: 1px hsl(0, 0%, 82.7%) solid;
 	background: hsl(0, 0%, 100%);
 	box-shadow: 0 2px 3px hsla(0, 0%, 0%, 0.078);
 	flex: 1 1 auto;
-	margin-left: 10px;
-	margin-right: 10px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 
-/* update editor css */
+
