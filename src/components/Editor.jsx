@@ -157,12 +157,15 @@ import {
   TodoList,
   Underline,
   Undo,
+  TextPartLanguage
 } from "ckeditor5";
 
 import "ckeditor5/ckeditor5.css";
 
 import "../App.css";
 import { LineHeight } from "@rickx/ckeditor5-line-height";
+// import Language from '@ckeditor/ckeditor5-language/src/language';
+// import TextPartLanguage from '@ckeditor/ckeditor5-language/src/textpartlanguage';
 import { kyroCompanyId } from "../services/companyServices";
 // import "../assets/editor.css";
 
@@ -270,6 +273,7 @@ const Editor = () => {
   }
 
   const editorConfig = {
+    // language: 'bn',
     toolbar: {
       items: [
         "bold",
@@ -296,6 +300,7 @@ const Editor = () => {
         "subscript",
         "undo",
         "redo",
+        "textPartLanguage"
         // "style",
       ],
       shouldNotGroupWhenFull: false,
@@ -378,6 +383,8 @@ const Editor = () => {
       Underline,
       Undo,
       LineHeight,
+      //   Language,
+      TextPartLanguage,
     ],
     extraPlugins: [tabSpacing],
     balloonToolbar: [
@@ -392,11 +399,29 @@ const Editor = () => {
     // fontFamily: {
     //   supportAllValues: true,
     // },
-
+    language: {
+      // Default language setting for text direction (optional)
+      // textPartLanguage: [
+      // 	{ title: 'Left to right', languageCode: 'en', textDirection: 'ltr' },
+      // 	{ title: 'Left to right', languageCode: 'bn', textDirection: 'ltr' },
+      // ]
+      textPartLanguage: [
+        { title: 'Arabic', languageCode: 'ar' },
+        { title: 'Bengali', languageCode: 'bn' },
+        { title: 'French', languageCode: 'fr' },
+        { title: 'Hebrew', languageCode: 'he' },
+        { title: 'Spanish', languageCode: 'es' }
+      ],
+      ui: 'bn',
+      content: 'bn'
+    },
     fontFamily: {
       options: [
         "default",
         "Nirmala UI, sans-serif",
+        "Noto Sans Bengali, sans-serif",
+        'SolaimanLipi, sans-serif', // Custom Bengali font if available
+        'Bangla, sans-serif',
         "Arial, sans-serif",
         "Courier New, Courier, monospace",
         "Georgia, serif",
