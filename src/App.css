@@ -21,6 +21,8 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nirmala+UI&display=swap');
+
 
 @media print {
 	body {
@@ -29,9 +31,11 @@
 }
 
 .main-container {
-	--ckeditor5-preview-height: 850px;
-	font-family: 'Lato';
+	--ckeditor5-preview-height: calc(100vh - 93px);
+	/* font-family: 'Lato'; */
 	/* width: fit-content; */
+	font-family: 'Nirmala UI', sans-serif;
+
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -90,17 +94,38 @@
 	margin-right: auto;
 }
 
+/* .editor-container_document-editor .editor-container__editor .ck.ck-editor__editable {
+    box-sizing: border-box;
+    min-width: calc(193mm + 2px);
+    max-width: calc(193mm + 2px);
+    height: fit-content;
+    padding: 20mm;
+    border: 1px hsl(0, 0%, 82.7%) solid;
+    background: hsl(0, 0%, 100%);
+    box-shadow: 0 2px 3px hsla(0, 0%, 0%, 0.078);
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+} */
+
 .editor-container_document-editor .editor-container__editor .ck.ck-editor__editable {
-	box-sizing: border-box;
-	min-width: calc(193mm + 2px);
-	max-width: calc(193mm + 2px);
-	min-height: 297mm;
-	height: fit-content;
-	padding: 20mm;
-	border: 1px hsl(0, 0%, 82.7%) solid;
-	background: hsl(0, 0%, 100%);
-	box-shadow: 0 2px 3px hsla(0, 0%, 0%, 0.078);
-	flex: 1 1 auto;
-	margin-left: auto;
-	margin-right: auto;
+    box-sizing: border-box;
+    min-width: calc(180mm + 2px); /* Legal width: 21.6 cm = 216 mm */
+    max-width: calc(180mm + 2px);
+    height: fit-content;
+    padding: 20mm;
+    border: 1px hsl(0, 0%, 82.7%) solid;
+    background: repeating-linear-gradient(
+        to bottom,
+        hsl(0, 0%, 100%) 0px,
+        hsl(0, 0%, 100%) 844px, /* Legal height (35.6 cm) */
+        hsl(0, 0%, 82.7%) 850px, /* Thicker break line at 35.6 cm */
+        hsl(0, 0%, 100%) 851px
+    );
+    box-shadow: 0 2px 3px hsla(0, 0%, 0%, 0.078);
+    flex: 1 1 auto;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
 }
+
