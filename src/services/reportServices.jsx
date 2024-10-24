@@ -230,51 +230,121 @@ export const fetchDeliveryReportDetails = async (
   }
 };
 
+// export const fetchUserCompletedFilesReport = async (
+//   companyId,
+//   startDate,
+//   endDate
+// ) => {
+//   const projects = await fetchCompanyProjects(companyId);
+//   const userFiles = {};
+
+//   for (const project of projects) {
+//     const files = await fetchProjectFiles(project.id);
+
+//     // Filter files based on the completed date range
+//     const filteredFiles = files.filter((file) => {
+//       const completedDate = file.kyro_completedDate
+//         ? parse(file.kyro_completedDate, "dd/MM/yyyy", new Date())
+//         : null;
+
+//       // Filter based on completedDate within the range
+//       return (
+//         file.status === 4 &&
+//         completedDate &&
+//         completedDate >= startDate &&
+//         completedDate <= endDate
+//       );
+//     });
+
+//     // Process filtered files
+//     for (const file of filteredFiles) {
+//       const userName = file.kyro_assignedTo
+//         ? await fetchUserNameById(file.kyro_assignedTo)
+//         : "Unknown";
+
+//       // Skip if userName is 'Unknown'
+//       if (userName === "Unknown") {
+//         continue;
+//       }
+
+//       if (!userFiles[userName]) {
+//         userFiles[userName] = { fileCount: 0, pageCount: 0 };
+//       }
+
+//       userFiles[userName].fileCount += 1;
+//       userFiles[userName].pageCount += file.pageCount || 0;
+//     }
+//   }
+
+//   // Convert userFiles object to an array of objects
+//   const formattedData = Object.keys(userFiles).map((userName) => ({
+//     userName,
+//     totalFiles: userFiles[userName].fileCount,
+//     totalPages: userFiles[userName].pageCount,
+//   }));
+
+//   return formattedData;
+// };
+
+
+
 export const fetchUserCompletedFilesReport = async (
   companyId,
   startDate,
   endDate
 ) => {
+  // Fetch all projects in parallel
   const projects = await fetchCompanyProjects(companyId);
+
   const userFiles = {};
+  const userNameCache = {}; // Cache to store fetched usernames to avoid multiple fetches
 
-  for (const project of projects) {
-    const files = await fetchProjectFiles(project.id);
+  // Process all project files in parallel using Promise.all
+  await Promise.all(
+    projects.map(async (project) => {
+      const files = await fetchProjectFiles(project.id);
 
-    // Filter files based on the completed date range
-    const filteredFiles = files.filter((file) => {
-      const completedDate = file.kyro_completedDate
-        ? parse(file.kyro_completedDate, "dd/MM/yyyy", new Date())
-        : null;
+      // Filter files based on status and completed date range
+      const filteredFiles = files.filter((file) => {
+        const completedDate = file.kyro_completedDate
+          ? parse(file.kyro_completedDate, "dd/MM/yyyy", new Date())
+          : null;
 
-      // Filter based on completedDate within the range
-      return (
-        file.status === 4 &&
-        completedDate &&
-        completedDate >= startDate &&
-        completedDate <= endDate
-      );
-    });
+        return (
+          file.status === 4 &&
+          completedDate &&
+          completedDate >= startDate &&
+          completedDate <= endDate
+        );
+      });
 
-    // Process filtered files
-    for (const file of filteredFiles) {
-      const userName = file.kyro_assignedTo
-        ? await fetchUserNameById(file.kyro_assignedTo)
-        : "Unknown";
+      // Process filtered files
+      for (const file of filteredFiles) {
+        // Use cached username if available
+        let userName = userNameCache[file.kyro_assignedTo];
 
-      // Skip if userName is 'Unknown'
-      if (userName === "Unknown") {
-        continue;
+        // If not in cache, fetch and store it
+        if (!userName) {
+          userName = file.kyro_assignedTo
+            ? await fetchUserNameById(file.kyro_assignedTo)
+            : "Unknown";
+          userNameCache[file.kyro_assignedTo] = userName;
+        }
+
+        // Skip if userName is 'Unknown'
+        if (userName === "Unknown") {
+          continue;
+        }
+
+        if (!userFiles[userName]) {
+          userFiles[userName] = { fileCount: 0, pageCount: 0 };
+        }
+
+        userFiles[userName].fileCount += 1;
+        userFiles[userName].pageCount += file.pageCount || 0;
       }
-
-      if (!userFiles[userName]) {
-        userFiles[userName] = { fileCount: 0, pageCount: 0 };
-      }
-
-      userFiles[userName].fileCount += 1;
-      userFiles[userName].pageCount += file.pageCount || 0;
-    }
-  }
+    })
+  );
 
   // Convert userFiles object to an array of objects
   const formattedData = Object.keys(userFiles).map((userName) => ({
