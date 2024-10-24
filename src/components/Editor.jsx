@@ -227,15 +227,12 @@ const Editor = () => {
         "|",
         "bulletedList",
         "numberedList",
-        // "outdent",
-        // "indent",
+        "outdent",
+        "indent",
         "|",
         "superscript",
         "subscript",
-        "undo",
-        "redo",
-        "textPartLanguage"
-        // "style",
+        
       ],
       shouldNotGroupWhenFull: false,
     },
@@ -329,6 +326,7 @@ const Editor = () => {
       "|",
       "bulletedList",
       "numberedList",
+      "pageBreak"
     ],
     // fontFamily: {
     //   supportAllValues: true,
