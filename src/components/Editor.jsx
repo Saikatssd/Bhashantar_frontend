@@ -209,6 +209,7 @@ const Editor = () => {
     // language: 'bn',
     toolbar: {
       items: [
+        "pageBreak",
         "bold",
         "italic",
         "underline",
