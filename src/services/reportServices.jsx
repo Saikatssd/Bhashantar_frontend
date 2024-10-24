@@ -249,7 +249,10 @@ export const fetchUserCompletedFilesReport = async (
 
       // Filter based on completedDate within the range
       return (
-        completedDate && completedDate >= startDate && completedDate <= endDate
+        file.status === 4 &&
+        completedDate &&
+        completedDate >= startDate &&
+        completedDate <= endDate
       );
     });
 

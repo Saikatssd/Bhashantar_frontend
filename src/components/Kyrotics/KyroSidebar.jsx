@@ -142,7 +142,20 @@ export default function KyroSidebar({ companyId, role }) {
                 </Link>
               </li>
             )}
-
+            {role === "superAdmin" && (
+              <li>
+                <Link
+                  to={`/kyro/${companyId}/report`}
+                  className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/report`)
+                    ? "bg-[#e3d2fa] text-gray-700"
+                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                    }`}
+                >
+                  <Description className="mr-5" />
+                  Project Report
+                </Link>
+              </li>
+            )}
             {role === "superAdmin" && (
 
               <>
@@ -172,18 +185,7 @@ export default function KyroSidebar({ companyId, role }) {
                         Register
                       </Link>
                     </li>
-                    <li>
-                      <Link
-                        to={`/kyro/${companyId}/report`}
-                        className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/report`)
-                          ? "bg-[#e3d2fa] text-gray-700"
-                          : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
-                          }`}
-                      >
-                        <Description className="mr-5" />
-                        Project Report
-                      </Link>
-                    </li>
+
                     <li>
                       <Link
                         to={`/kyro/${companyId}/userManage`}

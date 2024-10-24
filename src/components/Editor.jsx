@@ -232,7 +232,7 @@ const Editor = () => {
         "|",
         "superscript",
         "subscript",
-        
+
       ],
       shouldNotGroupWhenFull: false,
     },
@@ -404,7 +404,7 @@ const Editor = () => {
       options: [
         { title: '8pt', model: '8pt', view: { name: 'span', styles: { 'font-size': '10.67px' } } },
         { title: '9pt', model: '9pt', view: { name: 'span', styles: { 'font-size': '12px' } } },
-        { title: '10pt', model: '10pt', view: { name: 'span', styles: { 'font-size': '13.33px' } } },
+        { title: '10pt(default)', model: '10pt', view: { name: 'span', styles: { 'font-size': '13.33px' } } },
         { title: '11pt', model: '11pt', view: { name: 'span', styles: { 'font-size': '14.67px' } } },
         { title: '12pt', model: '12pt', view: { name: 'span', styles: { 'font-size': '16px' } } },
         { title: '14pt', model: '14pt', view: { name: 'span', styles: { 'font-size': '18.67px' } } },

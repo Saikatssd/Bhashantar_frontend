@@ -160,7 +160,7 @@ const KyroAdminHome = ({ companyId, role }) => {
   const totalDeliered = FilePageSum(reportDetails);
 
   return (
-    <div className="flex w-screen">
+    <div className="flex">
       {role == "admin" && (
         <>
           <KyroSidebar companyId={companyId} role={"admin"} />
