@@ -331,7 +331,7 @@ const KyroAdminFileFlow = () => {
                 },
               ]);
               updateFileStatus(projectId, documentId, {
-                status: 8,
+                status: 5,
                 kyro_deliveredDate: formatDate(new Date()),
               });
 
