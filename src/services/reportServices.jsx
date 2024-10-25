@@ -311,7 +311,7 @@ export const fetchUserCompletedFilesReport = async (
           : null;
 
         return (
-          file.status === 4 &&
+          file.status >= 4 &&
           completedDate &&
           completedDate >= startDate &&
           completedDate <= endDate
