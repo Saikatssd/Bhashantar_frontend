@@ -206,6 +206,7 @@ export const fetchDeliveryReportDetails = async (
         // console.log(deliveredDate);
 
         return (
+          file.status >= 5 &&
           deliveredDate &&
           deliveredDate >= startDate &&
           deliveredDate <= endDate

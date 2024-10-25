@@ -253,7 +253,11 @@ const KyroAdminFileFlow = () => {
 
   const handleRevertBackSelected = async () => {
     for (const fileId of selectedRows) {
-      await updateFileStatusNumber(projectId, fileId, 3);
+      // await updateFileStatusNumber(projectId, fileId, 3);
+      await updateFileStatus(projectId, fileId, {
+        status: 3,
+        kyro_completedDate: "",
+      });
       // setCompletedFiles(files.filter(file => file.id !== fileId));
     }
     setSelectedRows([]);
