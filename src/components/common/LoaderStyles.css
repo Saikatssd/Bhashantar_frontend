@@ -1,0 +1,135 @@
+/* @keyframes bookOpen {
+    0% { transform: scaleX(0.8); opacity: 0.5; }
+    50% { transform: scaleX(1.1); opacity: 1; }
+    100% { transform: scaleX(0.8); opacity: 0.5; }
+  }
+  
+  @keyframes treeGrow {
+    0% { transform: scaleY(0.8); opacity: 0.7; }
+    50% { transform: scaleY(1.1); opacity: 1; }
+    100% { transform: scaleY(0.8); opacity: 0.7; }
+  }
+  
+  @keyframes letterFloat {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 0.3; }
+    25% { transform: translate(10px, -10px) rotate(5deg); opacity: 0.7; }
+    50% { transform: translate(0, -20px) rotate(0deg); opacity: 1; }
+    75% { transform: translate(-10px, -10px) rotate(-5deg); opacity: 0.7; }
+    100% { transform: translate(0, 0) rotate(0deg); opacity: 0.3; }
+  }
+  
+  @keyframes gradientSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .loader-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .gradient-bg {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    background: conic-gradient(from 0deg, #ff80b5, #9089fc, #ff80b5);
+    border-radius: 50%;
+    animation: gradientSpin 3s linear infinite;
+    filter: blur(10px);
+    opacity: 0.3;
+  }
+  
+  .book {
+    position: absolute;
+    bottom: 20px;
+    width: 120px;
+    height: 20px;
+    background: linear-gradient(90deg, #ff80b5, #9089fc);
+    border-radius: 4px;
+    animation: bookOpen 2s ease-in-out infinite;
+  }
+  
+  .tree {
+    position: absolute;
+    bottom: 40px;
+    width: 4px;
+    height: 100px;
+    background: linear-gradient(to bottom, #9089fc, #000);
+    animation: treeGrow 2s ease-in-out infinite;
+  }
+  
+  .letters-container {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+  }
+  
+  .letter {
+    position: absolute;
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+    animation: letterFloat 3s ease-in-out infinite;
+  }
+  
+  .letter:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; }
+  .letter:nth-child(2) { top: 10%; left: 50%; animation-delay: 0.5s; }
+  .letter:nth-child(3) { top: 20%; left: 80%; animation-delay: 1s; }
+  .letter:nth-child(4) { top: 50%; left: 85%; animation-delay: 1.5s; }
+  .letter:nth-child(5) { top: 80%; left: 80%; animation-delay: 2s; }
+  .letter:nth-child(6) { top: 80%; left: 20%; animation-delay: 2.5s; }
+  .letter:nth-child(7) { top: 50%; left: 15%; animation-delay: 1.75s; } */
+  @keyframes moveToMachine {
+    0% {
+      opacity: 0;
+      transform: translateY(-50%) translateX(0);
+    }
+    15% {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+    85% {
+      opacity: 1;
+      transform: translateY(-50%) translateX(200px);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-50%) translateX(200px);
+    }
+  }
+  
+  @keyframes moveFromMachine {
+    0% {
+      opacity: 0;
+      transform: translateY(-50%) translateX(-200px);
+    }
+    15% {
+      opacity: 1;
+      transform: translateY(-50%) translateX(-200px);
+    }
+    85% {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-50%) translateX(0);
+    }
+  }
+  
+  .machine-glow {
+    animation: glow 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes glow {
+    0%, 100% {
+      filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.3));
+    }
+    50% {
+      filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.5));
+    }
+  }
