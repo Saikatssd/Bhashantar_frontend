@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import TabPanel from '../../components/TabPanel';
 import { fetchProjectFiles, fetchProjects } from '../../utils/firestoreUtil';
 import { useAuth } from '../../context/AuthContext';
 import Table from '../../components/Table/Table';
+import Loader from '../common/Loader';
 
 
 const columnsInProgress = [
@@ -106,7 +106,7 @@ const KyroUserWorkspace = () => {
   };
 
   if (isLoading) {
-    return <CircularProgress />;
+    return <Loader />;
   }
 
   if (error) {
