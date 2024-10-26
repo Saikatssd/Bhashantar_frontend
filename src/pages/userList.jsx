@@ -12,6 +12,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import Loader from "../components/common/Loader";
 
 const UserList = ({ companyId }) => {
   const [users, setUsers] = useState([]);
@@ -49,7 +50,7 @@ const UserList = ({ companyId }) => {
   }, [companyId]);
 
   if (loading) {
-    return <CircularProgress />;
+    return <Loader />;
   }
 
   return (

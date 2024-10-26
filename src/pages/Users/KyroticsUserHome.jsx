@@ -4,13 +4,19 @@ import { fetchUserNameById } from "../../utils/firestoreUtil";
 import { fetchUserProjectsCount } from "../../services/projectServices";
 import FolderIcon from "@mui/icons-material/Folder";
 import ArticleIcon from "@mui/icons-material/Article";
+import { format } from "date-fns";
 
 export default function KyroticsUserHome({ companyId, userId }) {
+  const today = format(new Date().setHours(0, 0, 0, 0), "yyyy-MM-dd");
   const [userName, setUserName] = useState("");
   const [projectCounts, setProjectCounts] = useState({
     pendingCount: 0,
     completedCount: 0,
     underReviewCount: 0,
+  });
+  const [completedDateRange, setCompletedDateRange] = useState({
+    start: today,
+    end: today,
   });
 
   useEffect(() => {
@@ -19,16 +25,23 @@ export default function KyroticsUserHome({ companyId, userId }) {
         const userName = await fetchUserNameById(userId);
         setUserName(userName);
 
-        const counts = await fetchUserProjectsCount(userId);
+        const startDate = new Date(completedDateRange.start).setHours(
+          0,
+          0,
+          0,
+          0
+        );
+        const endDate = new Date(completedDateRange.end).setHours(0, 0, 0, 0);
+        const counts = await fetchUserProjectsCount(userId, startDate, endDate);
         setProjectCounts(counts);
-        console.log(projectCounts);
       } catch (error) {
         console.error("Error loading user project counts:", error);
       }
     };
 
     fetchContent();
-  }, [userId]);
+  }, [userId, completedDateRange]);
+
   return (
     <div className="flex">
       <KyroSidebar companyId={companyId} role={"user"} />
@@ -48,6 +61,50 @@ export default function KyroticsUserHome({ companyId, userId }) {
         </div>
 
         <div className="backdrop-blur-sm shadow-xl bg-white/30 mt-10 rounded-xl mx-auto">
+          <div className="flex justify-center gap-4 items-center mb-6">
+            <div className="flex flex-col items-start">
+              <label className="text-md font-semibold text-gray-700 mb-1">
+                Start Date
+              </label>
+              <input
+                type="date"
+                name="completedStartDate"
+                placeholder="Select start date"
+                value={completedDateRange.start}
+                onChange={(e) =>
+                  setCompletedDateRange({
+                    ...completedDateRange,
+                    start: e.target.value,
+                  })
+                }
+                className="block w-48 pl-4 pr-4 py-2 border border-dashed border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+            <span className="text-xl font-bold text-gray-500">to</span>
+            <div className="flex flex-col items-start">
+              <label className="text-md font-semibold text-gray-700 mb-1">
+                End Date
+              </label>
+              <input
+                type="date"
+                name="completedEndDate"
+                placeholder="Select end date"
+                value={completedDateRange.end}
+                onChange={(e) =>
+                  setCompletedDateRange({
+                    ...completedDateRange,
+                    end: e.target.value,
+                  })
+                }
+                className="block w-48 pl-4 pr-4 py-2 border border-dashed border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+          </div>
+          <div className="flex justify-center text-center text-gray-500 text-sm">
+            <p>
+              Select a date range to view project counts for the chosen period.
+            </p>
+          </div>
           <div className="flex justify-between p-10">
             <div className="flex flex-col items-center p-5 gap-5 ">
               <div className=" ">

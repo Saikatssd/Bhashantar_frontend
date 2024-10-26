@@ -3,6 +3,7 @@ import { Card, CardContent, Typography, Grid } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { server } from '../../main';
 import { fetchClientCompanies } from '../../services/companyServices';
+import Loader from '../common/Loader';
 
 
 const ClientCompanies = () => {
@@ -31,7 +32,7 @@ const ClientCompanies = () => {
 
     return (
         <div className="flex flex-col items-center p-20">
-            {isLoading && <p>Loading...</p>}
+            {isLoading && <Loader/>}
             {error && <p>Error: {error.message}</p>}
             {!isLoading && !error && (
                 <>

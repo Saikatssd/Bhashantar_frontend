@@ -21,6 +21,7 @@ import Sidebar from "../../components/ClientCompany/Sidebar";
 import ClientFileDetailedReport from "../../components/ClientCompany/ClientFileDetailedReport";
 import ReplyIcon from "@mui/icons-material/Reply";
 import { FilePageSum } from "../../utils/FilepageSum";
+import Loader from "../../components/common/Loader";
 
 
 
@@ -166,7 +167,7 @@ const AdminHome = ({ companyId, role }) => {
             </div> */}
 
             {isLoading ? (
-              <CircularProgress />
+              <Loader />
             ) : (
               <div>
                 <div className="backdrop-blur-sm shadow-xl bg-white/30 rounded-xl mb-20">

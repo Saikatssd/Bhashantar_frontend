@@ -13,7 +13,6 @@ import {
   Button,
   MenuItem,
   Select,
-  CircularProgress,
   FormControl,
   InputLabel,
   Fab,
@@ -28,6 +27,7 @@ import ReplyIcon from "@mui/icons-material/Reply";
 import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
 import { FilePageSum } from "../../utils/FilepageSum";
 import ConfirmationDialog from "../../components/ConfirmationDialog";
+import Loader from '../../components/common/Loader';
 
 const defaultStartDate = new Date();
 defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
@@ -222,7 +222,7 @@ const KyroAdminHome = ({ companyId, role }) => {
             </div>
 
             {isLoading ? (
-              <CircularProgress />
+              <Loader />
             ) : (
               <div>
                 <div className="backdrop-blur-sm shadow-xl bg-white/30 rounded-xl mb-20">

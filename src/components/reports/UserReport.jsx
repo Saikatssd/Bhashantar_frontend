@@ -13,6 +13,7 @@ import { exportToExcel } from "../../utils/exportExcel";
 import { format } from "date-fns";
 import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
 import { FilePageSum } from "../../utils/FilepageSum";
+import Loader from "../common/Loader";
 
 const UserReport = () => {
   const today = format(new Date().setHours(0, 0, 0, 0), "yyyy-MM-dd");
@@ -174,7 +175,7 @@ const UserReport = () => {
       </div>
 
       {isLoading ? (
-        <div>Loading...</div>
+        <Loader/>
       ) : (
         <table className="min-w-full bg-white border  my-10">
           <thead>

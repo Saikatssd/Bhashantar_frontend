@@ -25,6 +25,7 @@ import Button from '@mui/material/Button';
 import { toast } from "react-hot-toast";
 import { server } from "../../main.jsx";
 import axios from "axios";
+import Loader from "../common/Loader.jsx";
 
 const columnsReadyForWork = [
   { id: "slNo", label: "Sl. No.", minWidth: 50 },
@@ -358,7 +359,7 @@ const KyroAdminFileFlow = () => {
 
 
   if (isLoading) {
-    return <CircularProgress />;
+    return <Loader />;
   }
 
   if (error) {
