@@ -45,11 +45,11 @@ export default function KyroticsUserHome({ companyId, userId }) {
   return (
     <div className="flex">
       <KyroSidebar companyId={companyId} role={"user"} />
-      <div className="flex-1 p-4">
-        <div className="backdrop-blur-sm shadow-xl bg-[#e3d2fa]/[0.6]  mt-10 rounded-xl p-6">
+      <div className="flex-1 p-4 h-screen overflow-y-auto">
+        <div className="backdrop-blur-sm shadow-xl bg-[#e3d2fa]/[0.6]  mt-2 rounded-xl p-6">
           <div className="flex justify-between">
             <div className="my-auto">
-              <h1 className="text-3xl font-bold py-5">
+              <h1 className="text-3xl font-bold py-4">
                 Hi ! &nbsp;{userName}&nbsp; &nbsp;👋 ,
               </h1>
               <p className="py-4 text-md">
@@ -105,13 +105,13 @@ export default function KyroticsUserHome({ companyId, userId }) {
               Select a date range to view project counts for the chosen period.
             </p>
           </div>
-          <div className="flex justify-between p-10">
+          <div className="flex justify-between">
             <div className="flex flex-col items-center p-5 gap-5 ">
               <div className=" ">
                 <p className="text-xl font-bold">Pending Works</p>
               </div>
               <div
-                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
+                className="h-20 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
                 style={{ background: "rgba(249, 145, 145, 0.5)" }}
               >
                 <div className="px-6">
@@ -120,7 +120,7 @@ export default function KyroticsUserHome({ companyId, userId }) {
                 </div>
               </div>
               <div
-                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
+                className="h-20 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
                 style={{ background: "rgba(249, 145, 145, 0.5)" }}
               >
                 <div className="px-6">
@@ -135,7 +135,7 @@ export default function KyroticsUserHome({ companyId, userId }) {
                 <p className="text-xl font-bold">Works under Review</p>
               </div>
               <div
-                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-yellow-500 font-bold"
+                className="h-20 rounded-xl text-center flex justify-center items-center text-3xl text-yellow-500 font-bold"
                 style={{ background: "rgba(249, 246, 191, 0.5)" }}
               >
                 <div className="px-6">
@@ -144,7 +144,7 @@ export default function KyroticsUserHome({ companyId, userId }) {
                 </div>
               </div>
               <div
-                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-yellow-500 font-bold"
+                className="h-20 rounded-xl text-center flex justify-center items-center text-3xl text-yellow-500 font-bold"
                 style={{ background: "rgba(249, 246, 191, 0.5)" }}
               >
                 <div className="px-6">
@@ -158,7 +158,7 @@ export default function KyroticsUserHome({ companyId, userId }) {
                 <p className="text-xl font-bold">Completed Works</p>
               </div>
               <div
-                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
+                className="h-20 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
                 style={{ background: "rgba(191, 249, 191, 0.5)" }}
               >
                 <div className="px-6">
@@ -167,7 +167,7 @@ export default function KyroticsUserHome({ companyId, userId }) {
                 </div>
               </div>
               <div
-                className="h-24 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
+                className="h-20 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
                 style={{ background: "rgba(191, 249, 191, 0.5)" }}
               >
                 <div className="px-6">

@@ -17,7 +17,7 @@ import {
   where,
   deleteDoc,
 } from "firebase/firestore";
-
+import { parse } from "date-fns";
 // --- Project Operations ---
 
 // Fetch all projects
@@ -192,6 +192,7 @@ export const fetchProjectFiles = async (projectId) => {
           : null,
 
         kyro_assignedTo: data.kyro_assignedTo || null,
+        
         client_assignedTo: data.client_assignedTo || null,
       };
     });
@@ -239,73 +240,6 @@ export const fetchTotalProjectFilesCount = async (projectId) => {
 //   }
 // };
 
-// export const fetchUserProjectsCount = async (userId) => {
-//   try {
-//     // Fetch all projects
-//     const projectsSnapshot = await getDocs(collection(db, "projects"));
-//     let pendingCount = 0;
-//     let completedCount = 0;
-//     let underReviewCount = 0;
-//     let pendingPages = 0;
-//     let completedPages = 0;
-//     let underReviewPages = 0;
-
-//     for (const projectDoc of projectsSnapshot.docs) {
-//       const projectId = projectDoc.id;
-
-//       // Fetch files for each project where kyro_assignedTo matches the userId
-//       const filesCollection = collection(db, "projects", projectId, "files");
-//       const filesQuery = query(
-//         filesCollection,
-//         where("kyro_assignedTo", "==", userId),
-//         where("status", "in", [3, 4, 5, 6, 7, 8]) // Add all the statuses to filter for
-//       );
-
-//       const filesSnapshot = await getDocs(filesQuery);
-
-//       // Count the files based on their status
-//       filesSnapshot.docs.forEach((doc) => {
-//         const data = doc.data();
-//         const pages = data.pageCount || 0;
-//         if (data.status == 3) {
-//           pendingCount++;
-//           pendingPages += pages;
-//         } else if (data.status >= 5) {
-//           completedCount++;
-//           completedPages += pages;
-//         } else if (data.status == 4) {
-//           underReviewCount++;
-//           underReviewPages += pages;
-//         }
-//       });
-//     }
-
-//     return {
-//       pendingCount:
-//         pendingCount > 9 ? pendingCount.toString() : `0${pendingCount}`,
-//       completedCount:
-//         completedCount > 9 ? completedCount.toString() : `0${completedCount}`,
-//       underReviewCount:
-//         underReviewCount > 9
-//           ? underReviewCount.toString()
-//           : `0${underReviewCount}`,
-//       pendingPages:
-//         pendingPages > 9 ? pendingPages.toString() : `0${pendingPages}`,
-//       completedPages:
-//         completedPages > 9 ? completedPages.toString() : `0${completedPages}`,
-//       underReviewPages:
-//         underReviewPages > 9
-//           ? underReviewPages.toString()
-//           : `0${underReviewPages}`,
-//     };
-//   } catch (error) {
-//     console.error("Error fetching project files by user:", error);
-//     throw new Error("Error fetching project files by user");
-//   }
-// };
-
-import { parse } from "date-fns";
-
 export const fetchUserProjectsCount = async (userId, startDate, endDate) => {
   try {
     const projectsSnapshot = await getDocs(collection(db, "projects"));
@@ -336,12 +270,15 @@ export const fetchUserProjectsCount = async (userId, startDate, endDate) => {
           : null;
         const pages = data.pageCount || 0;
 
-        // Perform comparison based on completed date range
+        // Count pending files regardless of date range
+        if (data.status === 3) {
+          pendingCount++;
+          pendingPages += pages;
+        }
+
+        // Only count completed and under-review files within the date range
         if (completedDate && completedDate >= startDate && completedDate <= endDate) {
-          if (data.status === 3) {
-            pendingCount++;
-            pendingPages += pages;
-          } else if (data.status >= 5) {
+          if (data.status >= 5) {
             completedCount++;
             completedPages += pages;
           } else if (data.status === 4) {
@@ -365,6 +302,68 @@ export const fetchUserProjectsCount = async (userId, startDate, endDate) => {
     throw new Error("Error fetching project files by user");
   }
 };
+
+
+
+// export const fetchUserProjectsCount = async (userId, startDate, endDate) => {
+//   try {
+//     const projectsSnapshot = await getDocs(collection(db, "projects"));
+//     let pendingCount = 0;
+//     let completedCount = 0;
+//     let underReviewCount = 0;
+//     let pendingPages = 0;
+//     let completedPages = 0;
+//     let underReviewPages = 0;
+
+//     for (const projectDoc of projectsSnapshot.docs) {
+//       const projectId = projectDoc.id;
+//       const filesCollection = collection(db, "projects", projectId, "files");
+
+//       // Adjust query to retrieve relevant files by user
+//       const filesQuery = query(
+//         filesCollection,
+//         where("kyro_assignedTo", "==", userId),
+//         where("status", "in", [3, 4, 5, 6, 7, 8])
+//       );
+
+//       const filesSnapshot = await getDocs(filesQuery);
+
+//       filesSnapshot.docs.forEach((doc) => {
+//         const data = doc.data();
+//         const completedDate = data.kyro_completedDate
+//           ? parse(data.kyro_completedDate, "dd/MM/yyyy", new Date())
+//           : null;
+//         const pages = data.pageCount || 0;
+
+//         // Perform comparison based on completed date range
+//         if (completedDate && completedDate >= startDate && completedDate <= endDate) {
+//           if (data.status === 3) {
+//             pendingCount++;
+//             pendingPages += pages;
+//           } else if (data.status >= 5) {
+//             completedCount++;
+//             completedPages += pages;
+//           } else if (data.status === 4) {
+//             underReviewCount++;
+//             underReviewPages += pages;
+//           }
+//         }
+//       });
+//     }
+
+//     return {
+//       pendingCount: pendingCount > 9 ? pendingCount.toString() : `0${pendingCount}`,
+//       completedCount: completedCount > 9 ? completedCount.toString() : `0${completedCount}`,
+//       underReviewCount: underReviewCount > 9 ? underReviewCount.toString() : `0${underReviewCount}`,
+//       pendingPages: pendingPages > 9 ? pendingPages.toString() : `0${pendingPages}`,
+//       completedPages: completedPages > 9 ? completedPages.toString() : `0${completedPages}`,
+//       underReviewPages: underReviewPages > 9 ? underReviewPages.toString() : `0${underReviewPages}`,
+//     };
+//   } catch (error) {
+//     console.error("Error fetching project files by user:", error);
+//     throw new Error("Error fetching project files by user");
+//   }
+// };
 
 
 export const fetchQAProjectsCount = async () => {
