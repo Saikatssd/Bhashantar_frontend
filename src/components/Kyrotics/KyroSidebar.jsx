@@ -102,7 +102,7 @@ export default function KyroSidebar({ companyId, role }) {
                 <li>
                   <Link
                     to={`/kyro/${companyId}/fileStatus`}
-                    className={`block rounded-lg ml-3 pl-2 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/fileStatus`)
+                    className={`block rounded-lg pl-2 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/fileStatus`)
                       ? "bg-[#e3d2fa] text-gray-700"
                       : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
                       }`}
