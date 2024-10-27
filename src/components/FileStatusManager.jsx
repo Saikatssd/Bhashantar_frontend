@@ -638,6 +638,8 @@ import {
   TableRow,
   TablePagination,
   Checkbox,
+  ListItem,
+  ListItemText
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import Loader from "./common/Loader";
@@ -756,7 +758,7 @@ const FileStatusManager = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <FormControl fullWidth>
-          <InputLabel>Company</InputLabel>
+          <InputLabel>Organisation</InputLabel>
           <Select
             value={filterCompany}
             onChange={(e) => {
@@ -764,7 +766,7 @@ const FileStatusManager = () => {
               setFilterProject("");
             }}
           >
-            <MenuItem value="">All Companies</MenuItem>
+            <MenuItem value="">All Organisations</MenuItem>
             {companies.map((company) => (
               <MenuItem key={company.id} value={company.id}>
                 {company.name}
@@ -780,7 +782,7 @@ const FileStatusManager = () => {
             onChange={(e) => setFilterProject(e.target.value)}
             disabled={!filterCompany}
           >
-            <MenuItem value="">All Projects</MenuItem>
+            <MenuItem value="">All Judgements</MenuItem>
             {projects.map((project) => (
               <MenuItem key={project.id} value={project.id}>
                 {project.name}
@@ -877,6 +879,9 @@ const FileStatusManager = () => {
           />
         </TableContainer>
       )}
+
+      <marquee behavior="alternate" scrollAmount='14' direction="right" className='m-20 text-xl'>Choose the Organisation and Judgement first to view the files.</marquee>
+
 
       <Dialog open={dialogOpen} onClose={handleStatusChangeDialogClose}>
         <DialogTitle>Change File Status</DialogTitle>

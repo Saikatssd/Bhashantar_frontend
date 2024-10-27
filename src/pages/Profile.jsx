@@ -112,7 +112,7 @@ const Profile = () => {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <h2 className="text-sm font-medium text-gray-500">Company</h2>
+                  <h2 className="text-sm font-medium text-gray-500">Organisation</h2>
                   <p className="text-lg text-gray-800">{companyName}</p>
                 </div>
               </div>

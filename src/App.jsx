@@ -12,6 +12,7 @@ import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import PrivateRoute from './components/common/PrivateRoute';
 import './App.css'
+import Loader from './components/common/Loader';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -36,7 +37,7 @@ const App = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader/>;
   }
 
   return (
