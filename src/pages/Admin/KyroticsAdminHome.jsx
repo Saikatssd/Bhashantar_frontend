@@ -200,7 +200,7 @@ const KyroAdminHome = ({ companyId, role }) => {
             <div className="mb-4 flex justify-between space-x-14">
               <FormControl sx={{ width: "30%" }}>
                 <InputLabel id="select-company-label">
-                  Select a Company
+                  Select Organisation
                 </InputLabel>
                 <Select
                   labelId="select-company-label"
@@ -210,7 +210,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                   onChange={handleCompanyChange}
                 >
                   <MenuItem value="" disabled>
-                    Select a Company
+                  Select Organisation
                   </MenuItem>
                   {companies.map((company) => (
                     <MenuItem key={company.id} value={company.id}>
@@ -233,7 +233,7 @@ const KyroAdminHome = ({ companyId, role }) => {
                           <ContentPasteSearchIcon sx={{ fontSize: "35px" }} />
                         </div>
                         <h1 className="p-4 text-2xl font-bold font-mono tracking-wider leading-6">
-                          PROJECT OVERVIEW
+                         JUDGEMENT OVERVIEW
                         </h1>
                       </div>
                       <div className="mt-4 my-auto">

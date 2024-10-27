@@ -879,8 +879,12 @@ const FileStatusManager = () => {
           />
         </TableContainer>
       )}
+      {filteredFiles.length <= 0 && (
+        <marquee behavior="alternate" scrollAmount="12" direction="right" className="m-20 text-xl">
+          Choose the Organisation and Judgement first to view the files.
+        </marquee>
+      )}
 
-      <marquee behavior="alternate" scrollAmount='14' direction="right" className='m-20 text-xl'>Choose the Organisation and Judgement first to view the files.</marquee>
 
 
       <Dialog open={dialogOpen} onClose={handleStatusChangeDialogClose}>

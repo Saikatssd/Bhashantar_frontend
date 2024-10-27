@@ -190,7 +190,8 @@ const DetailedFileReport = () => {
   return (
     <div className="p-4">
       <FormControl sx={{ width: "30%" }}>
-        <InputLabel id="select-company-label">Select Company</InputLabel>
+        <InputLabel id="select-company-label"> Select Organisation
+        </InputLabel>
         <Select
           labelId="select-company-label"
           id="select-company"
