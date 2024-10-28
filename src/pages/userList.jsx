@@ -31,7 +31,13 @@ const UserList = ({ companyId }) => {
           id: doc.id,
           ...doc.data(),
         }));
-        setUsers(usersData);
+
+        // Sort active users first, followed by disabled users
+        const sortedUsers = [
+          ...usersData.filter((user) => !user.disabled),
+          ...usersData.filter((user) => user.disabled),
+        ];
+        setUsers(sortedUsers);
 
         const rolesSnapshot = await getDocs(collection(db, "roles"));
         const rolesData = rolesSnapshot.docs.map((doc) => ({
@@ -54,29 +60,30 @@ const UserList = ({ companyId }) => {
   }
 
   return (
-    <div className="container mx-auto  overflow-y-auto h-screen p-8">
-      <Typography variant="h4" className="text-xl font-bold mb-4 p-4">
+    <div className="container mx-auto overflow-y-auto h-screen p-8">
+      <Typography variant="h4" className="text-xl font-bold mb-6 p-4 text-gray-800">
         Users
       </Typography>
-      <TableContainer component={Paper} className="shadow-md">
+      <TableContainer component={Paper} className="shadow-md rounded-lg">
         <Table className="min-w-full" aria-label="users table">
-          <TableHead className="bg-gray-100">
+          <TableHead className="">
             <TableRow>
-              <TableCell>Email</TableCell>
-              <TableCell>User Name</TableCell>
-              <TableCell>Role</TableCell>
+              <TableCell className="font-semibold">Email</TableCell>
+              <TableCell className="font-semibold">User Name</TableCell>
+              <TableCell className="font-semibold">Role</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {users.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow
+                key={user.id}
+                className={user.disabled ? "opacity-50 bg-gray-100" : ""}
+                style={{ color: user.disabled ? "#9e9e9e" : "inherit" }}
+              >
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>
-                  {
-                    roles.find((role) => role.id === user.roleId)?.name ||
-                    "Unknown Role"
-                  }
+                  {roles.find((role) => role.id === user.roleId)?.name || "Unknown Role"}
                 </TableCell>
               </TableRow>
             ))}

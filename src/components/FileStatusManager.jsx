@@ -669,7 +669,7 @@ const FileStatusManager = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -707,14 +707,14 @@ const FileStatusManager = () => {
 
   const handleStatusChangeDialogOpen = (file) => {
     setSelectedFile(file);
-    setSelectedStatus(file.status);
+    setSelectedStatus(Number(file.status));
     setDialogOpen(true);
   };
 
   const handleStatusChangeDialogClose = () => {
     setDialogOpen(false);
     setSelectedFile(null);
-    setSelectedStatus("");
+    setSelectedStatus(null);
   };
 
   const handleStatusSave = async () => {
@@ -723,12 +723,12 @@ const FileStatusManager = () => {
         await updateFileStatusNumber(
           filterProject,
           selectedFile.id,
-          selectedStatus
+          Number(selectedStatus)
         );
         setFiles((prevFiles) =>
           prevFiles.map((file) =>
             file.id === selectedFile.id
-              ? { ...file, status: selectedStatus }
+              ? { ...file, status: Number(selectedStatus) }
               : file
           )
         );
@@ -776,7 +776,7 @@ const FileStatusManager = () => {
         </FormControl>
 
         <FormControl fullWidth>
-          <InputLabel>Project</InputLabel>
+          <InputLabel>Judgement</InputLabel>
           <Select
             value={filterProject}
             onChange={(e) => setFilterProject(e.target.value)}
@@ -894,10 +894,10 @@ const FileStatusManager = () => {
             <InputLabel>Status</InputLabel>
             <Select
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
+              onChange={(e) => setSelectedStatus(Number(e.target.value))}
             >
               {Object.entries(statusLabels).map(([value, label]) => (
-                <MenuItem key={value} value={value}>
+                <MenuItem key={value} value={Number(value)}>
                   {label}
                 </MenuItem>
               ))}

@@ -32,9 +32,10 @@ const columns = [
   { id: "pageCount", label: "Page Count", minWidth: 70 },
   { id: "uploadedDate", label: "Uploaded Date", minWidth: 90 },
   { id: "assignedDate", label: "Assigned Date", minWidth: 130 },
+  { id: "completedDate", label: "Completed Date", minWidth: 130 },
   { id: "deliveryDate", label: "Delivery Date", minWidth: 130 },
   { id: "assigneeName", label: "Assignee Name", minWidth: 130 },
-  { id: "projectName", label: "Project Name", minWidth: 130 },
+  { id: "projectName", label: "Judgement", minWidth: 130 },
 ];
 
 // const date1 = parse('28/08/2024', 'dd/MM/yyyy', new Date());
@@ -188,7 +189,7 @@ const DetailedFileReport = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="">
       <FormControl sx={{ width: "30%" }}>
         <InputLabel id="select-company-label"> Select Organisation
         </InputLabel>
@@ -216,7 +217,7 @@ const DetailedFileReport = () => {
             <input
               type="text"
               name="searchQuery"
-              placeholder="Search User, File, Projects"
+              placeholder="Search User, File, Judgements"
               value={filters.searchQuery}
               onChange={handleFilterChange}
               className="block w-full pl-10 pr-3 py-2 border border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/30 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -339,7 +340,7 @@ const DetailedFileReport = () => {
 
       <Paper sx={{ width: "100%", overflow: "hidden", borderRadius: 2 }}>
         <TableContainer sx={{ maxHeight: 700 }}>
-          <Table stickyHeader aria-label="sticky table">
+          <Table stickyHeader aria-label="sticky table" >
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
@@ -349,6 +350,7 @@ const DetailedFileReport = () => {
                       minWidth: column.minWidth,
                       backgroundColor: "#6c7ae0",
                       color: "#ffffff",
+                      fontSize:"12px"
                     }}
                   >
                     {column.label}
@@ -367,18 +369,21 @@ const DetailedFileReport = () => {
                     key={index}
                     sx={{
                       backgroundColor: index % 2 === 0 ? "#f0f2ff" : "inherit",
+                      
                     }}
+                    
                   >
                     <TableCell align="center">{index + 1}</TableCell>
                     <TableCell>{file.fileName}</TableCell>
                     {/* <TableCell align="center">{file.status}</TableCell> */}
-                    <TableCell>{file.status}</TableCell>
-                    <TableCell align="center">{file.pageCount}</TableCell>
-                    <TableCell align="center">{file.uploadedDate}</TableCell>
-                    <TableCell align="center">{file.assignedDate}</TableCell>
-                    <TableCell align="center">{file.deliveryDate}</TableCell>
-                    <TableCell>{file.assigneeName}</TableCell>
-                    <TableCell>{file.projectName}</TableCell>
+                    <TableCell sx={{ fontSize:'12px'}} >{file.status}</TableCell>
+                    <TableCell  sx={{ fontSize:'12px'}} align="center">{file.pageCount}</TableCell>
+                    <TableCell  sx={{ fontSize:'12px'}} align="center">{file.uploadedDate}</TableCell>
+                    <TableCell  sx={{ fontSize:'12px'}} align="center">{file.assignedDate}</TableCell>
+                    <TableCell  sx={{ fontSize:'12px'}} align="center">{file.completedDate}</TableCell>
+                    <TableCell  sx={{ fontSize:'12px'}} align="center">{file.deliveryDate}</TableCell>
+                    <TableCell sx={{ fontSize:'12px'}} >{file.assigneeName}</TableCell>
+                    <TableCell sx={{ fontSize:'12px'}} >{file.projectName}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
