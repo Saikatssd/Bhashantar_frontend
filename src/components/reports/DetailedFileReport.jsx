@@ -243,7 +243,7 @@ const DetailedFileReport = () => {
               <option value="Processing">Processing</option>
               <option value="NotStarted">Ready for Work</option>
               <option value="InProgress">Work in Progress</option>
-              <option value="QA">QA</option>
+              <option value="QA/Completed">QA/Completed</option>
               <option value="Delivered">Delivered</option>
             </select>
           </div>

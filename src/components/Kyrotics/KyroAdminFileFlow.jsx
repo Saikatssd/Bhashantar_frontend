@@ -367,7 +367,7 @@ const KyroAdminFileFlow = () => {
   }
 
   return (
-    <Box>
+    <Box sx={{height : '100vh', overflowY : "auto" }}>
 
       <Box
         sx={{ borderBottom: 1, borderColor: "divider" }}
