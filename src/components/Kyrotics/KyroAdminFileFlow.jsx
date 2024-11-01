@@ -323,25 +323,25 @@ const KyroAdminFileFlow = () => {
             link.click();
             link.remove();
 
-            for (const documentId of selectedRows) {
-              setCompletedFiles((prevFiles) =>
-                prevFiles.filter((file) => file.id !== documentId)
-              );
+            // for (const documentId of selectedRows) {
+            //   setCompletedFiles((prevFiles) =>
+            //     prevFiles.filter((file) => file.id !== documentId)
+            //   );
 
-              setQaFiles((prevFiles) => [
-                ...prevFiles,
-                {
-                  ...completedFiles.find((file) => file.id == documentId),
-                  kyro_deliveredDate: formatDate(new Date()),
-                },
-              ]);
-              updateFileStatus(projectId, documentId, {
-                status: 5,
-                kyro_deliveredDate: formatDate(new Date()),
-              });
+            //   setQaFiles((prevFiles) => [
+            //     ...prevFiles,
+            //     {
+            //       ...completedFiles.find((file) => file.id == documentId),
+            //       kyro_deliveredDate: formatDate(new Date()),
+            //     },
+            //   ]);
+            //   // updateFileStatus(projectId, documentId, {
+            //   //   status: 5,
+            //   //   kyro_deliveredDate: formatDate(new Date()),
+            //   // });
 
 
-            }
+            // }
           }),
         {
           loading: "Downloading files...",
@@ -350,7 +350,7 @@ const KyroAdminFileFlow = () => {
         }
       );
 
-      setSelectedRows([]);
+      // setSelectedRows([]);
     } catch (err) {
       console.error("Error downloading selected files:", err);
       toast.error("Error downloading selected files.");

@@ -424,6 +424,17 @@ function KyroCompletedTable({
     setSortConfig({ key: columnId, direction });
   };
 
+  const getSelectedTotals = () => {
+    const selectedFiles = rows.filter((row) => selectedRows.includes(row.id));
+    const totalSelectedPages = selectedFiles.reduce(
+      (total, row) => total + (row.pageCount || 0),
+      0
+    );
+    return { totalSelectedFiles: selectedFiles.length, totalSelectedPages };
+  };
+
+  const { totalSelectedFiles, totalSelectedPages } = getSelectedTotals();
+
   const sortedRows = [...rows].sort((a, b) => {
     if (sortConfig.key) {
       const aValue = a[sortConfig.key];
@@ -439,7 +450,9 @@ function KyroCompletedTable({
   });
 
   const filteredRows = assignedToFilter
-    ? sortedRows.filter((row) => userNames[row.kyro_assignedTo] === assignedToFilter)
+    ? sortedRows.filter(
+        (row) => userNames[row.kyro_assignedTo] === assignedToFilter
+      )
     : sortedRows;
 
   return (
@@ -471,6 +484,15 @@ function KyroCompletedTable({
             </MenuItem>
           ))}
         </TextField>
+        <div className="flex items-center space-x-4">
+          <div>
+            <strong>Selected Files:</strong> {totalSelectedFiles}
+          </div>
+          <div>
+            <strong>Total Pages:</strong> {totalSelectedPages}
+          </div>
+        </div>
+
         <div className="flex space-x-4">
           <Button
             variant="contained"
@@ -499,17 +521,42 @@ function KyroCompletedTable({
                   <Checkbox
                     indeterminate={
                       selectedRows.length > 0 &&
-                      selectedRows.length < filteredRows.length
+                      selectedRows.length <
+                        filteredRows.slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        ).length
                     }
                     checked={
-                      filteredRows.length > 0 &&
-                      selectedRows.length === filteredRows.length
+                      filteredRows.slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      ).length > 0 &&
+                      filteredRows
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .every((row) => selectedRows.includes(row.id))
                     }
                     onChange={(event) => {
+                      const visibleRows = filteredRows.slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      );
                       if (event.target.checked) {
-                        setSelectedRows(filteredRows.map((row) => row.id));
+                        setSelectedRows([
+                          ...new Set([
+                            ...selectedRows,
+                            ...visibleRows.map((row) => row.id),
+                          ]),
+                        ]);
                       } else {
-                        setSelectedRows([]);
+                        setSelectedRows(
+                          selectedRows.filter(
+                            (id) => !visibleRows.some((row) => row.id === id)
+                          )
+                        );
                       }
                     }}
                   />
@@ -521,19 +568,17 @@ function KyroCompletedTable({
                     style={{ minWidth: column.minWidth }}
                     onClick={() => handleSort(column.id)}
                   >
-
-
                     {/* <TableSortLabel
                       active={sortConfig.key === column.id}
                       direction={sortConfig.key === column.id ? sortConfig.direction : "asc"}
                       onClick={() => handleSort(column.id)}
                     > */}
-                      {column.label}
-                      {sortConfig.key === column.id && (
-                     <span>
-                       {sortConfig.direction === "asc" ? "  🔼" : "   🔽"}
-                     </span>
-                   )}
+                    {column.label}
+                    {sortConfig.key === column.id && (
+                      <span>
+                        {sortConfig.direction === "asc" ? "  🔼" : "   🔽"}
+                      </span>
+                    )}
                     {/* </TableSortLabel> */}
                   </TableCell>
                 ))}
