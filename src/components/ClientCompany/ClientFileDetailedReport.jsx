@@ -10,7 +10,6 @@ import {
 //   fetchAllCompanies,
 //   fetchClientDetailedFileReport,
 // } from "../../utils/firestoreUtil";
-import { formatDate } from "../../utils/formatDate";
 import { exportToExcel } from "../../utils/exportExcel";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -37,7 +36,6 @@ import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
 
 import { parse, format, isValid } from "date-fns";
 
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const columns = [

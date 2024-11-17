@@ -22,7 +22,7 @@ import CompletedTable from "../Table/CompletedTable.jsx";
 import Button from '@mui/material/Button';
 import { server } from "../../main.jsx";
 import axios from "axios";
-import { formatDate } from "../../utils/formatDate.jsx";
+import { formatDate, fetchServerTimestamp } from "../../utils/formatDate.jsx";
 import { toast } from "react-hot-toast";
 
 const columnsReadyForWork = [
@@ -187,7 +187,9 @@ const AdminFileFlow = () => {
   const handleAssignToUser = async (userId) => {
     try {
 
-      const currentDate = formatDate(new Date());
+     
+      const serverDate = await fetchServerTimestamp(); 
+      const formattedDate = formatDate(serverDate);
       const userName = await fetchUserNameById(userId);
 
 
@@ -196,7 +198,7 @@ const AdminFileFlow = () => {
           await updateFileStatus(projectId, fileId, {
             status: 6, // New status
             client_assignedTo: userId,
-            client_assignedDate: currentDate,
+            client_assignedDate: formattedDate,
           });
 
           // Update the readyForWorkFiles and inProgressFiles state
@@ -210,7 +212,7 @@ const AdminFileFlow = () => {
               ...readyForWorkFiles.find((file) => file.id === fileId),
               status: 6,
               client_assignedTo: userName,
-              client_assignedDate: currentDate,
+              client_assignedDate: formattedDate,
 
             },
           ]);
@@ -219,7 +221,7 @@ const AdminFileFlow = () => {
         await updateFileStatus(projectId, selectedFileId, {
           status: 6, // New status
           client_assignedTo: userId,
-          client_assignedDate: formatDate(new Date()),
+          client_assignedDate: formattedDate,
         });
 
         // Update the readyForWorkFiles and inProgressFiles state
@@ -233,7 +235,7 @@ const AdminFileFlow = () => {
             ...readyForWorkFiles.find((file) => file.id === selectedFileId),
             status: 6,
             client_assignedTo: userName,
-            client_assignedDate: currentDate,
+            client_assignedDate: formattedDate,
           },
         ]);
       }

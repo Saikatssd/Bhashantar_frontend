@@ -12,7 +12,6 @@ import {
 } from "firebase/firestore";
 import { db, storage } from "../utils/firebase";
 import { fetchProjectFiles } from "../services/projectServices";
-import { formatDate } from "../utils/formatDate";
 import { fetchCompanyProjects } from "./companyServices";
 import { fetchUserNameById } from "../utils/firestoreUtil";
 import { parse } from "date-fns";

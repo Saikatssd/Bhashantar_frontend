@@ -59,20 +59,7 @@ export const fetchClientCompanies = async () => {
     throw new Error("Error fetching companies");
   }
 };
-// export const fetchCompanyNameByCompanyId = async (companyId) => {
-//   try {
-//     const companyDocRef = doc(db, "companies", companyId);
-//     const companyDoc = await getDoc(companyDocRef);
-//     if (companyDoc.exists()) {
-//       return companyDoc.data().name;
-//     } else {
-//       throw new Error("Company not found");
-//     }
-//   } catch (error) {
-//     console.error("Error fetching company name:", error);
-//     throw error;
-//   }
-// };
+
 
 
 export const fetchCompanyNameByCompanyId = async (companyId) => {

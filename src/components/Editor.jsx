@@ -9,7 +9,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import Tooltip from "@mui/material/Tooltip";
 import { server } from "../main";
 import axios from "axios";
-import { formatDate } from "../utils/formatDate";
+import { formatDate, fetchServerTimestamp } from "../utils/formatDate";
 import {
   fetchFileNameById,
   fetchDocumentUrl,
@@ -18,7 +18,6 @@ import {
 } from "../services/fileServices";
 import { toast } from "react-hot-toast";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
-
 
 import {
   ClassicEditor,
@@ -90,7 +89,7 @@ import {
   TodoList,
   Underline,
   Undo,
-  TextPartLanguage
+  TextPartLanguage,
 } from "ckeditor5";
 
 import "ckeditor5/ckeditor5.css";
@@ -232,7 +231,6 @@ const Editor = () => {
         "|",
         "superscript",
         "subscript",
-
       ],
       shouldNotGroupWhenFull: false,
     },
@@ -326,7 +324,7 @@ const Editor = () => {
       "|",
       "bulletedList",
       "numberedList",
-      "pageBreak"
+      "pageBreak",
     ],
     // fontFamily: {
     //   supportAllValues: true,
@@ -338,22 +336,22 @@ const Editor = () => {
       // 	{ title: 'Left to right', languageCode: 'bn', textDirection: 'ltr' },
       // ]
       textPartLanguage: [
-        { title: 'Arabic', languageCode: 'ar' },
-        { title: 'Bengali', languageCode: 'bn' },
-        { title: 'French', languageCode: 'fr' },
-        { title: 'Hebrew', languageCode: 'he' },
-        { title: 'Spanish', languageCode: 'es' }
+        { title: "Arabic", languageCode: "ar" },
+        { title: "Bengali", languageCode: "bn" },
+        { title: "French", languageCode: "fr" },
+        { title: "Hebrew", languageCode: "he" },
+        { title: "Spanish", languageCode: "es" },
       ],
-      ui: 'bn',
-      content: 'bn'
+      ui: "bn",
+      content: "bn",
     },
     fontFamily: {
       options: [
         "default",
         "Nirmala UI, sans-serif",
         "Noto Sans Bengali, sans-serif",
-        'SolaimanLipi, sans-serif', // Custom Bengali font if available
-        'Bangla, sans-serif',
+        "SolaimanLipi, sans-serif", // Custom Bengali font if available
+        "Bangla, sans-serif",
         "Arial, sans-serif",
         "Courier New, Courier, monospace",
         "Georgia, serif",
@@ -402,22 +400,69 @@ const Editor = () => {
     // },
     fontSize: {
       options: [
-        { title: '8pt', model: '8pt', view: { name: 'span', styles: { 'font-size': '10.67px' } } },
-        { title: '9pt', model: '9pt', view: { name: 'span', styles: { 'font-size': '12px' } } },
-        { title: '10pt(default)', model: '10pt', view: { name: 'span', styles: { 'font-size': '13.33px' } } },
-        { title: '11pt', model: '11pt', view: { name: 'span', styles: { 'font-size': '14.67px' } } },
-        { title: '12pt', model: '12pt', view: { name: 'span', styles: { 'font-size': '16px' } } },
-        { title: '14pt', model: '14pt', view: { name: 'span', styles: { 'font-size': '18.67px' } } },
-        { title: '16pt', model: '16pt', view: { name: 'span', styles: { 'font-size': '21.33px' } } },
-        { title: '18pt', model: '18pt', view: { name: 'span', styles: { 'font-size': '24px' } } },
-        { title: '20pt', model: '20pt', view: { name: 'span', styles: { 'font-size': '26.67px' } } },
-        { title: '22pt', model: '22pt', view: { name: 'span', styles: { 'font-size': '29.33px' } } },
-        { title: '24pt', model: '24pt', view: { name: 'span', styles: { 'font-size': '32px' } } },
-        { title: '36pt', model: '36pt', view: { name: 'span', styles: { 'font-size': '48px' } } }
+        {
+          title: "8pt",
+          model: "8pt",
+          view: { name: "span", styles: { "font-size": "10.67px" } },
+        },
+        {
+          title: "9pt",
+          model: "9pt",
+          view: { name: "span", styles: { "font-size": "12px" } },
+        },
+        {
+          title: "10pt(default)",
+          model: "10pt",
+          view: { name: "span", styles: { "font-size": "13.33px" } },
+        },
+        {
+          title: "11pt",
+          model: "11pt",
+          view: { name: "span", styles: { "font-size": "14.67px" } },
+        },
+        {
+          title: "12pt",
+          model: "12pt",
+          view: { name: "span", styles: { "font-size": "16px" } },
+        },
+        {
+          title: "14pt",
+          model: "14pt",
+          view: { name: "span", styles: { "font-size": "18.67px" } },
+        },
+        {
+          title: "16pt",
+          model: "16pt",
+          view: { name: "span", styles: { "font-size": "21.33px" } },
+        },
+        {
+          title: "18pt",
+          model: "18pt",
+          view: { name: "span", styles: { "font-size": "24px" } },
+        },
+        {
+          title: "20pt",
+          model: "20pt",
+          view: { name: "span", styles: { "font-size": "26.67px" } },
+        },
+        {
+          title: "22pt",
+          model: "22pt",
+          view: { name: "span", styles: { "font-size": "29.33px" } },
+        },
+        {
+          title: "24pt",
+          model: "24pt",
+          view: { name: "span", styles: { "font-size": "32px" } },
+        },
+        {
+          title: "36pt",
+          model: "36pt",
+          view: { name: "span", styles: { "font-size": "48px" } },
+        },
       ],
-      supportAllValues: true
-  }
-,  
+      supportAllValues: true,
+    },
     lineHeight: {
       // You can specify custom line height values
       options: [
@@ -587,22 +632,25 @@ const Editor = () => {
 
   const handleSave = async () => {
     try {
+      const serverDate = await fetchServerTimestamp();
+      const formattedDate = formatDate(serverDate);
+      
       if (companyId === kyroId) {
         if (role === "QA") {
           await updateFileStatus(projectId, documentId, {
             status: 5,
-            kyro_completedDate: formatDate(new Date()),
+            kyro_completedDate: formattedDate,
           });
         } else {
           await updateFileStatus(projectId, documentId, {
             status: 4,
-            kyro_completedDate: formatDate(new Date()),
+            kyro_completedDate: formattedDate,
           });
         }
       } else {
         await updateFileStatus(projectId, documentId, {
           status: 7,
-          client_completedDate: formatDate(new Date()),
+          client_completedDate: formattedDate,
         });
       }
       navigate(-1);

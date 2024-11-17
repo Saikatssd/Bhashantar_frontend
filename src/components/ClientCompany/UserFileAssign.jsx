@@ -12,7 +12,7 @@ import { auth } from "../../utils/firebase";
 import { useAuth } from "../../context/AuthContext";
 import { updateFileStatus } from "../../utils/firestoreUtil";
 import UserTable from "../Table/UserTable";
-import { formatDate } from "../../utils/formatDate";
+import { formatDate,fetchServerTimestamp } from "../../utils/formatDate";
 import { useNavigate } from "react-router-dom";
 
 const UserFileAssign = () => {
@@ -95,10 +95,13 @@ const UserFileAssign = () => {
 
   const handleFileAssign = async (id) => {
     try {
+      const serverDate = await fetchServerTimestamp(); 
+      const formattedDate = formatDate(serverDate);
+      
       await updateFileStatus(projectId, id, {
         status: 6,
         client_assignedTo: currentUser.uid,
-        client_assignedDate: formatDate(new Date()),
+        client_assignedDate: formattedDate,
       });
 
       // await updateFileStatus(projectId, id, 5, currentUser.uid);

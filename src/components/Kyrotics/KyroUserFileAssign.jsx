@@ -10,7 +10,7 @@ import { auth } from "../../utils/firebase";
 import { useAuth } from "../../context/AuthContext";
 import UserTable from "../Table/UserTable";
 import { useNavigate } from "react-router-dom";
-import { formatDate } from "../../utils/formatDate";
+import { formatDate,fetchServerTimestamp } from "../../utils/formatDate";
 
 const KyroUserFileAssign = () => {
   const { projectId } = useParams();
@@ -73,13 +73,16 @@ const KyroUserFileAssign = () => {
 
   const handleFileAssign = async (id) => {
     try {
+      const serverDate = await fetchServerTimestamp(); 
+      const formattedDate = formatDate(serverDate);
+
       // updateFileStatus('projectId', 'fileId', { status: 'in-progress', kyro_assignedTo: 'userId' });
 
       // await updateFileStatus(projectId, id, 3, currentUser.uid);
       await updateFileStatus(projectId, id, {
         status: 3,
         kyro_assignedTo: currentUser.uid,
-        kyro_assignedDate: formatDate(new Date()),
+        kyro_assignedDate: formattedDate,
       });
       navigate(1);
       setFiles(files.filter((file) => file.id !== id));

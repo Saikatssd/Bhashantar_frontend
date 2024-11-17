@@ -19,7 +19,7 @@ import Table from "../Table/Table";
 import TableAdmin from "../Table/TableAdmin";
 import KyroCompletedTable from "../Table/KyroCompletedTable";
 import { useNavigate } from "react-router-dom";
-import { formatDate } from "../../utils/formatDate";
+import { formatDate, fetchServerTimestamp } from "../../utils/formatDate";
 import { updateFileStatusNumber } from "../../services/fileServices";
 import Button from '@mui/material/Button';
 import { toast } from "react-hot-toast";
@@ -192,11 +192,20 @@ const KyroAdminFileFlow = () => {
     setSelectedFileId(null);
   };
 
+  const displayTime = async () => {
+    const serverTime = await fetchServerTimestamp();
+    console.log("time", serverTime);
+    console.log("format", formatDate(serverTime));
+  };
+  displayTime();
+
   const handleAssignToUser = async (userId) => {
     try {
-      // console.log("user",userId)
-      const currentDate = formatDate(new Date());
+     
       const userName = await fetchUserNameById(userId);
+
+      const serverDate = await fetchServerTimestamp(); 
+      const formattedDate = formatDate(serverDate);
 
       if (selectedRows.length != 0) {
         for (const fileId of selectedRows) {
@@ -209,13 +218,13 @@ const KyroAdminFileFlow = () => {
             ...prevFiles,
             {
               ...readyForWorkFiles.find((file) => file.id == fileId),
-              kyro_assignedDate: currentDate,
+              kyro_assignedDate: formattedDate,
               kyro_assignedTo: userName,
             },
           ]);
           await updateFileStatus(projectId, fileId, {
             status: 3,
-            kyro_assignedDate: currentDate,
+            kyro_assignedDate: formattedDate,
             kyro_assignedTo: userId,
           });
 
@@ -231,13 +240,13 @@ const KyroAdminFileFlow = () => {
           {
             ...readyForWorkFiles.find((file) => file.id == selectedFileId),
             status: 3,
-            kyro_assignedDate: currentDate,
+            kyro_assignedDate: formattedDate,
             kyro_assignedTo: userName,
           },
         ]);
         await updateFileStatus(projectId, selectedFileId, {
           status: 3,
-          kyro_assignedDate: currentDate,
+          kyro_assignedDate: formattedDate,
           kyro_assignedTo: userId,
         });
 
@@ -323,25 +332,6 @@ const KyroAdminFileFlow = () => {
             link.click();
             link.remove();
 
-            // for (const documentId of selectedRows) {
-            //   setCompletedFiles((prevFiles) =>
-            //     prevFiles.filter((file) => file.id !== documentId)
-            //   );
-
-            //   setQaFiles((prevFiles) => [
-            //     ...prevFiles,
-            //     {
-            //       ...completedFiles.find((file) => file.id == documentId),
-            //       kyro_deliveredDate: formatDate(new Date()),
-            //     },
-            //   ]);
-            //   // updateFileStatus(projectId, documentId, {
-            //   //   status: 5,
-            //   //   kyro_deliveredDate: formatDate(new Date()),
-            //   // });
-
-
-            // }
           }),
         {
           loading: "Downloading files...",
