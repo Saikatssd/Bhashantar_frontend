@@ -14,6 +14,8 @@ import { updateFileStatus } from "../../utils/firestoreUtil";
 import UserTable from "../Table/UserTable";
 import { formatDate,fetchServerTimestamp } from "../../utils/formatDate";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+
 
 const UserFileAssign = () => {
   const { projectId } = useParams();
@@ -93,33 +95,73 @@ const UserFileAssign = () => {
     }
   };
 
+  // const handleFileAssign = async (id) => {
+  //   try {
+  //     const serverDate = await fetchServerTimestamp(); 
+  //     const formattedDate = formatDate(serverDate);
+      
+  //     await updateFileStatus(projectId, id, {
+  //       status: 6,
+  //       client_assignedTo: currentUser.uid,
+  //       client_assignedDate: formattedDate,
+  //     });
+
+  //     // await updateFileStatus(projectId, id, 5, currentUser.uid);
+  //     setFiles(files.filter((file) => file.id !== id));
+  //     // navigate(1);
+  //   } catch (err) {
+  //     console.error("Error updating file status:", err);
+  //     setError(err);
+  //   }
+  // };
+
+  // const handleChangePage = (event, newPage) => {
+  //   setPage(newPage);
+  // };
+
+  // const handleChangeRowsPerPage = (event) => {
+  //   setRowsPerPage(+event.target.value);
+  //   setPage(0);
+  // };
+
   const handleFileAssign = async (id) => {
     try {
-      const serverDate = await fetchServerTimestamp(); 
+      // Fetch the latest data for the file from the database
+      const fileData = await fetchProjectFiles(projectId).then((files) =>
+        files.find((file) => file.id === id)
+      );
+
+      if (!fileData) {
+        toast.error("File is already assigned please assign another file.");
+        return; // Prevent further action
+      }
+
+      // Check if the file is already assigned
+      if (fileData.status === 6) {
+        toast.error("File is already assigned please assign another file.");
+        return; // Prevent further action
+      }
+
+      // If file is not assigned, proceed with assignment
+      const serverDate = await fetchServerTimestamp();
       const formattedDate = formatDate(serverDate);
-      
+
       await updateFileStatus(projectId, id, {
         status: 6,
         client_assignedTo: currentUser.uid,
         client_assignedDate: formattedDate,
       });
 
-      // await updateFileStatus(projectId, id, 5, currentUser.uid);
+      toast.success("File assigned successfully!");
+      navigate(1);
+
+      // Update the local state by removing the assigned file
       setFiles(files.filter((file) => file.id !== id));
-      // navigate(1);
     } catch (err) {
-      console.error("Error updating file status:", err);
+      console.error("Error assigning file:", err);
+      toast.error("Failed to assign the file. Please try again.");
       setError(err);
     }
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
   };
 
   return (
