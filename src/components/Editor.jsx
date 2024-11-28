@@ -324,7 +324,8 @@ const Editor = () => {
       "|",
       "bulletedList",
       "numberedList",
-      "pageBreak",
+      "indent",
+      "outdent",
     ],
     // fontFamily: {
     //   supportAllValues: true,
