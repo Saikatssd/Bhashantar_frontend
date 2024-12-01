@@ -123,6 +123,27 @@ const Editor = () => {
   const editorRef = useRef(null);
   const [isLayoutReady, setIsLayoutReady] = useState(false);
 
+   // Offline alert functionality
+   useEffect(() => {
+    const handleOffline = () => {
+      toast.error("Oops! You're offline 😢. Don't refresh now, or you might lose your progress. Hang tight!");
+    };
+
+    const handleOnline = () => {
+      toast.success("You are back online 😍!");
+    };
+
+    // Add event listeners for online and offline events
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    // Cleanup event listeners on component unmount
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
+
   useEffect(() => {
     const fetchContent = async () => {
       try {
