@@ -126,7 +126,9 @@ const Editor = () => {
    // Offline alert functionality
    useEffect(() => {
     const handleOffline = () => {
-      toast.error("Oops! You're offline 😢. Don't refresh now, or you might lose your progress. Hang tight!");
+      toast.error("Oops! You're offline 😢. Don't refresh now, or you might lose your progress. Hang tight!",{
+        duration: 5000,
+      });
     };
 
     const handleOnline = () => {
