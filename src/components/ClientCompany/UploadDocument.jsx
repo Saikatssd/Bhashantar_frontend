@@ -23,6 +23,7 @@ import TableUpload from "../Table/TableUpload";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import FolderIcon from "@mui/icons-material/Folder";
 import { fetchTotalProjectFilesCount } from "../../services/projectServices";
+import Loader from "../common/Loader";
 
 const UploadDocument = () => {
   const { companyId } = useParams();
@@ -269,16 +270,18 @@ const UploadDocument = () => {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="p-20 w-full">
-        {isLoading && <p>Loading...</p>}
+    <div className="flex flex-col items-center h-screen overflow-y-auto">
+      <div className="p-4 w-full">
+        {isLoading && <div className="flex items-center justify-center h-screen">
+          <Loader />
+        </div>}
         {error && <p>Error: {error.message}</p>}
         {!isLoading && !error && !selectedProject && (
-          <div className="flex flex-wrap gap-20 p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             {projects.map((project) => (
               <div
                 key={project.id}
-                className="relative flex flex-col items-center"
+                className="flex flex-col items-center p-3 rounded-xl hover:backdrop-blur-sm hover:bg-white/30 hover:border hover:border-white/40 hover:shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <div
                   className=" cursor-pointer"
@@ -287,9 +290,11 @@ const UploadDocument = () => {
                   <FolderIcon
                     color="info"
                     sx={{ fontSize: 130 }}
-                    className="hover:text-sky-500 hover:scale-110 ease-in duration-1000"
+                    className="transform group-hover:scale-110 transition-transform duration-300 ease-in-out"
                   />
-                  <div className="p-1 text-center">{project.name}</div>
+                  <h3 className="mt-3 text-lg font-medium text-gray-800 text-center break-words max-w-[200px]">
+                    {project.name}
+                  </h3>
                 </div>
                 {fileCounts[project.id] === 0 ? (
                   <Fab

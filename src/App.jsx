@@ -37,7 +37,11 @@ const App = () => {
   }, []);
 
   if (loading) {
-    return <Loader/>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader />
+      </div>
+    );
   }
 
   return (

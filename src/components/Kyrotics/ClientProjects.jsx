@@ -53,7 +53,7 @@ function ClientProjects() {
                 key={project.id}
                 className="group"
               >
-               <div className="flex flex-col items-center p-6 rounded-xl hover:backdrop-blur-sm hover:bg-white/30 hover:border hover:border-white/40 hover:shadow-lg hover:shadow-xl transition-all duration-300">
+               <div className="flex flex-col items-center p-5 rounded-xl hover:backdrop-blur-sm hover:bg-white/30 hover:border hover:border-white/40 hover:shadow-lg hover:shadow-xl transition-all duration-300">
                   <FolderIcon
                     color="info"
                     sx={{ fontSize: 130 }}
