@@ -150,7 +150,7 @@ const QAHome = ({ companyId, userId }) => {
   }
 
   return (
-    <div className="flex">
+    <div className="flex overflow-y-auto h-screen">
       <KyroSidebar companyId={companyId} role={"QA"} />
       <div className="flex-1 p-6 lg:p-12">
         {/* Welcome Section */}
@@ -179,14 +179,14 @@ const QAHome = ({ companyId, userId }) => {
             <div className="flex flex-col items-center gap-5">
               <p className="text-xl font-bold">Pending Works</p>
               <div
-                className="h-24 w-1/2 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
+                className="h-24 w-1/3 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
                 style={{ background: "rgba(249, 145, 145, 0.5)" }}
               >
                 <FolderIcon className="mr-4" />
                 {projectCounts.pendingCount}
               </div>
               <div
-                className="h-24 w-1/2 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
+                className="h-24 w-1/3 rounded-xl text-center flex justify-center items-center text-3xl text-red-500 font-bold"
                 style={{ background: "rgba(249, 145, 145, 0.5)" }}
               >
                 <ArticleIcon className="mr-4" />
@@ -198,14 +198,14 @@ const QAHome = ({ companyId, userId }) => {
             <div className="flex flex-col items-center gap-5">
               <p className="text-xl font-bold">Completed Works</p>
               <div
-                className="h-24 w-1/2 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
+                className="h-24 w-1/3 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
                 style={{ background: "rgba(191, 249, 191, 0.5)" }}
               >
                 <FolderIcon className="mr-4" />
                 {projectCounts.completedCount}
               </div>
               <div
-                className="h-24 w-1/2 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
+                className="h-24 w-1/3 rounded-xl text-center flex justify-center items-center text-3xl text-green-500 font-bold"
                 style={{ background: "rgba(191, 249, 191, 0.5)" }}
               >
                 <ArticleIcon className="mr-4" />

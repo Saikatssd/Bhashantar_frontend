@@ -157,7 +157,7 @@ const QAWorkspace = () => {
     }
 
     return (
-        <Box>
+        <Box sx={{ height:'100vh',overflowY: 'auto' }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="basic tabs example" centered>
                     <Tab label="Completed(Q.A)" />

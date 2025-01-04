@@ -413,7 +413,7 @@ const AdminFileFlow = () => {
   }
 
   return (
-    <Box>
+    <Box sx={{ height:'100vh',overflowY: 'auto' }}>
       <Box
         sx={{ borderBottom: 1, borderColor: "divider" }}
         className="backdrop-blur-sm shadow-xl pt-4 z-20"

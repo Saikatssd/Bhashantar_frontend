@@ -126,7 +126,7 @@ function ProjectList() {
   }, [companyId])
 
   return (
-    <div className="min-h-screen">
+    <div className="h-screen overflow-y-auto">
       {isLoading && <Loader2 />}
 
       <div className="container mx-auto px-4 py-8">
