@@ -20,11 +20,8 @@ import { toast } from "react-hot-toast";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 
 import {
-  ClassicEditor,
   DecoupledEditor,
-  AccessibilityHelp,
   Alignment,
-  Autoformat,
   AutoImage,
   AutoLink,
   Autosave,
@@ -67,8 +64,6 @@ import {
   PasteFromOffice,
   RemoveFormat,
   SelectAll,
-  // ShowBlocks,
-  SourceEditing,
   SpecialCharacters,
   SpecialCharactersArrows,
   SpecialCharactersCurrency,
@@ -122,11 +117,17 @@ const Editor = () => {
   const editorToolbarRef = useRef(null);
   const editorRef = useRef(null);
   const [isLayoutReady, setIsLayoutReady] = useState(false);
+  // const LICENSE_KEY =
+	// 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3MzczMzExOTksImp0aSI6IjdhNDgwYTMxLTE1ZmQtNGRmNi04NGMyLTE2N2Q2Y2E0ZWMzOSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImY5NjVmMmIyIn0.KqwW5jstCXw4ET_VaNupoTIgMSRQDIRTMuHZ4xsyWbGdFcybKV-wBBWlKolBfDRw_n-V8nzp7ONCzaURq6krNg';
 
-   // Offline alert functionality
-   useEffect(() => {
+
+const LICENSE_KEY =
+'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3MzczMzExOTksImp0aSI6IjdhNDgwYTMxLTE1ZmQtNGRmNi04NGMyLTE2N2Q2Y2E0ZWMzOSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImY5NjVmMmIyIn0.KqwW5jstCXw4ET_VaNupoTIgMSRQDIRTMuHZ4xsyWbGdFcybKV-wBBWlKolBfDRw_n-V8nzp7ONCzaURq6krNg';
+
+  // Offline alert functionality
+  useEffect(() => {
     const handleOffline = () => {
-      toast.error("Oops! You're offline 😢. Don't refresh now, or you might lose your progress. Hang tight!",{
+      toast.error("Oops! You're offline 😢. Don't refresh now, or you might lose your progress. Hang tight!", {
         duration: 5000,
       });
     };
@@ -267,9 +268,8 @@ const Editor = () => {
     //   ]
     // },
     plugins: [
-      AccessibilityHelp,
+
       Alignment,
-      Autoformat,
       AutoImage,
       AutoLink,
       Autosave,
@@ -308,12 +308,10 @@ const Editor = () => {
       MediaEmbed,
       PageBreak,
       Paragraph,
-      PasteFromMarkdownExperimental,
-      PasteFromOffice,
+      // PasteFromMarkdownExperimental,
+      // PasteFromOffice,
       RemoveFormat,
       SelectAll,
-      // ShowBlocks,
-      SourceEditing,
       SpecialCharacters,
       SpecialCharactersArrows,
       SpecialCharactersCurrency,
@@ -337,6 +335,7 @@ const Editor = () => {
       LineHeight,
       //   Language,
       TextPartLanguage,
+      
     ],
     extraPlugins: [tabSpacing],
     balloonToolbar: [
@@ -350,6 +349,7 @@ const Editor = () => {
       "indent",
       "outdent",
     ],
+    licenseKey: LICENSE_KEY,
     // fontFamily: {
     //   supportAllValues: true,
     // },
@@ -658,7 +658,7 @@ const Editor = () => {
     try {
       const serverDate = await fetchServerTimestamp();
       const formattedDate = formatDate(serverDate);
-      
+
       if (companyId === kyroId) {
         if (role === "QA") {
           await updateFileStatus(projectId, documentId, {
@@ -793,27 +793,6 @@ const Editor = () => {
           </div>
         </div>
 
-        // <div className="editor-container editor-container_document-editor editor-container_include-style" ref={editorContainerRef}>
-        //   <div className="editor-container__menu-bar" ref={editorMenuBarRef}></div>
-        //   <div className="editor-container__toolbar" ref={editorToolbarRef}></div>
-        //   <div className="editor-container__editor-wrapper">
-        //     <div className="editor-container__editor">
-        //       <div ref={editorRef}>
-        //         {isLayoutReady && (
-        //           <CKEditor
-        //             editor={ClassicEditor}
-        //             config={editorConfig}
-        //             onChange={(event, editor) => {
-        //               const data = editor.getData();
-        //               // console.log(data);
-        //               setHtmlContent(data); // Update the state with the new content
-        //             }}
-        //           />
-        //         )}
-        //       </div>
-        //     </div>
-        //   </div>
-        // </div>
       );
     }
     return null;
