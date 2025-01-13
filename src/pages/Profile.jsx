@@ -44,11 +44,13 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchCompanyName = async () => {
-      const companyName = await fetchCompanyNameByCompanyId(profile.companyId);
-      setCompanyName(companyName);
+      if (profile && profile.companyId) {
+        const companyName = await fetchCompanyNameByCompanyId(profile.companyId);
+        setCompanyName(companyName);
+      }
     };
     fetchCompanyName();
-  });
+  }, [profile]);
 
   if (loading) {
     return <Loader />;
@@ -113,7 +115,7 @@ const Profile = () => {
                 </div>
                 <div className="ml-4">
                   <h2 className="text-sm font-medium text-gray-500">Organisation</h2>
-                  <p className="text-lg text-gray-800">{companyName}</p>
+                  {companyName && <p className="text-lg text-gray-800">{companyName}</p>}
                 </div>
               </div>
 

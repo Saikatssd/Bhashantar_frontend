@@ -20,6 +20,7 @@ import { kyroCompanyId } from "../../services/companyServices";
 
 const CompanyInstance = ({ role }) => {
   const { companyId } = useParams();
+  // console.log(companyId);
   const [companyName, setCompanyName] = useState()
   const [kyroId, setKyroId] = useState()
 

@@ -61,10 +61,11 @@ const columnsDownloaded = [
 ];
 
 const AdminFileFlow = () => {
-  const { projectId } = useParams();
+  const { projectId,companyId } = useParams();
+  // console.log(companyId)
   // const [files, setFiles] = useState([]);
   const [tabValue, setTabValue] = useState(0);
-  const [companyId, setCompanyId] = useState("");
+  // const [companyId, setCompanyId] = useState("");
   const [readyForWorkFiles, setReadyForWorkFiles] = useState([]);
   const [inProgressFiles, setInProgressFiles] = useState([]);
   const [completedFiles, setCompletedFiles] = useState([]);
@@ -91,7 +92,7 @@ const AdminFileFlow = () => {
         user.companyId = token.claims.companyId;
 
         setRole(user.roleName);
-        setCompanyId(user.companyId);
+        // setCompanyId(user.companyId);
       }
     });
     return () => unsubscribe();
