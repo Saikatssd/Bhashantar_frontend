@@ -33,13 +33,159 @@ import { server } from "../main";
 
 
 // // Delete a file from a specific project
-export const uploadFile = async (projectId, file) => {
-  try {
-    // Step 1: Get a signed URL from the backend
+// export const uploadFile = async (projectId, file) => {
+//   try {
+//     // Step 1: Get a signed URL from the backend
 
+//     const serverDate = await fetchServerTimestamp();
+//     const formattedDate = formatDate(serverDate);
+
+//     const response = await fetch(`${server}/generateSignedUrl`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ projectId, fileName: file.name }),
+//     });
+
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       console.error(
+//         `Failed to get signed URL: ${response.status} - ${errorText}`
+//       );
+//       throw new Error("Failed to get signed URL");
+//     }
+
+//     const { signedUrl, filePath } = await response.json();
+//     // console.log("signedUrl, filePath ",signedUrl, filePath )
+//     if (!signedUrl || !filePath) {
+//       throw new Error("Invalid signed URL or file path from backend");
+//     } // Receive both signed URL and file path
+
+//     // Step 2: Upload the file to GCS using the signed URL
+//     const uploadResponse = await fetch(signedUrl, {
+//       method: "PUT",
+//       headers: { "Content-Type": "application/pdf" }, // Set the appropriate content type
+//       body: file,
+//     });
+
+//     if (!uploadResponse.ok) {
+//       throw new Error("Failed to upload file to GCS");
+//     }
+
+//     // console.log("File uploaded successfully to GCS");
+
+//     // Step 3: Convert PDF file to ArrayBuffer to read the number of pages
+//     const arrayBuffer = await file.arrayBuffer();
+//     const pdfDoc = await PDFDocument.load(arrayBuffer);
+//     const pageCount = pdfDoc.getPageCount();
+
+//     // console.log("Page count:", pageCount);
+
+//     // Step 4: Store file metadata in Firestore
+//     const fileRef = await addDoc(
+//       collection(db, "projects", projectId, "files"),
+//       {
+//         name: file.name,
+//         pdfUrl: filePath, // Store the file path, not the signed URL
+//         uploadedDate: formattedDate,
+//         status: 0,
+//         projectId: projectId,
+//         pageCount: pageCount, // Store the number of pages
+//       }
+//     );
+
+//     // console.log("Metadata successfully stored in Firestore");
+
+//     return {
+//       id: fileRef.id,
+//       name: file.name,
+//       pdfUrl: filePath, // Return the file path
+//       uploadedDate: formattedDate,
+//       status: 0,
+//       pageCount: pageCount,
+//     };
+//   } catch (error) {
+//     console.error("Error uploading file:", error);
+//     throw new Error("Error uploading file");
+//   }
+// };
+// export const uploadFile = async (projectId, file) => {
+//   try {
+//     // Step 1: Get a signed URL from the backend
+
+//     const serverDate = await fetchServerTimestamp()
+//     const formattedDate = formatDate(serverDate)
+
+//     const response = await fetch(`${server}/generateSignedUrl`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ projectId, fileName: file.name }),
+//     })
+
+//     if (!response.ok) {
+//       const errorText = await response.text()
+//       console.error(`Failed to get signed URL: ${response.status} - ${errorText}`)
+//       throw new Error("Failed to get signed URL")
+//     }
+
+//     const { signedUrl, filePath } = await response.json()
+//     if (!signedUrl || !filePath) {
+//       throw new Error("Invalid signed URL or file path from backend")
+//     }
+
+//     // Step 2: Upload the file to GCS using the signed URL
+//     const uploadResponse = await fetch(signedUrl, {
+//       method: "PUT",
+//       headers: { "Content-Type": "application/pdf" },
+//       body: file,
+//     })
+
+//     if (!uploadResponse.ok) {
+//       throw new Error("Failed to upload file to GCS")
+//     }
+
+//     // Step 3: Convert PDF file to ArrayBuffer to read the number of pages
+//     const arrayBuffer = await file.arrayBuffer()
+//     const pdfDoc = await PDFDocument.load(arrayBuffer)
+//     const pageCount = pdfDoc.getPageCount()
+
+//     // Step 4: Store file metadata in Firestore
+//     const projectRef = db.collection("projects").doc(projectId)
+//     const projectDoc = await projectRef.get()
+//     const projectData = projectDoc.data()
+
+//     const fileRef = await addDoc(collection(db, "projects", projectId, "files"), {
+//       name: file.name,
+//       pdfUrl: filePath,
+//       uploadedDate: formattedDate,
+//       status: 0,
+//       projectId: projectId,
+//       pageCount: pageCount,
+//       parentId: projectData.parentId || null,
+//     })
+
+//     return {
+//       id: fileRef.id,
+//       name: file.name,
+//       pdfUrl: filePath,
+//       uploadedDate: formattedDate,
+//       status: 0,
+//       pageCount: pageCount,
+//       parentId: projectData.parentId || null,
+//     }
+//   } catch (error) {
+//     console.error("Error uploading file:", error)
+//     throw new Error("Error uploading file")
+//   }
+// }
+
+
+export const uploadFile = async (projectId, file, folderId = null) => {
+  try {
+    // Step 1: Get a server timestamp & format the date (e.g., "YYYY-MM-DD")
     const serverDate = await fetchServerTimestamp();
     const formattedDate = formatDate(serverDate);
 
+    // Step 2: Get a signed URL from your backend
     const response = await fetch(`${server}/generateSignedUrl`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -48,22 +194,20 @@ export const uploadFile = async (projectId, file) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(
-        `Failed to get signed URL: ${response.status} - ${errorText}`
-      );
+      console.error(`Failed to get signed URL: ${response.status} - ${errorText}`);
       throw new Error("Failed to get signed URL");
     }
 
+    // The backend should return { signedUrl, filePath }
     const { signedUrl, filePath } = await response.json();
-    // console.log("signedUrl, filePath ",signedUrl, filePath )
     if (!signedUrl || !filePath) {
       throw new Error("Invalid signed URL or file path from backend");
-    } // Receive both signed URL and file path
+    }
 
-    // Step 2: Upload the file to GCS using the signed URL
+    // Step 3: Upload the file to GCS using the signed URL
     const uploadResponse = await fetch(signedUrl, {
       method: "PUT",
-      headers: { "Content-Type": "application/pdf" }, // Set the appropriate content type
+      headers: { "Content-Type": "application/pdf" },
       body: file,
     });
 
@@ -71,43 +215,39 @@ export const uploadFile = async (projectId, file) => {
       throw new Error("Failed to upload file to GCS");
     }
 
-    // console.log("File uploaded successfully to GCS");
-
-    // Step 3: Convert PDF file to ArrayBuffer to read the number of pages
+    // Step 4: Read the file as a PDF to determine number of pages
     const arrayBuffer = await file.arrayBuffer();
     const pdfDoc = await PDFDocument.load(arrayBuffer);
     const pageCount = pdfDoc.getPageCount();
 
-    // console.log("Page count:", pageCount);
-
-    // Step 4: Store file metadata in Firestore
-    const fileRef = await addDoc(
-      collection(db, "projects", projectId, "files"),
-      {
-        name: file.name,
-        pdfUrl: filePath, // Store the file path, not the signed URL
-        uploadedDate: formattedDate,
-        status: 0,
-        projectId: projectId,
-        pageCount: pageCount, // Store the number of pages
-      }
-    );
-
-    // console.log("Metadata successfully stored in Firestore");
-
-    return {
-      id: fileRef.id,
+    // Step 5: Store file metadata in Firestore under the project's files subcollection
+    const filesCollectionRef = collection(db, "projects", projectId, "files");
+    const fileDocRef = await addDoc(filesCollectionRef, {
       name: file.name,
-      pdfUrl: filePath, // Return the file path
+      pdfUrl: filePath,
+      uploadedDate: formattedDate,
+      status: 0,
+      projectId: projectId,
+      pageCount: pageCount,
+      folderId: folderId || null, // <-- NEW field for folder nesting
+    });
+
+    // Return the file data (helpful for updating the UI)
+    return {
+      id: fileDocRef.id,
+      name: file.name,
+      pdfUrl: filePath,
       uploadedDate: formattedDate,
       status: 0,
       pageCount: pageCount,
+      folderId: folderId || null,
     };
   } catch (error) {
     console.error("Error uploading file:", error);
     throw new Error("Error uploading file");
   }
 };
+
 
 export const deleteFile = async (projectId, fileId, fileName) => {
   try {
