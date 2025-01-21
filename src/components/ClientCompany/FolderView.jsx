@@ -229,6 +229,8 @@ import FolderIcon from "@mui/icons-material/Folder";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import TableUpload from "../Table/TableUpload";
 import Loader from "../common/Loader";
+import { Menu, MenuItem } from "@mui/material";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 const FolderView = ({ project, onBack }) => {
   const [folders, setFolders] = useState([]);
@@ -238,6 +240,7 @@ const FolderView = ({ project, onBack }) => {
   const [error, setError] = useState(null);
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const fetchFolders = async () => {
     setIsLoading(true);
@@ -326,14 +329,12 @@ const FolderView = ({ project, onBack }) => {
             <ArrowBackIcon fontSize="large" />
           </IconButton>
         </div>
-
         {isLoading && (
           <div className="flex items-center justify-center h-full">
             <Loader />
           </div>
         )}
         {error && <p className="text-red-500">{error}</p>}
-
         {!isLoading && !error && (
           <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
@@ -355,7 +356,7 @@ const FolderView = ({ project, onBack }) => {
                 ))}
             </div>
 
-            {selectedFolder && (
+            {selectedFolder && files.length > 0 && (
               <TableUpload
                 columns={[
                   { id: "slNo", label: "Sl. No", minWidth: 50 },
@@ -363,7 +364,7 @@ const FolderView = ({ project, onBack }) => {
                   { id: "pageCount", label: "Page Count", minWidth: 100 },
                   { id: "uploadedDate", label: "Uploaded At", minWidth: 170 },
                 ]}
-                rows={files.map((file, index) => ({
+                rows={(files || []).map((file, index) => ({
                   ...file,
                   slNo: index + 1,
                 }))}
@@ -378,18 +379,17 @@ const FolderView = ({ project, onBack }) => {
               style={{ display: "none" }}
               onChange={handleFileUpload}
             />
-            <Button
+            {/* <Button
               variant="contained"
               color="primary"
               onClick={() => document.getElementById("file-upload").click()}
               sx={{ mt: 2 }}
             >
               Upload Files
-            </Button>
+            </Button> */}
           </div>
         )}
-
-        <Fab
+        {/* <Fab
           variant="extended"
           color="secondary"
           size="large"
@@ -398,8 +398,85 @@ const FolderView = ({ project, onBack }) => {
         >
           <AddIcon sx={{ mr: 1 }} />
           New Folder
-        </Fab>
-
+        </Fab> */}
+        <div className="fixed bottom-8 right-8 z-40">
+          <Fab
+            color="primary"
+            aria-haspopup="true"
+            onClick={(e) => setAnchorEl(e.currentTarget)}
+            sx={{
+              background: "linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)",
+              boxShadow: "0 3px 5px 2px rgba(33, 203, 243, .3)",
+              "&:hover": {
+                background: "linear-gradient(45deg, #21CBF3 30%, #2196F3 90%)",
+                transform: "scale(1.05)",
+              },
+              transition: "all 0.3s ease-in-out",
+            }}
+          >
+            <AddIcon />
+          </Fab>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={() => setAnchorEl(null)}
+            anchorOrigin={{
+              vertical: "top",
+              horizontal: "center",
+            }}
+            transformOrigin={{
+              vertical: "bottom",
+              horizontal: "center",
+            }}
+            sx={{
+              "& .MuiPaper-root": {
+                borderRadius: 2,
+                marginBottom: 1,
+                boxShadow: "0 3px 5px 2px rgba(0, 0, 0, .1)",
+              },
+            }}
+          >
+            <MenuItem
+              onClick={() => {
+                setIsCreateFolderModalOpen(true);
+                setAnchorEl(null);
+              }}
+              sx={{
+                minWidth: 200,
+                "&:hover": {
+                  backgroundColor: "rgba(33, 150, 243, 0.08)",
+                },
+              }}
+            >
+              <FolderIcon sx={{ mr: 1 }} />
+              Create New Folder
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                document.getElementById("file-upload").click();
+                setAnchorEl(null);
+              }}
+              disabled={folders.length > 0}
+              sx={{
+                minWidth: 200,
+                "&:hover": {
+                  backgroundColor: "rgba(33, 150, 243, 0.08)",
+                },
+              }}
+            >
+              <UploadFileIcon sx={{ mr: 1 }} />
+              Upload Files
+            </MenuItem>
+          </Menu>
+          <input
+            type="file"
+            multiple
+            accept="application/pdf"
+            id="file-upload"
+            style={{ display: "none" }}
+            onChange={handleFileUpload}
+          />
+        </div>
         {isCreateFolderModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">

@@ -82,11 +82,11 @@ function TableUpload({
       >
         {projectName}
         <span className="ml-4 text-lg font-normal text-gray-600">
-          ({rows.length} files, {calculateTotalPages(rows)} pages)
+          ({rows?.length || 0} files, {calculateTotalPages(rows || [])} pages)
         </span>
       </h2>
       <div className="flex justify-between items-center mb-4 px-4">
-        {selectedRows.length > 0 && (
+        {selectedRows?.length > 0 && (
           <span>
             {selectedRows.length} selected, {totalSelectedPages} pages
           </span>
@@ -97,7 +97,7 @@ function TableUpload({
           onClick={() => {
             handleDeleteSelectedClick();
           }}
-          disabled={selectedRows.length === 0}
+          disabled={selectedRows?.length === 0}
         >
           Delete Selected
         </Button>
@@ -110,11 +110,11 @@ function TableUpload({
                 <TableCell padding="checkbox">
                   <Checkbox
                     indeterminate={
-                      selectedRows.length > 0 &&
-                      selectedRows.length < rows.length
+                      selectedRows?.length > 0 &&
+                      selectedRows?.length < (rows?.length || 0)
                     }
                     checked={
-                      rows.length > 0 && selectedRows.length === rows.length
+                      rows?.length > 0 && selectedRows?.length === rows.length
                     }
                     onChange={(event) => {
                       if (event.target.checked) {
@@ -125,7 +125,7 @@ function TableUpload({
                     }}
                   />
                 </TableCell>
-                {columns.map((column) => (
+                {columns?.map((column) => (
                   <TableCell
                     key={column.id}
                     align={column.align || "left"}
@@ -140,55 +140,73 @@ function TableUpload({
                     )}
                   </TableCell>
                 ))}
-              
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedRows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={selectedRows.includes(row.id)}
-                        onChange={(event) => handleCheckboxClick(event, row.id)}
-                      />
-                    </TableCell>
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell
-                          key={column.id}
-                          align={column.align || "left"}
-                        >
-                          {column.id === "edit" ? (
-                            <div>
-                              <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() =>
-                                  handleEditClick &&
-                                  handleEditClick(row.id, row.name)
-                                }
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          ) : (
-                            value
-                          )}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))}
+              {sortedRows && sortedRows.length > 0 ? (
+                sortedRows
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={row.id || index}
+                    >
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={selectedRows.includes(row.id)}
+                          onChange={(event) =>
+                            handleCheckboxClick(event, row.id)
+                          }
+                        />
+                      </TableCell>
+                      {columns?.map((column) => {
+                        const value = row[column.id];
+                        return (
+                          <TableCell
+                            key={column.id}
+                            align={column.align || "left"}
+                          >
+                            {column.id === "edit" ? (
+                              <div>
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={() =>
+                                    handleEditClick &&
+                                    handleEditClick(row.id, row.name)
+                                  }
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            ) : (
+                              value
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns?.length || 1}
+                    align="center"
+                    sx={{ py: 3 }}
+                  >
+                    No files available
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </MuiTable>
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
-          count={selectedRows.length}
+          count={rows?.length || 0}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
