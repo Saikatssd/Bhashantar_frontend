@@ -813,6 +813,7 @@ import {
 } from "@headlessui/react";
 import { toast, Toaster } from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
+import FolderIcon from "@mui/icons-material/Folder";
 
 const UploadDocument = () => {
   const { companyId } = useParams();
@@ -889,7 +890,7 @@ const UploadDocument = () => {
                   className="flex flex-col items-center p-3 rounded-xl hover:bg-gray-200 transition cursor-pointer"
                   onClick={() => handleProjectClick(project)}
                 >
-                  <AddIcon color="info" sx={{ fontSize: 100 }} />
+                  <FolderIcon color="info" sx={{ fontSize: 100 }} />
                   <h3 className="mt-2 text-lg font-medium">{project.name}</h3>
                 </div>
               ))}
