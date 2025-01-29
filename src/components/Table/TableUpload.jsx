@@ -25,7 +25,7 @@ function TableUpload({
   handleChangePage,
   handleChangeRowsPerPage,
   handleEditClick,
-  selectedRows,
+  selectedRows = [],
   setSelectedRows,
   handleDeleteSelected,
   projectName,

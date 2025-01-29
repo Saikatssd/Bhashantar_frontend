@@ -18,6 +18,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { parse } from "date-fns";
+import { file } from "jszip";
 // --- Project Operations ---
 
 // Fetch all projects
@@ -192,7 +193,7 @@ export const fetchProjectFiles = async (projectId) => {
           : null,
 
         kyro_assignedTo: data.kyro_assignedTo || null,
-        
+
         client_assignedTo: data.client_assignedTo || null,
       };
     });
@@ -201,6 +202,60 @@ export const fetchProjectFiles = async (projectId) => {
   } catch (error) {
     console.error("Error fetching project files:", error);
     throw new Error("Error fetching project files");
+  }
+};
+
+export const fetchProjectFilesByFolder = async (projectId, folderId) => {
+  try {
+    console.log('test run')
+    const filesCollection = collection(db, "projects", projectId, "files");
+
+    // Create query with folderId filter
+    let filesSnapshot;
+    if (folderId) {
+      const q = query(filesCollection, where("folderId", "==", folderId));
+      filesSnapshot = await getDocs(q);
+    } else {
+      filesSnapshot = await getDocs(filesCollection);
+    }
+
+    const files = filesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    console.log("file in project service : ", files);
+ 
+    // const files = filesSnapshot.docs.map((doc) => {
+    //   const data = doc.data();
+    //   return {
+    //     id: doc.id,
+    //     name: data.name,
+    //     pdfUrl: data.pdfUrl,
+    //     htmlUrl: data.htmlUrl,
+    //     pageCount: data.pageCount,
+    //     projectId: projectId,
+    //     folderId: folderId, // Include folderId in response
+    //     status: data.status,
+
+    //     // Date fields
+    //     uploadedDate: data.uploadedDate || null,
+    //     kyro_assignedDate: data.kyro_assignedDate || null,
+    //     kyro_completedDate: data.kyro_completedDate || null,
+    //     kyro_deliveredDate: data.kyro_deliveredDate || null,
+    //     client_assignedDate: data.client_assignedDate || null,
+    //     client_completedDate: data.client_completedDate || null,
+    //     client_downloadedDate: data.client_downloadedDate || null,
+
+    //     // Assignment fields
+    //     kyro_assignedTo: data.kyro_assignedTo || null,
+    //     client_assignedTo: data.client_assignedTo || null,
+    //   };
+    // });
+
+    return files;
+  } catch (error) {
+    console.error("Error fetching folder files:", error);
+    throw new Error("Error fetching folder files");
   }
 };
 
@@ -277,7 +332,11 @@ export const fetchUserProjectsCount = async (userId, startDate, endDate) => {
         }
 
         // Only count completed and under-review files within the date range
-        if (completedDate && completedDate >= startDate && completedDate <= endDate) {
+        if (
+          completedDate &&
+          completedDate >= startDate &&
+          completedDate <= endDate
+        ) {
           if (data.status >= 5) {
             completedCount++;
             completedPages += pages;
@@ -290,20 +349,28 @@ export const fetchUserProjectsCount = async (userId, startDate, endDate) => {
     }
 
     return {
-      pendingCount: pendingCount > 9 ? pendingCount.toString() : `0${pendingCount}`,
-      completedCount: completedCount > 9 ? completedCount.toString() : `0${completedCount}`,
-      underReviewCount: underReviewCount > 9 ? underReviewCount.toString() : `0${underReviewCount}`,
-      pendingPages: pendingPages > 9 ? pendingPages.toString() : `0${pendingPages}`,
-      completedPages: completedPages > 9 ? completedPages.toString() : `0${completedPages}`,
-      underReviewPages: underReviewPages > 9 ? underReviewPages.toString() : `0${underReviewPages}`,
+      pendingCount:
+        pendingCount > 9 ? pendingCount.toString() : `0${pendingCount}`,
+      completedCount:
+        completedCount > 9 ? completedCount.toString() : `0${completedCount}`,
+      underReviewCount:
+        underReviewCount > 9
+          ? underReviewCount.toString()
+          : `0${underReviewCount}`,
+      pendingPages:
+        pendingPages > 9 ? pendingPages.toString() : `0${pendingPages}`,
+      completedPages:
+        completedPages > 9 ? completedPages.toString() : `0${completedPages}`,
+      underReviewPages:
+        underReviewPages > 9
+          ? underReviewPages.toString()
+          : `0${underReviewPages}`,
     };
   } catch (error) {
     console.error("Error fetching project files by user:", error);
     throw new Error("Error fetching project files by user");
   }
 };
-
-
 
 // export const fetchUserProjectsCount = async (userId, startDate, endDate) => {
 //   try {
@@ -364,7 +431,6 @@ export const fetchUserProjectsCount = async (userId, startDate, endDate) => {
 //     throw new Error("Error fetching project files by user");
 //   }
 // };
-
 
 export const fetchQAProjectsCount = async () => {
   try {
