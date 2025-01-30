@@ -95,14 +95,14 @@ function TableAdmin({
 
   return (
     <div>
-      <h2 className="text-center py-4 font-bold text-2xl">
+      {/* <h2 className="text-center py-4 font-bold text-2xl">
         {projectName}
         {!loading && (
           <span className="ml-4 text-lg font-normal text-gray-600">
             ({rows.length} files, {calculateTotalPages(rows)} pages)
           </span>
         )}
-      </h2>
+      </h2> */}
       <div className="flex justify-between items-center mb-4 px-4">
         {selectedRows.length > 0 && (
           <span>

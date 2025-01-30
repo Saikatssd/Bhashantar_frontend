@@ -8,7 +8,7 @@ export const FolderList = ({ folders = [], onFolderClick }) => {
           key={folder.id}
           onClick={() => onFolderClick(folder)}
           className="flex flex-col items-center p-4 rounded-xl
-                       bg-white/10 backdrop-blur-sm border border-white/20
+                       bg-indigo-100/50 backdrop-blur-sm border border-white/20
                        hover:bg-white/20 hover:shadow-md
                        transition-shadow cursor-pointer"
         >

@@ -60,8 +60,8 @@ const columnsDownloaded = [
   { id: "client_assignedTo", label: "Completed By", minWidth: 150 },
 ];
 
-const AdminFileFlow = () => {
-  const { projectId,companyId } = useParams();
+const AdminFileFlow = ({ projectId,companyId }) => {
+  // const { projectId,companyId } = useParams();
   // console.log(companyId)
   // const [files, setFiles] = useState([]);
   const [tabValue, setTabValue] = useState(0);
@@ -415,7 +415,7 @@ const AdminFileFlow = () => {
 
   return (
     <Box sx={{ height:'100vh',overflowY: 'auto' }}>
-      <Box
+      {/* <Box
         sx={{ borderBottom: 1, borderColor: "divider" }}
         className="backdrop-blur-sm shadow-xl pt-4 z-20"
       >
@@ -430,7 +430,46 @@ const AdminFileFlow = () => {
           <Tab label="Completed" />
           <Tab label="Downloaded" />
         </Tabs>
-      </Box>
+      </Box> */}
+
+<Box className=" border-b border-gray-200 mt-8">
+  <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12">
+    <div className="flex justify-center">
+      <Tabs
+        value={tabValue}
+        onChange={handleTabChange}
+        aria-label="document status tabs"
+    
+        TabIndicatorProps={{
+          style: {
+            backgroundColor: '#2563eb',
+            height: 2
+          }
+        }}
+      >
+        {[
+          "Ready for Work",
+          "Work in Progress",
+          "Completed",
+          "Downloaded"
+        ].map((label, index) => (
+          <Tab
+            key={index}
+            label={label}
+            style={{
+              textTransform: 'none',
+              fontSize: '0.875rem',
+              fontWeight: tabValue === index ? 600 : 500,
+              color: tabValue === index ? '#2563eb' : '#6b7280',
+              padding: '1rem 2rem',
+              minHeight: '3.5rem'
+            }}
+          />
+        ))}
+      </Tabs>
+    </div>
+  </div>
+</Box>
 
       <TabPanel value={tabValue} index={0}>
         <TableAdmin

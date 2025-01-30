@@ -733,7 +733,7 @@ import {
 } from "../../services/projectServices";
 import { file, folder } from "jszip";
 
-const FolderView = ({ project, onBack }) => {
+const UploadFolderView = ({ project, onBack }) => {
   const [folders, setFolders] = useState([]); // All folders data
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [currentPath, setCurrentPath] = useState([]);
@@ -931,9 +931,9 @@ const FolderView = ({ project, onBack }) => {
       setIsLoading(false);
     }
   };
-  console.log("project file count", projectFileCount);
-  console.log("current folder", currentFolder);
-  console.log("Folder length", folders.length);
+  // console.log("project file count", projectFileCount);
+  // console.log("current folder", currentFolder);
+  // console.log("Folder length", folders.length);
 
   return (
     <div className="flex flex-col items-center h-full p-4">
@@ -1000,7 +1000,7 @@ const FolderView = ({ project, onBack }) => {
         </div>
       )}
       {/* File List */}
-      {true && (
+      {(hasFetchedFolders && (folders.length == 0 || files.length > 0)) && (
         <div className="w-full">
           <TableUpload
             columns={[
@@ -1149,4 +1149,4 @@ const FolderView = ({ project, onBack }) => {
   );
 };
 
-export default FolderView;
+export default UploadFolderView;

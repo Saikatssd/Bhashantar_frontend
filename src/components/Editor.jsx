@@ -94,6 +94,7 @@ import { LineHeight } from "@rickx/ckeditor5-line-height";
 // import Language from '@ckeditor/ckeditor5-language/src/language';
 // import TextPartLanguage from '@ckeditor/ckeditor5-language/src/textpartlanguage';
 import { kyroCompanyId } from "../services/companyServices";
+import EditorContainer from "./Editor/EditorContainer";
 // import "../assets/editor.css";
 
 const Editor = () => {
@@ -108,7 +109,7 @@ const Editor = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isInitialContentSet, setIsInitialContentSet] = useState(false);
   const navigate = useNavigate();
-  const debouncedHtmlContent = useDebounce(htmlContent, 1000);
+  const debouncedHtmlContent = useDebounce(htmlContent, 3000);
   const [companyId, setCompanyId] = useState(null);
   const [companyName, setCompanyName] = useState();
   const [role, setRole] = useState();
@@ -738,6 +739,66 @@ const LICENSE_KEY =
     navigate(-1);
   };
 
+  // const initializeEditor = useCallback(() => {
+  //   if (isInitialContentSet) {
+  //     return (
+  //       <div>
+  //         <div className="main-container">
+  //           <div
+  //             className="editor-container editor-container_document-editor"
+  //             ref={editorContainerRef}
+  //           >
+  //             <div
+  //               className="editor-container__menu-bar"
+  //               ref={editorMenuBarRef}
+  //             ></div>
+  //             <div
+  //               className="editor-container__toolbar"
+  //               ref={editorToolbarRef}
+  //             ></div>
+  //             <div className="editor-container__editor-wrapper">
+  //               <div className="editor-container__editor">
+  //                 <div ref={editorRef}>
+  //                   {isLayoutReady && (
+  //                     <CKEditor
+  //                       onReady={(editor) => {
+  //                         editorToolbarRef.current.appendChild(
+  //                           editor.ui.view.toolbar.element
+  //                         );
+  //                         editorMenuBarRef.current.appendChild(
+  //                           editor.ui.view.menuBarView.element
+  //                         );
+  //                       }}
+  //                       onAfterDestroy={() => {
+  //                         Array.from(editorToolbarRef.current.children).forEach(
+  //                           (child) => child.remove()
+  //                         );
+  //                         Array.from(editorMenuBarRef.current.children).forEach(
+  //                           (child) => child.remove()
+  //                         );
+  //                       }}
+  //                       editor={DecoupledEditor}
+  //                       // editor={ClassicEditor}
+  //                       config={editorConfig}
+  //                       onChange={(event, editor) => {
+  //                         const data = editor.getData();
+  //                         // console.log(data);
+  //                         setHtmlContent(data); // Update the state with the new content
+  //                       }}
+  //                     />
+  //                   )}
+  //                 </div>
+  //               </div>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </div>
+
+  //     );
+  //   }
+  //   return null;
+  // }, [htmlContent, isInitialContentSet]);
+
   const initializeEditor = useCallback(() => {
     if (isInitialContentSet) {
       return (
@@ -759,30 +820,10 @@ const LICENSE_KEY =
                 <div className="editor-container__editor">
                   <div ref={editorRef}>
                     {isLayoutReady && (
-                      <CKEditor
-                        onReady={(editor) => {
-                          editorToolbarRef.current.appendChild(
-                            editor.ui.view.toolbar.element
-                          );
-                          editorMenuBarRef.current.appendChild(
-                            editor.ui.view.menuBarView.element
-                          );
-                        }}
-                        onAfterDestroy={() => {
-                          Array.from(editorToolbarRef.current.children).forEach(
-                            (child) => child.remove()
-                          );
-                          Array.from(editorMenuBarRef.current.children).forEach(
-                            (child) => child.remove()
-                          );
-                        }}
-                        editor={DecoupledEditor}
-                        // editor={ClassicEditor}
-                        config={editorConfig}
-                        onChange={(event, editor) => {
-                          const data = editor.getData();
-                          // console.log(data);
-                          setHtmlContent(data); // Update the state with the new content
+                      <EditorContainer
+                        initialContent={htmlContent}
+                        onChange={(newContent) => {
+                          setHtmlContent(newContent); // Update the state with the new content
                         }}
                       />
                     )}
@@ -792,11 +833,12 @@ const LICENSE_KEY =
             </div>
           </div>
         </div>
-
       );
     }
     return null;
   }, [htmlContent, isInitialContentSet]);
+
+
   if (loading) {
     return <div>Loading...</div>;
   }
