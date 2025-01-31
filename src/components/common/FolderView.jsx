@@ -82,12 +82,12 @@ const FolderView = ({ project, onBack }) => {
   }, [project.id]);
 
   useEffect(() => {
-      const getKyroId = async () => {
-        const id = await kyroCompanyId();
-        setKyroId(id);
-      };
-      getKyroId();
-    }, [currentUser]);
+    const getKyroId = async () => {
+      const id = await kyroCompanyId();
+      setKyroId(id);
+    };
+    getKyroId();
+  }, [currentUser]);
 
   useEffect(() => {
     fetchFolders();
@@ -209,8 +209,8 @@ const FolderView = ({ project, onBack }) => {
   };
 
   // console.log("project file count", projectFileCount);
-  // console.log("current folder", currentFolder);
-  // console.log("Folder length", folders.length);
+  console.log("current folder", currentFolder);
+  console.log("Folder length", folders.length);
 
   return (
     <div className="flex flex-col items-center h-full  ">
@@ -245,11 +245,11 @@ const FolderView = ({ project, onBack }) => {
         </Breadcrumbs>
 
         {/* Header */}
-          {breadcrumbs.length >= 0 && (
-            <IconButton onClick={() => handleBackClick()}>
-              <ArrowBackIcon fontSize="large" />
-            </IconButton>
-          )}
+        {breadcrumbs.length >= 0 && (
+          <IconButton onClick={() => handleBackClick()}>
+            <ArrowBackIcon fontSize="large" />
+          </IconButton>
+        )}
       </div>
       {/* Loading and error state */}
       {isLoading && (
@@ -272,11 +272,25 @@ const FolderView = ({ project, onBack }) => {
           />
         </div>
       )}
+
+      {/* Show "No files or folders found" when both are empty */}
+      {!isLoading &&
+        !error &&
+        currentFolder?.children.length === 0 &&
+        files.length === 0 && (
+          <div className="text-center text-gray-500 mt-8">
+            No files or folders found
+          </div>
+        )}
+
       {/* File List */}
       {hasFetchedFolders && (folders.length == 0 || files.length > 0) && (
-        <div className="w-full" >
-            
-         {currentUser?.companyId == kyroId ? <KyroAdminFileFlow companyId={companyId} projectId={project.id} /> : <AdminFileFlow companyId={companyId} projectId={project.id} />}
+        <div className="w-full">
+          {currentUser?.companyId == kyroId ? (
+            <KyroAdminFileFlow companyId={companyId} projectId={project.id} />
+          ) : (
+            <AdminFileFlow companyId={companyId} projectId={project.id} />
+          )}
         </div>
       )}
     </div>

@@ -197,8 +197,8 @@ const KyroAdminFileFlow = ({ projectId, companyId }) => {
 
   const displayTime = async () => {
     const serverTime = await fetchServerTimestamp();
-    console.log("time", serverTime);
-    console.log("format", formatDate(serverTime));
+    // console.log("time", serverTime);
+    // console.log("format", formatDate(serverTime));
   };
   displayTime();
 
