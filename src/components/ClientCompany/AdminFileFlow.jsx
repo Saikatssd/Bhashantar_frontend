@@ -11,7 +11,7 @@ import {
   fetchProjectFiles,
   fetchProjectName,
 } from "../../services/projectServices.jsx";
-import { updateFileStatus } from '../../services/fileServices.jsx'
+import { updateFileStatus } from "../../services/fileServices.jsx";
 import { fetchUserNameById } from "../../utils/firestoreUtil.jsx";
 import { useParams } from "react-router-dom";
 import UserSelectModal from "../UserSelectModal.jsx";
@@ -19,7 +19,7 @@ import { auth } from "../../utils/firebase.jsx";
 import TableAdmin from "../Table/TableAdmin.jsx";
 import Table from "../Table/Table.jsx";
 import CompletedTable from "../Table/CompletedTable.jsx";
-import Button from '@mui/material/Button';
+import Button from "@mui/material/Button";
 import { server } from "../../main.jsx";
 import axios from "axios";
 import { formatDate, fetchServerTimestamp } from "../../utils/formatDate.jsx";
@@ -60,7 +60,7 @@ const columnsDownloaded = [
   { id: "client_assignedTo", label: "Completed By", minWidth: 150 },
 ];
 
-const AdminFileFlow = ({ projectId,companyId }) => {
+const AdminFileFlow = ({ projectId, companyId }) => {
   // const { projectId,companyId } = useParams();
   // console.log(companyId)
   // const [files, setFiles] = useState([]);
@@ -183,16 +183,11 @@ const AdminFileFlow = ({ projectId,companyId }) => {
     setSelectedFileId(null);
   };
 
-
-
   const handleAssignToUser = async (userId) => {
     try {
-
-     
-      const serverDate = await fetchServerTimestamp(); 
+      const serverDate = await fetchServerTimestamp();
       const formattedDate = formatDate(serverDate);
       const userName = await fetchUserNameById(userId);
-
 
       if (selectedRows.length !== 0) {
         for (const fileId of selectedRows) {
@@ -214,7 +209,6 @@ const AdminFileFlow = ({ projectId,companyId }) => {
               status: 6,
               client_assignedTo: userName,
               client_assignedDate: formattedDate,
-
             },
           ]);
         }
@@ -262,7 +256,7 @@ const AdminFileFlow = ({ projectId,companyId }) => {
       await toast.promise(
         axios
           .get(endpoint, {
-            responseType: "blob",  // Expecting a blob for successful downloads
+            responseType: "blob", // Expecting a blob for successful downloads
           })
           .then(async (response) => {
             // Check if response size is very small, it might be an error message in blob
@@ -271,7 +265,9 @@ const AdminFileFlow = ({ projectId,companyId }) => {
               const text = await response.data.text();
               try {
                 const errorData = JSON.parse(text);
-                throw new Error(errorData.message || "An unknown error occurred.");
+                throw new Error(
+                  errorData.message || "An unknown error occurred."
+                );
               } catch (err) {
                 throw new Error("Error occurred during file download.");
               }
@@ -318,7 +314,7 @@ const AdminFileFlow = ({ projectId,companyId }) => {
         }
       );
     } catch (err) {
-      console.log("error", err)
+      console.log("error", err);
       // Display the error using toast
       // toast.error(err.message || "An error occurred. Please try again.", {
       //   position: "top-right",
@@ -327,7 +323,6 @@ const AdminFileFlow = ({ projectId,companyId }) => {
       console.error("Error during document download:", err);
     }
   };
-
 
   // const handleDownloadSelected = async (format) => {
   //   try {
@@ -349,17 +344,21 @@ const AdminFileFlow = ({ projectId,companyId }) => {
 
       await toast.promise(
         axios
-          .post(endpoint, {
-            projectId,
-            documentIds: selectedRows, // Send all selected rows
-          }, {
-            responseType: 'blob', // Expect a blob for download
-          })
+          .post(
+            endpoint,
+            {
+              projectId,
+              documentIds: selectedRows, // Send all selected rows
+            },
+            {
+              responseType: "blob", // Expect a blob for download
+            }
+          )
           .then((response) => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.href = url;
-            link.setAttribute('download', `${projectName}.zip`);
+            link.setAttribute("download", `${projectName}.zip`);
 
             document.body.appendChild(link);
             link.click();
@@ -383,8 +382,6 @@ const AdminFileFlow = ({ projectId,companyId }) => {
                 status: 8,
                 client_downloadedDate: formatDate(new Date()),
               });
-
-
             }
           }),
         {
@@ -395,15 +392,12 @@ const AdminFileFlow = ({ projectId,companyId }) => {
       );
 
       setSelectedRows([]);
-      navigate(0)
-
+      navigate(0);
     } catch (err) {
       console.error("Error downloading selected files:", err);
       toast.error("Error downloading selected files.");
     }
-    
   };
-
 
   if (isLoading) {
     return <CircularProgress />;
@@ -414,62 +408,44 @@ const AdminFileFlow = ({ projectId,companyId }) => {
   }
 
   return (
-    <Box sx={{ height:'100vh',overflowY: 'auto' }}>
-      {/* <Box
-        sx={{ borderBottom: 1, borderColor: "divider" }}
-        className="backdrop-blur-sm shadow-xl pt-4 z-20"
-      >
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          aria-label="basic tabs example"
-          centered
-        >
-          <Tab label="Ready for Work" />
-          <Tab label="Work in Progress" />
-          <Tab label="Completed" />
-          <Tab label="Downloaded" />
-        </Tabs>
-      </Box> */}
-
-<Box className=" border-b border-gray-200 mt-8">
-  <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12">
-    <div className="flex justify-center">
-      <Tabs
-        value={tabValue}
-        onChange={handleTabChange}
-        aria-label="document status tabs"
-    
-        TabIndicatorProps={{
-          style: {
-            backgroundColor: '#2563eb',
-            height: 2
-          }
-        }}
-      >
-        {[
-          "Ready for Work",
-          "Work in Progress",
-          "Completed",
-          "Downloaded"
-        ].map((label, index) => (
-          <Tab
-            key={index}
-            label={label}
-            style={{
-              textTransform: 'none',
-              fontSize: '0.875rem',
-              fontWeight: tabValue === index ? 600 : 500,
-              color: tabValue === index ? '#2563eb' : '#6b7280',
-              padding: '1rem 2rem',
-              minHeight: '3.5rem'
-            }}
-          />
-        ))}
-      </Tabs>
-    </div>
-  </div>
-</Box>
+    <Box>
+      <Box className=" border-b border-gray-200 ">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="flex justify-center">
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              aria-label="document status tabs"
+              TabIndicatorProps={{
+                style: {
+                  backgroundColor: "#2563eb",
+                  height: 2,
+                },
+              }}
+            >
+              {[
+                "Ready for Work",
+                "Work in Progress",
+                "Completed",
+                "Downloaded",
+              ].map((label, index) => (
+                <Tab
+                  key={index}
+                  label={label}
+                  style={{
+                    textTransform: "none",
+                    fontSize: "0.875rem",
+                    fontWeight: tabValue === index ? 600 : 500,
+                    color: tabValue === index ? "#2563eb" : "#6b7280",
+                    padding: "1rem 2rem",
+                    minHeight: "3.5rem",
+                  }}
+                />
+              ))}
+            </Tabs>
+          </div>
+        </div>
+      </Box>
 
       <TabPanel value={tabValue} index={0}>
         <TableAdmin

@@ -59,7 +59,7 @@ function UserTable({
        ({rows.length} files, {calculateTotalPages(rows)} pages)
       </span></h2>
       <Paper sx={{ width: '95%', overflow: 'hidden', margin:'auto' }}>
-        <TableContainer sx={{ maxHeight: 700 }}>
+        <TableContainer sx={{ maxHeight: 600 }}>
           <MuiTable stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

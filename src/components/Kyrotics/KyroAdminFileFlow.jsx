@@ -67,8 +67,8 @@ const columnsQA = [
   { id: "kyro_assignedToName", label: "Completed By", minWidth: 150 },
 ];
 
-const KyroAdminFileFlow = () => {
-  const { projectId } = useParams();
+const KyroAdminFileFlow = ({ projectId, companyId }) => {
+  // const { projectId,companyId } = useParams();
   const [files, setFiles] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [kyroId, setKyroId] = useState("");
@@ -87,9 +87,6 @@ const KyroAdminFileFlow = () => {
   const [role, setRole] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
   const navigate = useNavigate();
-
-  const { companyId } = useParams();
-  // console.log(companyId)
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -207,8 +204,6 @@ const KyroAdminFileFlow = () => {
 
   const handleAssignToUser = async (userId) => {
     try {
-   
-     
       const userName = await fetchUserNameById(userId);
 
       const serverDate = await fetchServerTimestamp();
@@ -224,12 +219,12 @@ const KyroAdminFileFlow = () => {
           const fileData = await fetchProjectFiles(projectId).then((files) =>
             files.find((file) => file.id === fileId)
           );
-      
+
           if (!fileData) {
             toast.error("File is already assigned please assign another file.");
             return; // Prevent further action
           }
-      
+
           // Check if the file is already assigned
           if (fileData.status === 3) {
             toast.error("This file is already assigned to someone else.");
@@ -256,22 +251,21 @@ const KyroAdminFileFlow = () => {
           prevFiles.filter((file) => file.id !== selectedFileId)
         );
 
-        
         const fileData = await fetchProjectFiles(projectId).then((files) =>
           files.find((file) => file.id === selectedFileId)
         );
-    
+
         if (!fileData) {
           toast.error("File is already assigned please assign another file.");
           return; // Prevent further action
         }
-    
+
         // Check if the file is already assigned
         if (fileData.status === 3) {
           toast.error("File is already assigned please assign another file.");
           return; // Prevent further action
         }
-       
+
         setInProgressFiles((prevFiles) => [
           ...prevFiles,
           {
@@ -326,7 +320,6 @@ const KyroAdminFileFlow = () => {
     setFiles(updatedFiles);
 
     navigate(-1);
-
   };
 
   const handleDownloadSelected = async () => {
@@ -383,13 +376,18 @@ const KyroAdminFileFlow = () => {
     <Box sx={{ height: "100vh", overflowY: "auto" }}>
       <Box
         sx={{ borderBottom: 1, borderColor: "divider" }}
-        className="backdrop-blur-sm pt-3 shadow-md bg-white/30"
+        className="backdrop-blur-sm shadow-md pt-2 bg-indigo-400/10 rounded-full"
       >
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
           aria-label="basic tabs example"
           centered
+          sx={{
+            "& .MuiTabs-flexContainer": {
+              gap: "50px",
+            },
+          }}
         >
           <Tab label="Ready for Work" />
           <Tab label="Work in Progress" />
@@ -451,8 +449,8 @@ const KyroAdminFileFlow = () => {
           onClick={() => handleDownloadSelected()}
           sx={{
             position: "fixed",
-            top: 105,
-            right: 30,
+            top: 180,
+            right: 130,
             fontSize: "14px",
             zIndex: 10,
           }}

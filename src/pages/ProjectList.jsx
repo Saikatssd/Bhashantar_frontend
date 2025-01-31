@@ -73,8 +73,6 @@
 
 // export default ProjectList
 
-
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { server } from "../main";
@@ -82,6 +80,9 @@ import { useParams } from "react-router-dom";
 import Loader from "../components/common/Loader";
 import FolderIcon from "@mui/icons-material/Folder";
 import FolderView from "../components/common/FolderView";
+import { useAuth } from "../context/AuthContext";
+import {kyroCompanyId} from "../services/companyServices";
+import { getQuarter } from "date-fns";
 
 const Loader2 = () => (
   <div className="fixed inset-0 flex items-center justify-center">
@@ -95,6 +96,16 @@ function ProjectList() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
+  const { currentUser } = useAuth();
+  const [kyroId, setKyroId] = useState("");
+
+  useEffect(() => {
+    const getKyroId = async () => {
+      const id = await kyroCompanyId();
+      setKyroId(id);
+    };
+    getKyroId();
+  }, [currentUser]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -120,10 +131,9 @@ function ProjectList() {
   const handleBack = () => {
     setSelectedProject(null);
   };
-
   return (
-    <div className="min-h-screen backdrop-blur-sm bg-white/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="h-screen overflow-y-auto backdrop-blur-sm bg-white/30">
+      <div className="max-w-[80vw] mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {isLoading && <Loader2 />}
         {error && (
           <div className="rounded-md bg-red-50 p-4 mb-6">
@@ -132,7 +142,7 @@ function ProjectList() {
         )}
 
         {!selectedProject && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className=" mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {projects.map((project) => (
               <div
                 key={project.id}
@@ -163,7 +173,9 @@ function ProjectList() {
           </div>
         )}
 
-        {selectedProject && <FolderView project={selectedProject} onBack={handleBack} />}
+        {selectedProject && (
+          <FolderView project={selectedProject} onBack={handleBack} />
+        )}
       </div>
     </div>
   );

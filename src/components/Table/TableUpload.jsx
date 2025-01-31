@@ -72,25 +72,16 @@ function TableUpload({
 
   return (
     <div>
-      <h2
-        style={{
-          textAlign: "center",
-          padding: "16px",
-          fontWeight: "bold",
-          fontSize: "24px",
-        }}
-      >
-        {projectName}
-        <span className="ml-4 text-lg font-normal text-gray-600">
-          ({rows?.length || 0} files, {calculateTotalPages(rows || [])} pages)
-        </span>
-      </h2>
       <div className="flex justify-between items-center mb-4 px-4">
         {selectedRows?.length > 0 && (
           <span>
             {selectedRows.length} selected, {totalSelectedPages} pages
           </span>
         )}
+        <span className="text-lg font-normal text-gray-600">
+          Total: ({rows?.length || 0} files, {calculateTotalPages(rows || [])}{" "}
+          pages)
+        </span>
         <Button
           variant="contained"
           color="warning"
@@ -103,7 +94,7 @@ function TableUpload({
         </Button>
       </div>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: 700 }}>
+        <TableContainer sx={{ maxHeight: 600 }}>
           <MuiTable stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

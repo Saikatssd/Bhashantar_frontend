@@ -617,7 +617,7 @@ const UploadDocument = () => {
 
   return (
     <div className="min-h-screen backdrop-blur-sm bg-white/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[80vw] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {isLoading && <Loader />}
       {error && (
         <div className="rounded-md bg-red-50 p-4 mb-6">
@@ -627,7 +627,7 @@ const UploadDocument = () => {
 
       {!selectedProject && (
         <>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {projects.map((project) => (
           <div
             key={project.id}

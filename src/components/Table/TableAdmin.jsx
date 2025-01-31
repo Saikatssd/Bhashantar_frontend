@@ -10,7 +10,10 @@ import Checkbox from "@mui/material/Checkbox";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import MuiTable from "@mui/material/Table";
-import { fetchProjectFilesCount, fetchTotalPagesInProject } from "../../utils/firestoreUtil";
+import {
+  fetchProjectFilesCount,
+  fetchTotalPagesInProject,
+} from "../../utils/firestoreUtil";
 
 function TableAdmin({
   columns,
@@ -95,20 +98,19 @@ function TableAdmin({
 
   return (
     <div>
-      {/* <h2 className="text-center py-4 font-bold text-2xl">
-        {projectName}
-        {!loading && (
-          <span className="ml-4 text-lg font-normal text-gray-600">
-            ({rows.length} files, {calculateTotalPages(rows)} pages)
-          </span>
-        )}
-      </h2> */}
       <div className="flex justify-between items-center mb-4 px-4">
         {selectedRows.length > 0 && (
           <span>
             {selectedRows.length} selected, {totalSelectedPages} pages
           </span>
         )}
+        <h2 className="text-center py-4 font-bold text-2xl">
+          {!loading && (
+            <span className="ml-4 text-lg font-normal text-gray-600">
+              Total: ({rows.length} files, {calculateTotalPages(rows)} pages)
+            </span>
+          )}
+        </h2>
         <Button
           variant="contained"
           color="primary"
@@ -121,7 +123,7 @@ function TableAdmin({
         </Button>
       </div>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: 700 }}>
+        <TableContainer sx={{ maxHeight: 600 }}>
           <MuiTable stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -147,7 +149,7 @@ function TableAdmin({
                   <TableCell
                     key={column.id}
                     align={column.align || "left"}
-                    style={{ minWidth: column.minWidth, cursor: 'pointer' }}
+                    style={{ minWidth: column.minWidth, cursor: "pointer" }}
                     onClick={() => handleSort(column.id)} // Click to sort by column
                   >
                     {column.label}
@@ -243,4 +245,3 @@ TableAdmin.defaultProps = {
 };
 
 export default TableAdmin;
-

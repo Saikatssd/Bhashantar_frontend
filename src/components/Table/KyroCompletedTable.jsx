@@ -171,7 +171,7 @@
 //         </div>
 //       </div>
 //       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-//         <TableContainer sx={{ maxHeight: 700 }}>
+//         <TableContainer sx={{ maxHeight: 600 }}>
 //           <MuiTable stickyHeader aria-label="sticky table">
 //             <TableHead>
 //               <TableRow>
@@ -458,7 +458,6 @@ function KyroCompletedTable({
   return (
     <div>
       <h2 className="text-center py-4 font-bold text-2xl">
-        {projectName}
         {!loading && (
           <span className="ml-4 text-lg font-normal text-gray-600">
             ({rows.length} files, {calculateTotalPages(rows)} pages)
@@ -484,14 +483,19 @@ function KyroCompletedTable({
             </MenuItem>
           ))}
         </TextField>
-        <div className="flex items-center space-x-4">
+        {selectedRows.length > 0 && (
+          <span>
+            {selectedRows.length} selected, {totalSelectedPages} pages
+          </span>
+        )}
+        {/* <div className="flex items-center space-x-4">
           <div>
             <strong>Selected Files:</strong> {totalSelectedFiles}
           </div>
           <div>
             <strong>Total Pages:</strong> {totalSelectedPages}
           </div>
-        </div>
+        </div> */}
 
         <div className="flex space-x-4">
           <Button
@@ -513,7 +517,7 @@ function KyroCompletedTable({
         </div>
       </div>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: 700 }}>
+        <TableContainer sx={{ maxHeight: 600 }}>
           <MuiTable stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

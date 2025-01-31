@@ -7,7 +7,6 @@ import UserManage from "../../pages/UserManage";
 import KyroSidebar from "./KyroSidebar";
 import Profile from "../../pages/Profile";
 import ClientCompanies from "./ClientCompanies";
-import ClientProjects from "./ClientProjects";
 import KyroAdminFileFlow from "./KyroAdminFileFlow";
 import KyroUserFileAssign from "./KyroUserFileAssign";
 import KyroUserWorkspace from "./KyroUserWorkspace";
@@ -17,6 +16,7 @@ import Register from "../../pages/auth/Register";
 import KyroAdminHome from "../../pages/Admin/KyroticsAdminHome";
 import UserReport from "../reports/UserReport";
 import UserList from "../../pages/userList";
+import ProjectList from "../../pages/ProjectList";
 
 export default function KyroInstance({ role }) {
   const [userCompanyId, setUserCompanyId] = useState("");
@@ -44,7 +44,7 @@ export default function KyroInstance({ role }) {
       <div className="flex-grow">
         <Routes>
           <Route path="/profile" element={<Profile />} />
-          <Route path="project" element={<ClientProjects />} />
+          <Route path="project" element={<ProjectList />} />
           <Route path="clientCompanies" element={<ClientCompanies companyId={companyId}/>} />
 
           {role === "user" && (

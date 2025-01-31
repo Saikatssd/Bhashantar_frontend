@@ -936,41 +936,32 @@ const UploadFolderView = ({ project, onBack }) => {
   // console.log("Folder length", folders.length);
 
   return (
-    <div className="flex flex-col items-center h-full p-4">
-      {/* Breadcrumbs */}
-      <Breadcrumbs
-        separator="›"
-        aria-label="breadcrumb"
-        className="w-full mb-4"
-      >
-        <Link
-          underline="hover"
-          color="inherit"
-          onClick={() => handleBackClick(null)}
-          className="cursor-pointer"
-        >
-          {project.name}
-        </Link>
-        {breadcrumbs.map((folder, index) => (
+    <div className="flex flex-col items-center h-full  p-4">
+      <div className="w-full mb-4 flex items-center justify-between">
+        <Breadcrumbs separator="›" aria-label="breadcrumb">
           <Link
-            key={folder.id}
             underline="hover"
-            color={
-              index === breadcrumbs.length - 1 ? "text.primary" : "inherit"
-            }
-            onClick={() => handleBackClick(index)}
+            color="inherit"
+            onClick={() => handleBackClick(null)}
             className="cursor-pointer"
           >
-            {folder.name}
+            {project.name}
           </Link>
-        ))}
-      </Breadcrumbs>
+          {breadcrumbs.map((folder, index) => (
+            <Link
+              key={folder.id}
+              underline="hover"
+              color={
+                index === breadcrumbs.length - 1 ? "text.primary" : "inherit"
+              }
+              onClick={() => handleBackClick(index)}
+              className="cursor-pointer"
+            >
+              {folder.name}
+            </Link>
+          ))}
+        </Breadcrumbs>
 
-      {/* Header */}
-      <div className="flex items-center justify-between w-full">
-        <h2 className="text-2xl font-semibold">
-          {currentFolder ? currentFolder.name : project.name}
-        </h2>
         {breadcrumbs.length >= 0 && (
           <IconButton onClick={() => handleBackClick()}>
             <ArrowBackIcon fontSize="large" />
@@ -1000,7 +991,7 @@ const UploadFolderView = ({ project, onBack }) => {
         </div>
       )}
       {/* File List */}
-      {(hasFetchedFolders && (folders.length == 0 || files.length > 0)) && (
+      {hasFetchedFolders && (folders.length == 0 || files.length > 0) && (
         <div className="w-full">
           <TableUpload
             columns={[

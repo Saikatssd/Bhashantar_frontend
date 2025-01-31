@@ -112,7 +112,7 @@
 //       </div>
 
 //       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-//         <TableContainer sx={{ maxHeight: 700 }}>
+//         <TableContainer sx={{ maxHeight: 600 }}>
 //           <MuiTable stickyHeader aria-label="sticky table">
 //             <TableHead>
 //               <TableRow>
@@ -199,7 +199,6 @@
 // };
 
 // export default Table;
-
 
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
@@ -309,36 +308,27 @@ function Table({
 
   return (
     <div>
-      <h2
-        style={{
-          textAlign: "center",
-          padding: "16px",
-          fontWeight: "bold",
-          fontSize: "24px",
-        }}
-      >
-        {projectName}
+      <div className="flex flex-row justify-between">
         <span className="ml-4 text-lg font-normal text-gray-600">
-          ({rows.length} files, {calculateTotalPages(rows)} pages)
+          Total: ({rows.length} files, {calculateTotalPages(rows)} pages)
         </span>
-      </h2>
-
-      <div className="relative w-60 mb-4">
-        <div className="absolute z-10 left-0 p-3 -mt-1 flex m-auto pointer-events-none">
-          <SearchIcon className="w-5 text-gray-500" />
+        <div className="relative w-60 mb-4">
+          <div className="absolute z-10 left-0 p-3 -mt-1 flex m-auto pointer-events-none">
+            <SearchIcon className="w-5 text-gray-500" />
+          </div>
+          <input
+            type="text"
+            name="searchQuery"
+            placeholder="Search User, File, Projects"
+            value={filters.searchQuery}
+            onChange={handleFilterChange}
+            className="block w-full pl-10 pr-3 py-2 border border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/30 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
         </div>
-        <input
-          type="text"
-          name="searchQuery"
-          placeholder="Search User, File, Projects"
-          value={filters.searchQuery}
-          onChange={handleFilterChange}
-          className="block w-full pl-10 pr-3 py-2 border border-[#02bbcc] rounded-3xl leading-5 backdrop-blur-sm shadow-md bg-white/30 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
       </div>
 
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: 700 }}>
+        <TableContainer sx={{ maxHeight: 600 }}>
           <MuiTable stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -348,14 +338,13 @@ function Table({
                     align={column.align || "left"}
                     style={{ minWidth: column.minWidth }}
                     onClick={() => handleSort(column.id)}
-                    
                   >
                     {column.label}
                     {sortConfig.key === column.id && (
-                     <span>
-                       {sortConfig.direction === "asc" ? "  🔼" : "   🔽"}
-                     </span>
-                   )}
+                      <span>
+                        {sortConfig.direction === "asc" ? "  🔼" : "   🔽"}
+                      </span>
+                    )}
                   </TableCell>
                 ))}
               </TableRow>
@@ -368,7 +357,10 @@ function Table({
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (
-                        <TableCell key={column.id} align={column.align || "left"}>
+                        <TableCell
+                          key={column.id}
+                          align={column.align || "left"}
+                        >
                           {column.id === "edit" ? (
                             <Button
                               variant="contained"

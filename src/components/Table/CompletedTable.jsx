@@ -107,38 +107,36 @@ function CompletedTable({
 
   return (
     <div>
-      <h2 className="text-center py-4 font-bold text-2xl">
-        {projectName}
-
-        <span className="ml-4 text-lg font-normal text-gray-600">
-          ({rows.length} files, {calculateTotalPages(rows)} pages)
-        </span>
-      </h2>
       <div className="flex justify-between items-center mb-4 px-4">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSelectedMenuOpen}
-          disabled={selectedRows.length === 0}
-        >
-          <DownloadIcon className="text-white text-lg mx-1" />
-          Download Selected
-        </Button>
-        <Menu
-          anchorEl={selectedAnchorEl}
-          open={Boolean(selectedAnchorEl)}
-          onClose={handleSelectedMenuClose}
-        >
-          <MenuItem onClick={() => handleDownloadSelectedClick("pdf")}>
-            Download as PDF
-          </MenuItem>
-          <MenuItem onClick={() => handleDownloadSelectedClick("word")}>
-            Download as Word
-          </MenuItem>
-        </Menu>
+        <span className="ml-4 text-lg font-normal text-gray-600">
+          Total: ({rows.length} files, {calculateTotalPages(rows)} pages)
+        </span>
+        <div  className="flex justify-between items-center mb-4 px-4">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSelectedMenuOpen}
+            disabled={selectedRows.length === 0}
+          >
+            <DownloadIcon className="text-white text-lg mx-1" />
+            Download Selected
+          </Button>
+          <Menu
+            anchorEl={selectedAnchorEl}
+            open={Boolean(selectedAnchorEl)}
+            onClose={handleSelectedMenuClose}
+          >
+            <MenuItem onClick={() => handleDownloadSelectedClick("pdf")}>
+              Download as PDF
+            </MenuItem>
+            <MenuItem onClick={() => handleDownloadSelectedClick("word")}>
+              Download as Word
+            </MenuItem>
+          </Menu>
+        </div>
       </div>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: 700 }}>
+        <TableContainer sx={{ maxHeight: 600 }}>
           <MuiTable stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
