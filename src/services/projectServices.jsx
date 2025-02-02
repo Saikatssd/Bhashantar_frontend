@@ -207,7 +207,7 @@ export const fetchProjectFiles = async (projectId) => {
 
 export const fetchProjectFilesByFolder = async (projectId, folderId) => {
   try {
-    console.log('test run')
+    // console.log('test run')
     const filesCollection = collection(db, "projects", projectId, "files");
 
     // Create query with folderId filter
@@ -223,7 +223,7 @@ export const fetchProjectFilesByFolder = async (projectId, folderId) => {
       id: doc.id,
       ...doc.data(),
     }));
-    console.log("file in project service : ", files);
+    // console.log("file in project service : ", files);
  
     // const files = filesSnapshot.docs.map((doc) => {
     //   const data = doc.data();

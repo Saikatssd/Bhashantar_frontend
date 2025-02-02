@@ -18,15 +18,15 @@ import { useNavigate } from "react-router-dom";
 import { formatDate, fetchServerTimestamp } from "../../utils/formatDate";
 import { toast } from "react-hot-toast";
 
-const KyroUserFileAssign = () => {
-  const { projectId } = useParams();
+const KyroUserFileAssign = ({ projectId, companyId }) => {
+  // const { projectId } = useParams();
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [projectName, setProjectName] = useState("");
-  const [companyId, setCompanyId] = useState("");
+  // const [companyId, setCompanyId] = useState("");
   const [role, setRole] = useState("");
   const { currentUser } = useAuth();
   const navigate = useNavigate();

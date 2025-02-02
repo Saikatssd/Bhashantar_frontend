@@ -29,6 +29,8 @@ import AdminFileFlow from "../ClientCompany/AdminFileFlow";
 import { kyroCompanyId } from "../../services/companyServices";
 import { useAuth } from "../../context/AuthContext";
 import KyroAdminFileFlow from "../Kyrotics/KyroAdminFileFlow";
+import KyroUserFileAssign from "../Kyrotics/KyroUserFileAssign";
+
 
 const FolderView = ({ project, onBack }) => {
   const { companyId } = useParams();
@@ -209,8 +211,9 @@ const FolderView = ({ project, onBack }) => {
   };
 
   // console.log("project file count", projectFileCount);
-  console.log("current folder", currentFolder);
-  console.log("Folder length", folders.length);
+  // console.log("current folder", currentFolder);
+  // console.log("Folder length", folders.length);
+  // console.log("role", currentUser?.roleName);
 
   return (
     <div className="flex flex-col items-center h-full  ">
@@ -286,7 +289,9 @@ const FolderView = ({ project, onBack }) => {
       {/* File List */}
       {hasFetchedFolders && (folders.length == 0 || files.length > 0) && (
         <div className="w-full">
-          {currentUser?.companyId == kyroId ? (
+          {currentUser?.roleName === "user" ? (
+            <KyroUserFileAssign companyId={companyId} projectId={project.id} />
+          ) : currentUser?.companyId == kyroId ? (
             <KyroAdminFileFlow companyId={companyId} projectId={project.id} />
           ) : (
             <AdminFileFlow companyId={companyId} projectId={project.id} />
