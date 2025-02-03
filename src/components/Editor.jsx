@@ -803,21 +803,18 @@ const LICENSE_KEY =
     if (isInitialContentSet) {
       return (
         <div>
-          <div className="main-container">
-            <div
-              className="editor-container editor-container_document-editor"
-              ref={editorContainerRef}
-            >
-              <div
+          {/* <div className="main-container"> */}
+           
+              {/* <div
                 className="editor-container__menu-bar"
                 ref={editorMenuBarRef}
               ></div>
               <div
                 className="editor-container__toolbar"
                 ref={editorToolbarRef}
-              ></div>
-              <div className="editor-container__editor-wrapper">
-                <div className="editor-container__editor">
+              ></div> */}
+              {/* <div className="editor-container__editor-wrapper"> */}
+                <div className="">
                   <div ref={editorRef}>
                     {isLayoutReady && (
                       <EditorContainer
@@ -829,10 +826,9 @@ const LICENSE_KEY =
                     )}
                   </div>
                 </div>
-              </div>
-            </div>
+              {/* </div> */}
           </div>
-        </div>
+        // </div>
       );
     }
     return null;

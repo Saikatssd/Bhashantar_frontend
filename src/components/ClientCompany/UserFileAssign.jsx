@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import {
-  uploadFile,
-  fetchProjectFiles,
-  fetchProjectName,
-  deleteFile,
-} from "../../utils/firestoreUtil";
+// import {
+//   fetchProjectFiles,
+//   fetchProjectName,
+//   deleteFile,
+// } from "../../utils/firestoreUtil";
+
+import { uploadFile } from "../../services/fileServices";
+import { fetchProjectFiles,fetchProjectName } from "../../services/projectServices";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import { auth } from "../../utils/firebase";

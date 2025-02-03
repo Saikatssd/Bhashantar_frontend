@@ -41,7 +41,7 @@ const EditorContent = ({ editorRef, onInput }) => {
   };
 
   return (
-    <div className="flex-1 overflow-auto bg-gray-100 py-8">
+    <div className="flex-1 bg-gray-100 py-8">
       <div className="mx-auto relative" style={{ maxWidth: '850px' }}>
         {/* Editor container */}
         <div 

@@ -26,7 +26,7 @@ const Toolbar = ({
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 p-2 flex flex-wrap gap-2">
+    <div className="bg-white top-0 p-3 shadow-lg fixed z-50 border-b border-gray-200 flex flex-wrap gap-2">
       {/* Example: Save, Undo, Redo */}
       <div className="flex items-center gap-1 border-r border-gray-200 pr-2">
         <button onClick={() => execCommand('save')} className="p-1.5 hover:bg-gray-100 rounded">

@@ -65,7 +65,7 @@ export default function KyroSidebar({ companyId, role }) {
                 Home
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 to={`/kyro/${companyId}/clientCompanies`}
                 className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/clientCompanies`)
@@ -76,7 +76,20 @@ export default function KyroSidebar({ companyId, role }) {
                 <FolderCopyIcon className="mr-5" />
                 Judgements
               </Link>
+            </li> */}
+            <li>
+              <Link
+                to={`/kyro/${companyId}/clientCompanies`}
+                className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/clientCompanies`) || isActive(`/kyro/${companyId}/project`)
+                    ? "bg-[#e3d2fa] text-gray-700"
+                    : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                  }`}
+              >
+                <FolderCopyIcon className="mr-5" />
+                Judgements
+              </Link>
             </li>
+
             {role === "user" && (
               <>
                 <li>

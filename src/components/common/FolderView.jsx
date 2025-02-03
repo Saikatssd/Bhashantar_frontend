@@ -30,6 +30,7 @@ import { kyroCompanyId } from "../../services/companyServices";
 import { useAuth } from "../../context/AuthContext";
 import KyroAdminFileFlow from "../Kyrotics/KyroAdminFileFlow";
 import KyroUserFileAssign from "../Kyrotics/KyroUserFileAssign";
+import UserFileAssign from "../ClientCompany/UserFileAssign";
 
 
 const FolderView = ({ project, onBack }) => {
@@ -298,6 +299,23 @@ const FolderView = ({ project, onBack }) => {
           )}
         </div>
       )}
+
+      {/* {hasFetchedFolders && (folders.length === 0 || files.length > 0) && (
+        <div className="w-full">
+          {companyId === kyroId ? (
+            currentUser?.roleName === "user" ? (
+              <KyroUserFileAssign companyId={companyId} projectId={project.id} />
+            ) : (
+              <KyroAdminFileFlow companyId={companyId} projectId={project.id} />
+            )
+          ) : currentUser?.roleName === "user" ? (
+            <UserFileAssign companyId={companyId} projectId={project.id} />
+          ) : (
+            <AdminFileFlow companyId={companyId} projectId={project.id} />
+          )}
+        </div>
+      )} */}
+
     </div>
   );
 };

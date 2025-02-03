@@ -8,7 +8,7 @@ import FindReplaceDialog from './Dialogs/FindReplaceDialog';
 import TableDialog from './Dialogs/TableDialog';
 import ImageDialog from './Dialogs/ImageDialog';
 
-const EditorContainer = ({ initialContent = '', onChange}) => {
+const EditorContainer = ({ initialContent = '', onChange }) => {
   const editorRef = useRef(null);
 
   // States
@@ -60,12 +60,12 @@ const EditorContainer = ({ initialContent = '', onChange}) => {
   //   }
   // }, [initialContent]);
 
-    useEffect(() => {
-      if (editorRef.current && editorRef.current.innerHTML !== initialContent) {
-        editorRef.current.innerHTML = initialContent;
-        updateCounts();
-      }
-    }, [initialContent]);
+  useEffect(() => {
+    if (editorRef.current && editorRef.current.innerHTML !== initialContent) {
+      editorRef.current.innerHTML = initialContent;
+      updateCounts();
+    }
+  }, [initialContent]);
 
   // Track content changes and notify parent
   useEffect(() => {
@@ -90,22 +90,22 @@ const EditorContainer = ({ initialContent = '', onChange}) => {
   }, [onChange]);
 
 
-    // Save and restore cursor position
-    const saveCursorPosition = () => {
+  // Save and restore cursor position
+  const saveCursorPosition = () => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      return selection.getRangeAt(0);
+    }
+    return null;
+  };
+
+  const restoreCursorPosition = (savedRange) => {
+    if (savedRange) {
       const selection = window.getSelection();
-      if (selection.rangeCount > 0) {
-        return selection.getRangeAt(0);
-      }
-      return null;
-    };
-  
-    const restoreCursorPosition = (savedRange) => {
-      if (savedRange) {
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(savedRange);
-      }
-    };
+      selection.removeAllRanges();
+      selection.addRange(savedRange);
+    }
+  };
 
   // ---- Core Editor Commands ----
   const execCommand = (command, value = null) => {
@@ -157,26 +157,26 @@ const EditorContainer = ({ initialContent = '', onChange}) => {
     if (editorRef.current) {
       // Ensure the editor is focused
       editorRef.current.focus();
-  
+
       // Get the selection and ensure it's within the editor
       const selection = window.getSelection();
       if (!selection.rangeCount || !editorRef.current.contains(selection.anchorNode)) {
         console.warn('Selection is outside the editor');
         return;
       }
-  
+
       const range = selection.getRangeAt(0);
-  
+
       // Create a wrapper div for the table
       const wrapper = document.createElement('div');
       wrapper.style.width = '100%';
       wrapper.style.overflowX = 'auto';
       wrapper.innerHTML = tableHTML;
-  
+
       // Insert the wrapped table at the current cursor position
       range.deleteContents();
       range.insertNode(wrapper);
-  
+
       // Add a line break after the table for better spacing
       const br = document.createElement('br');
       if (wrapper.nextSibling) {
@@ -184,7 +184,7 @@ const EditorContainer = ({ initialContent = '', onChange}) => {
       } else {
         wrapper.parentNode.appendChild(br);
       }
-  
+
       // Place the cursor in the first cell of the table
       const firstCell = wrapper.querySelector('td, th');
       if (firstCell) {
@@ -195,14 +195,14 @@ const EditorContainer = ({ initialContent = '', onChange}) => {
         selection.addRange(cellRange);
         firstCell.focus();
       }
-  
+
       // Close the dialog
       setShowTableDialog(false);
     }
   };
-  
-  
-  
+
+
+
 
   // ---- Find and Replace Logic ----
   const handleFindReplace = (action = 'find') => {
@@ -302,7 +302,7 @@ const EditorContainer = ({ initialContent = '', onChange}) => {
       />
 
       {/* 3. Status Bar */}
-      <StatusBar wordCount={wordCount} charCount={charCount} />
+      {/* <StatusBar wordCount={wordCount} charCount={charCount} /> */}
 
       {/* 4. Find & Replace Dialog */}
       {showFindReplace && (
@@ -333,12 +333,12 @@ const EditorContainer = ({ initialContent = '', onChange}) => {
         />
       )} */}
 
-{showTableDialog && (
-  <TableDialog
-    insertTable={insertTable}
-    onClose={() => setShowTableDialog(false)}
-  />
-)}
+      {showTableDialog && (
+        <TableDialog
+          insertTable={insertTable}
+          onClose={() => setShowTableDialog(false)}
+        />
+      )}
 
       {/* 6. Image Dialog */}
       {showImageDialog && (
