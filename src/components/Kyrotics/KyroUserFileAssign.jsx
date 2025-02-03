@@ -27,7 +27,7 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [projectName, setProjectName] = useState("");
   // const [companyId, setCompanyId] = useState("");
-  const [role, setRole] = useState("");
+  // const [role, setRole] = useState("");
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -39,20 +39,20 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
     { id: "assign", label: "Actions", minWidth: 100 },
   ];
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const token = await user.getIdTokenResult();
-        // console.log(token)
-        user.roleName = token.claims.roleName;
-        user.companyId = token.claims.companyId;
+  // useEffect(() => {
+  //   const unsubscribe = auth.onAuthStateChanged(async (user) => {
+  //     if (user) {
+  //       const token = await user.getIdTokenResult();
+  //       // console.log(token)
+  //       user.roleName = token.claims.roleName;
+  //       user.companyId = token.claims.companyId;
 
-        setRole(user.roleName);
-        setCompanyId(user.companyId);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+  //       setRole(user.roleName);
+  //       setCompanyId(user.companyId);
+  //     }
+  //   });
+  //   return () => unsubscribe();
+  // }, []);
 
   useEffect(() => {
     if (companyId) {
@@ -75,7 +75,7 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
       };
       getProjectData();
     }
-  }, [projectId, companyId, role]);
+  }, [projectId, companyId]);
 
   // const handleFileAssign = async (id) => {
   //   try {

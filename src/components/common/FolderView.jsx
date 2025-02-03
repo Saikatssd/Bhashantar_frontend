@@ -288,7 +288,7 @@ const FolderView = ({ project, onBack }) => {
         )}
 
       {/* File List */}
-      {hasFetchedFolders && (folders.length == 0 || files.length > 0) && (
+      {/* {hasFetchedFolders && (folders.length == 0 || files.length > 0) && (
         <div className="w-full">
           {currentUser?.roleName === "user" ? (
             <KyroUserFileAssign companyId={companyId} projectId={project.id} />
@@ -298,11 +298,11 @@ const FolderView = ({ project, onBack }) => {
             <AdminFileFlow companyId={companyId} projectId={project.id} />
           )}
         </div>
-      )}
+      )} */}
 
-      {/* {hasFetchedFolders && (folders.length === 0 || files.length > 0) && (
+      {hasFetchedFolders && (folders.length === 0 || files.length > 0) && (
         <div className="w-full">
-          {companyId === kyroId ? (
+          {currentUser?.companyId  === kyroId ? (
             currentUser?.roleName === "user" ? (
               <KyroUserFileAssign companyId={companyId} projectId={project.id} />
             ) : (
@@ -314,7 +314,7 @@ const FolderView = ({ project, onBack }) => {
             <AdminFileFlow companyId={companyId} projectId={project.id} />
           )}
         </div>
-      )} */}
+      )}
 
     </div>
   );
