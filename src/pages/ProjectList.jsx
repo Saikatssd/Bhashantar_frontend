@@ -76,7 +76,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { server } from "../main";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import Loader from "../components/common/Loader";
 import FolderIcon from "@mui/icons-material/Folder";
 import FolderView from "../components/common/FolderView";
@@ -93,6 +93,8 @@ const Loader2 = () => (
 
 function ProjectList() {
   const { companyId } = useParams();
+  const [searchParams] = useSearchParams();
+  const superAdminCompanyId = searchParams.get("superAdminCompanyId");
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -100,10 +102,11 @@ function ProjectList() {
   const { currentUser } = useAuth();
   const [kyroId, setKyroId] = useState("");
   const [isGridView, setIsGridView] = useState(true);
-
+  console.log("superAdminCompanyId", superAdminCompanyId);
   useEffect(() => {
     const getKyroId = async () => {
       const id = await kyroCompanyId();
+
       setKyroId(id);
     };
     getKyroId();
@@ -217,7 +220,7 @@ function ProjectList() {
         )}
 
         {selectedProject && (
-          <FolderView project={selectedProject} onBack={handleBack} />
+          <FolderView project={selectedProject} onBack={handleBack} superAdminCompanyId={superAdminCompanyId}/>
         )}
       </div>
     </div>
