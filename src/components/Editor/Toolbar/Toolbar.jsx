@@ -71,9 +71,9 @@ const Toolbar = ({
         <button onClick={() => execCommand('underline')} className="p-1.5 hover:bg-gray-100 rounded">
           <Underline size={18} />
         </button>
-        <button onClick={() => execCommand('strikeThrough')} className="p-1.5 hover:bg-gray-100 rounded">
+        {/* <button onClick={() => execCommand('strikeThrough')} className="p-1.5 hover:bg-gray-100 rounded">
           <Strikethrough size={18} />
-        </button>
+        </button> */}
       </div>
 
       {/* Color pickers */}

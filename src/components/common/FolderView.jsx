@@ -214,7 +214,7 @@ const FolderView = ({ project, onBack }) => {
   // console.log("project file count", projectFileCount);
   // console.log("current folder", currentFolder);
   // console.log("Folder length", folders.length);
-  // console.log("role", currentUser?.roleName);
+  console.log("currentUser", currentUser);
 
   return (
     <div className="flex flex-col items-center h-full  ">
@@ -300,7 +300,7 @@ const FolderView = ({ project, onBack }) => {
         </div>
       )} */}
 
-      {hasFetchedFolders && (folders.length === 0 || files.length > 0) && (
+      {/* {hasFetchedFolders && (folders.length === 0 || files.length > 0) && (
         <div className="w-full">
           {currentUser?.companyId  === kyroId ? (
             currentUser?.roleName === "user" ? (
@@ -314,7 +314,29 @@ const FolderView = ({ project, onBack }) => {
             <AdminFileFlow companyId={companyId} projectId={project.id} />
           )}
         </div>
+      )} */}
+
+      {hasFetchedFolders && (folders.length === 0 || files.length > 0) && (
+        <div className="w-full">
+          {currentUser?.roleName === "superAdmin" ? (
+            <>
+              <KyroAdminFileFlow companyId={companyId} projectId={project.id} />
+              <AdminFileFlow companyId={companyId} projectId={project.id} />
+            </>
+          ) : currentUser?.companyId === kyroId ? (
+            currentUser?.roleName === "user" ? (
+              <KyroUserFileAssign companyId={companyId} projectId={project.id} />
+            ) : (
+              <KyroAdminFileFlow companyId={companyId} projectId={project.id} />
+            )
+          ) : currentUser?.roleName === "user" ? (
+            <UserFileAssign companyId={companyId} projectId={project.id} />
+          ) : (
+            <AdminFileFlow companyId={companyId} projectId={project.id} />
+          )}
+        </div>
       )}
+
 
     </div>
   );

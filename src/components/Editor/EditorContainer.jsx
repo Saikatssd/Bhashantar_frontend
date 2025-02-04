@@ -132,26 +132,7 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
   };
 
   // ---- Insert Table ----
-  // const insertTable = () => {
-  //   const table = document.createElement('table');
-  //   table.style.borderCollapse = 'collapse';
-  //   table.style.width = '100%';
 
-  //   for (let i = 0; i < tableRows; i++) {
-  //     const row = table.insertRow();
-  //     for (let j = 0; j < tableCols; j++) {
-  //       const cell = row.insertCell();
-  //       cell.style.border = '1px solid #ddd';
-  //       cell.style.padding = '8px';
-  //       cell.contentEditable = 'true';
-  //     }
-  //   }
-
-  //   if (editorRef.current) {
-  //     editorRef.current.appendChild(table);
-  //     setShowTableDialog(false);
-  //   }
-  // };
 
   const insertTable = (tableHTML) => {
     if (editorRef.current) {
