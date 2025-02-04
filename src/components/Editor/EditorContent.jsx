@@ -60,7 +60,7 @@ const EditorContent = ({ editorRef, onInput }) => {
             onInput={handleInput}
             style={{
               fontFamily: 'Calibri, Arial, sans-serif',
-              fontSize: '11pt',
+              // fontSize: '11pt',
               lineHeight: '1.5',
               color: '#000000',
               wordWrap: 'break-word',

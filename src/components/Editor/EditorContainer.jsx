@@ -1,15 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 
 // Import your subcomponents
-import Toolbar from './Toolbar/Toolbar';
-import EditorContent from './EditorContent';
-import StatusBar from './StatusBar';
-import FindReplaceDialog from './Dialogs/FindReplaceDialog';
-import TableDialog from './Dialogs/TableDialog';
-import ImageDialog from './Dialogs/ImageDialog';
+import Toolbar from "./Toolbar/Toolbar";
+import EditorContent from "./EditorContent";
+import StatusBar from "./StatusBar";
+import FindReplaceDialog from "./Dialogs/FindReplaceDialog";
+import TableDialog from "./Dialogs/TableDialog";
+import ImageDialog from "./Dialogs/ImageDialog";
 
-const EditorContainer = ({ initialContent = '', onChange }) => {
+const EditorContainer = ({ initialContent = "", onChange }) => {
   const editorRef = useRef(null);
+  // New ref to store the current selection range before opening dialogs.
+  const savedRangeRef = useRef(null);
 
   // States
   const [wordCount, setWordCount] = useState(0);
@@ -19,46 +21,65 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
   const [showTableDialog, setShowTableDialog] = useState(false);
   const [showImageDialog, setShowImageDialog] = useState(false);
 
-  const [findText, setFindText] = useState('');
-  const [replaceText, setReplaceText] = useState('');
+  const [findText, setFindText] = useState("");
+  const [replaceText, setReplaceText] = useState("");
   const [tableRows, setTableRows] = useState(2);
   const [tableCols, setTableCols] = useState(2);
   const [imageConfig, setImageConfig] = useState({
-    url: '',
-    alt: '',
-    width: '300',
-    height: '200',
+    url: "",
+    alt: "",
+    width: "300",
+    height: "200",
   });
   const [caseSensitive, setCaseSensitive] = useState(false);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
   const [matches, setMatches] = useState([]);
 
   const colors = [
-    '#000000', '#434343', '#666666', '#999999', '#b7b7b7',
-    '#d9d9d9', '#efefef', '#f3f3f3', '#ffffff', '#980000',
-    '#ff0000', '#ff9900', '#ffff00', '#00ff00', '#00ffff',
-    '#4a86e8', '#0000ff', '#9900ff', '#ff00ff', '#e6b8af'
+    "#000000",
+    "#434343",
+    "#666666",
+    "#999999",
+    "#b7b7b7",
+    "#d9d9d9",
+    "#efefef",
+    "#f3f3f3",
+    "#ffffff",
+    "#980000",
+    "#ff0000",
+    "#ff9900",
+    "#ffff00",
+    "#00ff00",
+    "#00ffff",
+    "#4a86e8",
+    "#0000ff",
+    "#9900ff",
+    "#ff00ff",
+    "#e6b8af",
   ];
 
-  const fonts = ['Arial', 'Times New Roman', 'Courier New', 'Georgia', 'Verdana'];
+  const fonts = [
+    "Arial",
+    "Times New Roman",
+    "Courier New",
+    "Georgia",
+    "Verdana",
+  ];
 
   const fontSizes = [
-    { label: '8', value: '1' },
-    { label: '10', value: '2' },
-    { label: '12', value: '3' },
-    { label: '14', value: '4' },
-    { label: '18', value: '5' },
-    { label: '24', value: '6' },
-    { label: '36', value: '7' }
+    { label: "8", value: "1" },
+    { label: "10", value: "2" },
+    { label: "12", value: "3" },
+    { label: "14", value: "4" },
+    { label: "18", value: "5" },
+    { label: "24", value: "6" },
+    { label: "36", value: "7" },
   ];
 
-  // On mount, set initial content
-  // useEffect(() => {
-  //   if (editorRef.current) {
-  //     editorRef.current.innerHTML = initialContent;
-  //     updateCounts();
-  //   }
-  // }, [initialContent]);
+  // NEW: Enable CSS styling for execCommand to use inline styles
+  useEffect(() => {
+    document.execCommand("styleWithCSS", false, true);
+  }, []);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== initialContent) {
@@ -79,24 +100,22 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
 
     const editor = editorRef.current;
     if (editor) {
-      editor.addEventListener('input', handleInput);
+      editor.addEventListener("input", handleInput);
     }
 
     return () => {
       if (editor) {
-        editor.removeEventListener('input', handleInput);
+        editor.removeEventListener("input", handleInput);
       }
     };
   }, [onChange]);
-
 
   // Save and restore cursor position
   const saveCursorPosition = () => {
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
-      return selection.getRangeAt(0);
+      savedRangeRef.current = selection.getRangeAt(0);
     }
-    return null;
   };
 
   const restoreCursorPosition = (savedRange) => {
@@ -116,7 +135,10 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
   const updateCounts = () => {
     if (editorRef.current) {
       const text = editorRef.current.innerText;
-      const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+      const words = text
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word.length > 0).length;
       setWordCount(words);
       setCharCount(text.length);
     }
@@ -126,32 +148,36 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
   const insertImage = () => {
     const imgHtml = `<img src="${imageConfig.url}" alt="${imageConfig.alt}" 
         style="width: ${imageConfig.width}px; height: ${imageConfig.height}px;" />`;
-    execCommand('insertHTML', imgHtml);
+    execCommand("insertHTML", imgHtml);
     setShowImageDialog(false);
-    setImageConfig({ url: '', alt: '', width: '300', height: '200' });
+    setImageConfig({ url: "", alt: "", width: "300", height: "200" });
   };
 
   // ---- Insert Table ----
-
-
   const insertTable = (tableHTML) => {
     if (editorRef.current) {
-      // Ensure the editor is focused
+      // Focus the editor
       editorRef.current.focus();
 
-      // Get the selection and ensure it's within the editor
       const selection = window.getSelection();
-      if (!selection.rangeCount || !editorRef.current.contains(selection.anchorNode)) {
-        console.warn('Selection is outside the editor');
+      let range;
+
+      // Use the saved range if available, otherwise get the current range
+      if (savedRangeRef.current) {
+        range = savedRangeRef.current;
+      } else if (selection.rangeCount > 0) {
+        range = selection.getRangeAt(0);
+      }
+
+      if (!range || !editorRef.current.contains(range.startContainer)) {
+        console.warn("Selection is outside the editor");
         return;
       }
 
-      const range = selection.getRangeAt(0);
-
       // Create a wrapper div for the table
-      const wrapper = document.createElement('div');
-      wrapper.style.width = '100%';
-      wrapper.style.overflowX = 'auto';
+      const wrapper = document.createElement("div");
+      wrapper.style.width = "100%";
+      wrapper.style.overflowX = "auto";
       wrapper.innerHTML = tableHTML;
 
       // Insert the wrapped table at the current cursor position
@@ -159,7 +185,7 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
       range.insertNode(wrapper);
 
       // Add a line break after the table for better spacing
-      const br = document.createElement('br');
+      const br = document.createElement("br");
       if (wrapper.nextSibling) {
         wrapper.parentNode.insertBefore(br, wrapper.nextSibling);
       } else {
@@ -167,7 +193,7 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
       }
 
       // Place the cursor in the first cell of the table
-      const firstCell = wrapper.querySelector('td, th');
+      const firstCell = wrapper.querySelector("td, th");
       if (firstCell) {
         const cellRange = document.createRange();
         cellRange.selectNodeContents(firstCell);
@@ -177,16 +203,28 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
         firstCell.focus();
       }
 
+      // Clear the saved selection
+      savedRangeRef.current = null;
+
       // Close the dialog
       setShowTableDialog(false);
     }
   };
 
-
-
+  // ---- Handle opening Table Dialog (also saves the current selection) ----
+  const handleOpenTableDialog = () => {
+    if (editorRef.current) {
+      editorRef.current.focus();
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        savedRangeRef.current = selection.getRangeAt(0);
+      }
+    }
+    setShowTableDialog(true);
+  };
 
   // ---- Find and Replace Logic ----
-  const handleFindReplace = (action = 'find') => {
+  const handleFindReplace = (action = "find") => {
     if (!editorRef.current) return;
 
     const editorContent = editorRef.current.innerHTML;
@@ -195,44 +233,47 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
     // Clear highlights
     const cleanContent = editorContent.replace(
       /<span class="highlight">(.*?)<\/span>/gi,
-      '$1'
+      "$1"
     );
 
     editorRef.current.innerHTML = cleanContent;
 
-    if (findText.trim() === '') {
+    if (findText.trim() === "") {
       setMatches([]);
       setCurrentMatchIndex(-1);
       return;
     }
 
-    const searchRegex = new RegExp(findText, `g${caseSensitive ? '' : 'i'}`);
+    const searchRegex = new RegExp(findText, `g${caseSensitive ? "" : "i"}`);
     const newMatches = [];
 
     // Highlight matches
-    const highlightedContent = cleanContent.replace(searchRegex, (matchText, offset) => {
-      newMatches.push({ matchText, start: offset });
-      return `<span class="highlight">${matchText}</span>`;
-    });
+    const highlightedContent = cleanContent.replace(
+      searchRegex,
+      (matchText, offset) => {
+        newMatches.push({ matchText, start: offset });
+        return `<span class="highlight">${matchText}</span>`;
+      }
+    );
 
     editorRef.current.innerHTML = highlightedContent;
     setMatches(newMatches);
 
-    if (action === 'replace') {
+    if (action === "replace") {
       if (currentMatchIndex >= 0 && currentMatchIndex < newMatches.length) {
         const replaceRegex = new RegExp(
           `(<span class="highlight">)${findText}(</span>)`,
-          `g${caseSensitive ? '' : 'i'}`
+          `g${caseSensitive ? "" : "i"}`
         );
         const replacedContent = editorRef.current.innerHTML.replace(
           replaceRegex,
           `$1${replaceText}$2`
         );
         editorRef.current.innerHTML = replacedContent;
-        handleFindReplace('find'); // Re-highlight
+        handleFindReplace("find"); // Re-highlight
       }
-    } else if (action === 'replaceAll') {
-      const replaceRegex = new RegExp(findText, `g${caseSensitive ? '' : 'i'}`);
+    } else if (action === "replaceAll") {
+      const replaceRegex = new RegExp(findText, `g${caseSensitive ? "" : "i"}`);
       const replacedContent = cleanContent.replace(replaceRegex, replaceText);
       editorRef.current.innerHTML = replacedContent;
       setMatches([]);
@@ -241,7 +282,7 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
 
   const navigateMatches = (direction) => {
     if (matches.length === 0) return;
-    let newIndex = currentMatchIndex + (direction === 'next' ? 1 : -1);
+    let newIndex = currentMatchIndex + (direction === "next" ? 1 : -1);
     if (newIndex < 0) newIndex = matches.length - 1;
     if (newIndex >= matches.length) newIndex = 0;
 
@@ -253,11 +294,11 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
       const range = document.createRange();
       const selection = window.getSelection();
 
-      const matchElement = editor.querySelectorAll('.highlight')[newIndex];
+      const matchElement = editor.querySelectorAll(".highlight")[newIndex];
       range.selectNodeContents(matchElement);
       selection.removeAllRanges();
       selection.addRange(range);
-      matchElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      matchElement.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
@@ -272,15 +313,12 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
         fonts={fonts}
         fontSizes={fontSizes}
         insertImage={() => setShowImageDialog(true)}
-        insertTable={() => setShowTableDialog(true)}
+        insertTable={handleOpenTableDialog}
         setShowFindReplace={setShowFindReplace}
       />
 
       {/* 2. Editor Content */}
-      <EditorContent
-        editorRef={editorRef}
-        onInput={updateCounts}
-      />
+      <EditorContent editorRef={editorRef} onInput={updateCounts} />
 
       {/* 3. Status Bar */}
       {/* <StatusBar wordCount={wordCount} charCount={charCount} /> */}
@@ -303,17 +341,6 @@ const EditorContainer = ({ initialContent = '', onChange }) => {
       )}
 
       {/* 5. Table Dialog */}
-      {/* {showTableDialog && (
-        <TableDialog
-          tableRows={tableRows}
-          setTableRows={setTableRows}
-          tableCols={tableCols}
-          setTableCols={setTableCols}
-          insertTable={insertTable}
-          onClose={() => setShowTableDialog(false)}
-        />
-      )} */}
-
       {showTableDialog && (
         <TableDialog
           insertTable={insertTable}
