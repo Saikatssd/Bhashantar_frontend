@@ -868,12 +868,12 @@ const LICENSE_KEY =
           size="large"
           sx={{
             position: "fixed",
-            top: 12,
+            top: 60,
             right: 120,
             width: "80px",
             height: "29px",
             fontSize: "14px",
-            zIndex: 10,
+            zIndex: 100,
           }}
         >
           <ArrowBackIcon sx={{ marginRight: "3px" }} />
@@ -889,12 +889,12 @@ const LICENSE_KEY =
           size="large"
           sx={{
             position: "fixed",
-            top: 12,
+            top: 60,
             right: 30,
             width: "80px",
             height: "29px",
             fontSize: "14px",
-            zIndex: 10,
+            zIndex: 100,
           }}
         >
           Submit
@@ -904,10 +904,10 @@ const LICENSE_KEY =
             onClick={handleDownload}
             sx={{
               position: "fixed",
-              top: 18,
+              top: 60,
               right: 400,
               fontSize: "20px",
-              zIndex: 10,
+              zIndex: 100,
             }}
             className="text-gray-600 hover:text-blue-600 hover:scale-125 cursor-pointer "
           />
