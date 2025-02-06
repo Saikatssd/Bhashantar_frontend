@@ -43,44 +43,106 @@ const ListControls = ({ execCommand }) => {
     setNumberAnchorEl(null);
   };
 
+  // const applyListStyle = (style) => {
+  //   document.execCommand('insertUnorderedList');
+  //   const selection = window.getSelection();
+  //   if (selection?.rangeCount > 0) {
+  //     const range = selection.getRangeAt(0);
+  //     let parent = range.commonAncestorContainer;
+      
+  //     if (parent.nodeType === 3) {
+  //       parent = parent.parentElement;
+  //     }
+      
+  //     const ul = parent.closest('ul');
+  //     if (ul) {
+  //       ul.style.listStyleType = style;
+  //     }
+  //   }
+  //   handleClose();
+  // };
   const applyListStyle = (style) => {
-    document.execCommand('insertUnorderedList');
-    const selection = window.getSelection();
-    if (selection?.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      let parent = range.commonAncestorContainer;
-      
-      if (parent.nodeType === 3) {
-        parent = parent.parentElement;
+    document.execCommand("insertUnorderedList");
+  
+    setTimeout(() => {
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        let range = selection.getRangeAt(0);
+        let parent = range.commonAncestorContainer;
+  
+        if (parent.nodeType === 3) {
+          parent = parent.parentElement;
+        }
+  
+        let ul = parent.closest("ul");
+        if (ul) {
+          // Explicitly set a bullet character instead of CSS list-style-type
+          const bulletMap = {
+            "disc": "•",
+            "circle": "○",
+            "square": "▪",
+            "none": ""
+          };
+          
+          ul.setAttribute("style", "padding-left: 20px;"); // Ensures spacing
+          Array.from(ul.children).forEach((li) => {
+            li.innerHTML = `${bulletMap[style] || "•"} ${li.innerHTML}`;
+          });
+        }
       }
-      
-      const ul = parent.closest('ul');
-      if (ul) {
-        ul.style.listStyleType = style;
-      }
-    }
+    }, 50);
+  
     handleClose();
   };
-
+  
+  
+  // const applyNumberStyle = (style) => {
+  //   document.execCommand('insertOrderedList');
+  //   const selection = window.getSelection();
+  //   if (selection?.rangeCount > 0) {
+  //     const range = selection.getRangeAt(0);
+  //     let parent = range.commonAncestorContainer;
+      
+  //     if (parent.nodeType === 3) {
+  //       parent = parent.parentElement;
+  //     }
+      
+  //     const ol = parent.closest('ol');
+  //     if (ol) {
+  //       ol.style.listStyleType = style;
+  //     }
+  //   }
+  //   handleClose();
+  // };
   const applyNumberStyle = (style) => {
-    document.execCommand('insertOrderedList');
-    const selection = window.getSelection();
-    if (selection?.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      let parent = range.commonAncestorContainer;
-      
-      if (parent.nodeType === 3) {
-        parent = parent.parentElement;
+    document.execCommand("insertOrderedList");
+  
+    setTimeout(() => {
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        let range = selection.getRangeAt(0);
+        let parent = range.commonAncestorContainer;
+  
+        if (parent.nodeType === 3) {
+          parent = parent.parentElement;
+        }
+  
+        let ol = parent.closest("ol");
+        if (ol) {
+          ol.setAttribute("style", `counter-reset: list-counter; padding-left: 20px;`);
+  
+          Array.from(ol.children).forEach((li, index) => {
+            li.setAttribute("style", "display: flex; align-items: center;");
+            li.innerHTML = `<span style="margin-right: 5px;">${index + 1}.</span> ${li.innerHTML}`;
+          });
+        }
       }
-      
-      const ol = parent.closest('ol');
-      if (ol) {
-        ol.style.listStyleType = style;
-      }
-    }
+    }, 50);
+  
     handleClose();
   };
-
+  
+  
   return (
     <div className="flex items-center gap-1">
       <Tooltip title="Bullet List">
@@ -107,16 +169,13 @@ const ListControls = ({ execCommand }) => {
         }}
       >
         {listStyles.map((style) => (
-          <MenuItem 
-            key={style.value} 
-            onClick={() => applyListStyle(style.value)}
-            sx={{ minWidth: '150px' }}
-          >
-            <ListItemIcon sx={{ minWidth: '32px', fontSize: '1.2rem' }}>
-              {style.icon}
-            </ListItemIcon>
-            <ListItemText>{style.label}</ListItemText>
-          </MenuItem>
+         <MenuItem key={style.value} onClick={() => applyListStyle(style.value)}>
+         <ListItemIcon sx={{ minWidth: "32px", fontSize: "1.2rem" }}>
+           {style.icon}
+         </ListItemIcon>
+         <ListItemText>{style.label}</ListItemText>
+       </MenuItem>
+       
         ))}
       </Menu>
 

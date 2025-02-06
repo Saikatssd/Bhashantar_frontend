@@ -38,7 +38,7 @@ const UserSelectModal = ({ open, handleClose, handleAssign, companyId }) => {
                 const usersQuery = query(
                     collection(db, 'users'),
                     where('companyId', '==', companyId),
-                    // where('roleId', '==', '8q307xybAGCqnyQF52yX')
+                    // where('disabled', '==', 'false')
                 );
                 const usersSnapshot = await getDocs(usersQuery);
                 const usersData = usersSnapshot.docs.map(doc => ({

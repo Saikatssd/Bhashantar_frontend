@@ -154,63 +154,138 @@ const EditorContainer = ({ initialContent = "", onChange }) => {
   };
 
   // ---- Insert Table ----
+  // const insertTable = (tableHTML) => {
+  //   if (editorRef.current) {
+  //     // Focus the editor
+  //     editorRef.current.focus();
+
+  //     const selection = window.getSelection();
+  //     let range;
+
+  //     // Use the saved range if available, otherwise get the current range
+  //     if (savedRangeRef.current) {
+  //       range = savedRangeRef.current;
+  //     } else if (selection.rangeCount > 0) {
+  //       range = selection.getRangeAt(0);
+  //     }
+
+  //     if (!range || !editorRef.current.contains(range.startContainer)) {
+  //       console.warn("Selection is outside the editor");
+  //       return;
+  //     }
+
+  //     // Create a wrapper div for the table
+  //     const wrapper = document.createElement("div");
+  //     wrapper.style.width = "100%";
+  //     wrapper.style.overflowX = "auto";
+  //     wrapper.innerHTML = tableHTML;
+
+  //     // Insert the wrapped table at the current cursor position
+  //     range.deleteContents();
+  //     range.insertNode(wrapper);
+
+  //     // Add a line break after the table for better spacing
+  //     const br = document.createElement("br");
+  //     if (wrapper.nextSibling) {
+  //       wrapper.parentNode.insertBefore(br, wrapper.nextSibling);
+  //     } else {
+  //       wrapper.parentNode.appendChild(br);
+  //     }
+
+  //     // Place the cursor in the first cell of the table
+  //     const firstCell = wrapper.querySelector("td, th");
+  //     if (firstCell) {
+  //       const cellRange = document.createRange();
+  //       cellRange.selectNodeContents(firstCell);
+  //       cellRange.collapse(true);
+  //       selection.removeAllRanges();
+  //       selection.addRange(cellRange);
+  //       firstCell.focus();
+  //     }
+
+  //     // Clear the saved selection
+  //     savedRangeRef.current = null;
+
+  //     // Close the dialog
+  //     setShowTableDialog(false);
+  //   }
+  // };
+
   const insertTable = (tableHTML) => {
     if (editorRef.current) {
-      // Focus the editor
       editorRef.current.focus();
-
       const selection = window.getSelection();
       let range;
-
-      // Use the saved range if available, otherwise get the current range
+  
+      // Get current selection range
       if (savedRangeRef.current) {
         range = savedRangeRef.current;
       } else if (selection.rangeCount > 0) {
         range = selection.getRangeAt(0);
       }
-
+  
       if (!range || !editorRef.current.contains(range.startContainer)) {
         console.warn("Selection is outside the editor");
         return;
       }
-
-      // Create a wrapper div for the table
-      const wrapper = document.createElement("div");
-      wrapper.style.width = "100%";
-      wrapper.style.overflowX = "auto";
-      wrapper.innerHTML = tableHTML;
-
-      // Insert the wrapped table at the current cursor position
+  
+      // Create temporary container
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = tableHTML;
+  
+      // Process table for DOCX compatibility
+      const table = tempDiv.querySelector('table');
+      if (table) {
+        // htmltodocx requires these specific attributes
+        table.setAttribute('border', '1');
+        table.setAttribute('cellpadding', '4');
+        table.setAttribute('cellspacing', '0');
+        table.style.borderCollapse = 'collapse';
+        table.style.width = '100%';
+  
+        // Add basic table structure required by Word
+        const tbody = document.createElement('tbody');
+        Array.from(table.querySelectorAll('tr')).forEach(tr => {
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+  
+        // Process cells
+        const cells = tempDiv.querySelectorAll('td, th');
+        cells.forEach(cell => {
+          // Use non-breaking space for empty cells
+          if (!cell.innerHTML.trim()) {
+            cell.innerHTML = '&nbsp;';
+          }
+          
+          // Set explicit width (required by Word)
+          cell.setAttribute('width', '100');
+        });
+      }
+  
+      // Insert the table
       range.deleteContents();
-      range.insertNode(wrapper);
-
-      // Add a line break after the table for better spacing
-      const br = document.createElement("br");
-      if (wrapper.nextSibling) {
-        wrapper.parentNode.insertBefore(br, wrapper.nextSibling);
-      } else {
-        wrapper.parentNode.appendChild(br);
-      }
-
-      // Place the cursor in the first cell of the table
-      const firstCell = wrapper.querySelector("td, th");
+      range.insertNode(tempDiv);
+  
+      // Add line break after table
+      const br = document.createElement('br');
+      range.insertNode(br);
+  
+      // Move cursor into first cell
+      const firstCell = tempDiv.querySelector('td, th');
       if (firstCell) {
-        const cellRange = document.createRange();
-        cellRange.selectNodeContents(firstCell);
-        cellRange.collapse(true);
+        const newRange = document.createRange();
+        newRange.selectNodeContents(firstCell);
+        newRange.collapse(true);
         selection.removeAllRanges();
-        selection.addRange(cellRange);
-        firstCell.focus();
+        selection.addRange(newRange);
       }
-
-      // Clear the saved selection
+  
+      // Cleanup
       savedRangeRef.current = null;
-
-      // Close the dialog
       setShowTableDialog(false);
     }
   };
-
   // ---- Handle opening Table Dialog (also saves the current selection) ----
   const handleOpenTableDialog = () => {
     if (editorRef.current) {

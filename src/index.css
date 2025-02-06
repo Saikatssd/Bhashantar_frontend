@@ -94,3 +94,15 @@ th {
   font-weight: 600;
   text-align: left;
 }
+
+
+/* Ensure tables render similarly in the editor */
+[contenteditable] table {
+  border: 1px solid #000 !important;
+  margin: 8px 0;
+}
+
+[contenteditable] td, [contenteditable] th {
+  border: 1px solid #000 !important;
+  padding: 4px !important;
+}
