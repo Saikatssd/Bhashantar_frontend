@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-
-// Import your subcomponents
 import Toolbar from "./Toolbar/Toolbar";
 import EditorContent from "./EditorContent";
 import StatusBar from "./StatusBar";
@@ -8,12 +6,34 @@ import FindReplaceDialog from "./Dialogs/FindReplaceDialog";
 import TableDialog from "./Dialogs/TableDialog";
 import ImageDialog from "./Dialogs/ImageDialog";
 
+
+const tabSpacing = (editorRef) => {
+  if (!editorRef.current) return;
+
+  editorRef.current.addEventListener("keydown", (event) => {
+    if (event.key === "Tab") {
+      event.preventDefault();
+
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      const tabNode = document.createTextNode("\u00A0\u00A0\u00A0\u00A0"); // 4 non-breaking spaces
+
+      range.insertNode(tabNode);
+      range.setStartAfter(tabNode);
+      range.setEndAfter(tabNode);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  });
+};
+
+
 const EditorContainer = ({ initialContent = "", onChange }) => {
   const editorRef = useRef(null);
-  // New ref to store the current selection range before opening dialogs.
   const savedRangeRef = useRef(null);
 
-  // States
+  console.log("initialContent", initialContent);
+
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const [showColorPicker, setShowColorPicker] = useState(null);
@@ -36,26 +56,11 @@ const EditorContainer = ({ initialContent = "", onChange }) => {
   const [matches, setMatches] = useState([]);
 
   const colors = [
-    "#000000",
-    "#434343",
-    "#666666",
-    "#999999",
-    "#b7b7b7",
-    "#d9d9d9",
-    "#efefef",
-    "#f3f3f3",
-    "#ffffff",
-    "#980000",
-    "#ff0000",
-    "#ff9900",
-    "#ffff00",
-    "#00ff00",
-    "#00ffff",
-    "#4a86e8",
-    "#0000ff",
-    "#9900ff",
-    "#ff00ff",
-    "#e6b8af",
+    "#000000", "#434343", "#666666", "#999999",
+    "#b7b7b7", "#d9d9d9", "#efefef", "#f3f3f3",
+    "#ffffff", "#980000", "#ff0000", "#ff9900",
+    "#ffff00", "#00ff00", "#00ffff", "#4a86e8",
+    "#0000ff", "#9900ff", "#ff00ff", "#e6b8af",
   ];
 
   const fonts = [
@@ -64,8 +69,16 @@ const EditorContainer = ({ initialContent = "", onChange }) => {
     "Courier New",
     "Georgia",
     "Verdana",
+    "Nirmala UI", // Bengali, Hindi, Assamese
+    "Mangal", // Hindi
+    "Kokila", // Hindi
+    "Sanskrit Text", // Sanskrit, Hindi
+    "Vrinda", // Bengali
+    "Lohit Assamese", // Assamese
+    "Gautami", // Telugu
+    "Tunga", // Kannada
   ];
-
+  
   const fontSizes = [
     { label: "8", value: "1" },
     { label: "10", value: "2" },
@@ -79,12 +92,15 @@ const EditorContainer = ({ initialContent = "", onChange }) => {
   // NEW: Enable CSS styling for execCommand to use inline styles
   useEffect(() => {
     document.execCommand("styleWithCSS", false, true);
+
   }, []);
+
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== initialContent) {
       editorRef.current.innerHTML = initialContent;
       updateCounts();
+      tabSpacing(editorRef);
     }
   }, [initialContent]);
 
@@ -127,7 +143,9 @@ const EditorContainer = ({ initialContent = "", onChange }) => {
   };
 
   // ---- Core Editor Commands ----
+  
   const execCommand = (command, value = null) => {
+    document.execCommand("styleWithCSS", false, true); // Forces inline styles
     document.execCommand(command, false, value ?? undefined);
     updateCounts();
   };
@@ -216,23 +234,23 @@ const EditorContainer = ({ initialContent = "", onChange }) => {
       editorRef.current.focus();
       const selection = window.getSelection();
       let range;
-  
+
       // Get current selection range
       if (savedRangeRef.current) {
         range = savedRangeRef.current;
       } else if (selection.rangeCount > 0) {
         range = selection.getRangeAt(0);
       }
-  
+
       if (!range || !editorRef.current.contains(range.startContainer)) {
         console.warn("Selection is outside the editor");
         return;
       }
-  
+
       // Create temporary container
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = tableHTML;
-  
+
       // Process table for DOCX compatibility
       const table = tempDiv.querySelector('table');
       if (table) {
@@ -242,14 +260,14 @@ const EditorContainer = ({ initialContent = "", onChange }) => {
         table.setAttribute('cellspacing', '0');
         table.style.borderCollapse = 'collapse';
         table.style.width = '100%';
-  
+
         // Add basic table structure required by Word
         const tbody = document.createElement('tbody');
         Array.from(table.querySelectorAll('tr')).forEach(tr => {
           tbody.appendChild(tr);
         });
         table.appendChild(tbody);
-  
+
         // Process cells
         const cells = tempDiv.querySelectorAll('td, th');
         cells.forEach(cell => {
@@ -257,20 +275,20 @@ const EditorContainer = ({ initialContent = "", onChange }) => {
           if (!cell.innerHTML.trim()) {
             cell.innerHTML = '&nbsp;';
           }
-          
+
           // Set explicit width (required by Word)
           cell.setAttribute('width', '100');
         });
       }
-  
+
       // Insert the table
       range.deleteContents();
       range.insertNode(tempDiv);
-  
+
       // Add line break after table
       const br = document.createElement('br');
       range.insertNode(br);
-  
+
       // Move cursor into first cell
       const firstCell = tempDiv.querySelector('td, th');
       if (firstCell) {
@@ -280,7 +298,7 @@ const EditorContainer = ({ initialContent = "", onChange }) => {
         selection.removeAllRanges();
         selection.addRange(newRange);
       }
-  
+
       // Cleanup
       savedRangeRef.current = null;
       setShowTableDialog(false);

@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Save, Undo, Redo, Bold, Italic, Underline, Strikethrough, AlignLeft,
   AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Indent,
-  Outdent, Link2, Image, Table, Search, Type, Highlighter
+  Outdent, Link2, Image, Table, Search, Type, Highlighter,
+  Superscript,
+  Subscript
 } from 'lucide-react';
 
 import ListControls from './ListControls';
@@ -24,6 +26,29 @@ const Toolbar = ({
     execCommand(type === 'text' ? 'foreColor' : 'hiliteColor', color);
     setShowColorPicker(null);
   };
+
+  const [activeFormat, setActiveFormat] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    superscript: false,
+    subscript: false
+  });
+
+  const toggleFormat = (command) => {
+    document.execCommand(command, false, null);
+
+    setActiveFormat((prev) => {
+      const newState = { ...prev, [command]: !prev[command] };
+
+      // Disable subscript if superscript is applied & vice versa
+      if (command === 'superscript' && newState.superscript) newState.subscript = false;
+      if (command === 'subscript' && newState.subscript) newState.superscript = false;
+
+      return newState;
+    });
+  };
+
 
   return (
     <div className="bg-white top-0 p-3 shadow-lg fixed z-50 border-b border-gray-200 flex flex-wrap gap-2">
@@ -118,6 +143,18 @@ const Toolbar = ({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Superscript & Subscript */}
+      <div className="flex items-center gap-1 border-r border-gray-200 pr-2">
+        <button onClick={() => toggleFormat('superscript')}
+          className={`p-1.5 hover:bg-gray-100 rounded ${activeFormat.superscript ? "bg-gray-300" : ""}`}>
+          <Superscript size={18} />
+        </button>
+        <button onClick={() => toggleFormat('subscript')}
+          className={`p-1.5 hover:bg-gray-100 rounded ${activeFormat.subscript ? "bg-gray-300" : ""}`}>
+          <Subscript size={18} />
+        </button>
       </div>
 
       {/* Alignment */}

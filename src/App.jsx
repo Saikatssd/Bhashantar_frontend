@@ -13,6 +13,7 @@ import { Toaster } from 'react-hot-toast';
 import PrivateRoute from './components/common/PrivateRoute';
 import './App.css'
 import Loader from './components/common/Loader';
+import EditorTest from './components/Editor2';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -65,6 +66,10 @@ const App = () => {
           <Route path="/editor/:projectId/:documentId" element={
             <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'QA', 'superAdmin']} >
               <Editor />
+            </PrivateRoute>} />
+            <Route path="/editortest/:projectId/:documentId" element={
+            <PrivateRoute user={user} role={role} allowedRoles={['user', 'admin', 'QA', 'superAdmin']} >
+              <EditorTest />
             </PrivateRoute>} />
           <Route path="/myWork" element={
             <PrivateRoute user={user} role={role} allowedRoles={['user']}>

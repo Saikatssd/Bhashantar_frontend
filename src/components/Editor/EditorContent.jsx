@@ -59,12 +59,12 @@ const EditorContent = ({ editorRef, onInput }) => {
             className="outline-none min-h-full"
             onInput={handleInput}
             style={{
-              fontFamily: 'Calibri, Arial, sans-serif',
-              // fontSize: '11pt',
+              fontFamily: 'inherit', 
               lineHeight: '1.5',
               color: '#000000',
               wordWrap: 'break-word',
             }}
+            
           />
 
           {/* Page break lines and numbers */}
