@@ -13,7 +13,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { server } from "../main";
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip from "@mui/material/Tooltip";
 
 import {
   fetchFileNameById,
@@ -25,7 +25,6 @@ import { formatDate, fetchServerTimestamp } from "../utils/formatDate";
 import { kyroCompanyId } from "../services/companyServices";
 import "../App.css";
 
-// Import Material UI components for the table dialog.
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -33,11 +32,6 @@ import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import Loader from "./common/Loader";
 
-// ------------------------------------------------------------------
-// Register Quill Modules & Custom Attributors
-// ------------------------------------------------------------------
-
-// Register the table module.
 Quill.register(
   {
     "modules/better-table": TableModule,
@@ -45,7 +39,6 @@ Quill.register(
   true
 );
 
-// Register a custom icon for the better-table toolbar button.
 const icons = Quill.import("ui/icons");
 icons["better-table"] = `
   <svg viewBox="0 0 18 18">
@@ -57,23 +50,31 @@ icons["better-table"] = `
   </svg>
 `;
 
-// Register a custom font family attributor.
-// IMPORTANT: The whitelist values must match the option values in your custom toolbar.
 const Font = Quill.import("attributors/style/font");
 Font.whitelist = ["calibri", "times-new-roman", "arial", "nirmala-ui"];
 Quill.register(Font, true);
 
-// Register a custom size attributor with a whitelist matching our toolbar values.
 const SizeStyle = Quill.import("attributors/style/size");
 SizeStyle.whitelist = [
-  "8pt", "9pt", "10pt", "11pt", "12pt", "14pt", "16pt", "18pt",
-  "20pt", "22pt", "24pt", "26pt", "28pt", "36pt", "48pt", "72pt"
+  "8pt",
+  "9pt",
+  "10pt",
+  "11pt",
+  "12pt",
+  "14pt",
+  "16pt",
+  "18pt",
+  "20pt",
+  "22pt",
+  "24pt",
+  "26pt",
+  "28pt",
+  "36pt",
+  "48pt",
+  "72pt",
 ];
 Quill.register(SizeStyle, true);
 
-// ------------------------------------------------------------------
-// TableDialog Component
-// ------------------------------------------------------------------
 const TableDialog = ({
   open,
   onClose,
@@ -115,14 +116,10 @@ const TableDialog = ({
   );
 };
 
-// ------------------------------------------------------------------
-// Main Editor Component
-// ------------------------------------------------------------------
 const Editor = () => {
   const { projectId, documentId } = useParams();
   const navigate = useNavigate();
 
-  // Editor and file states.
   const [htmlContent, setHtmlContent] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
   const [fileName, setFileName] = useState("");
@@ -142,13 +139,31 @@ const Editor = () => {
   const [tableRows, setTableRows] = useState(3);
   const [tableCols, setTableCols] = useState(3);
 
-  // Refs for the Quill container and instance.
+  // New state for number of pages in the editor.
+  const [pageCount, setPageCount] = useState(1);
   const editorContainerRef = useRef(null);
   const quillRef = useRef(null);
 
-  // ------------------------------------------------------------------
-  // Offline Alert
-  // ------------------------------------------------------------------
+  // Constant to convert mm to px (standard 96 DPI)
+  const mmToPx = 96 / 25.4;
+  const pageHeightPx = 297 * mmToPx; // A4 page height in px (approx 1123px)
+
+  // Update page count based on editor container height.
+  useEffect(() => {
+    function updatePageCount() {
+      const editorContentEl = editorContainerRef.current?.querySelector(".ql-editor");
+      if (editorContentEl) {
+        const height = editorContentEl.scrollHeight;
+        const count = Math.ceil(height / pageHeightPx);
+        setPageCount(count);
+      }
+    }
+    // Update after content has been rendered.
+    updatePageCount();
+    window.addEventListener("resize", updatePageCount);
+    return () => window.removeEventListener("resize", updatePageCount);
+  }, [htmlContent, pageHeightPx]);
+
   useEffect(() => {
     const handleOffline = () => {
       toast.error(
@@ -167,13 +182,13 @@ const Editor = () => {
     };
   }, []);
 
-  // ------------------------------------------------------------------
-  // Fetch Initial Content (HTML and PDF URL)
-  // ------------------------------------------------------------------
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const { htmlUrl, pdfUrl } = await fetchDocumentUrl(projectId, documentId);
+        const { htmlUrl, pdfUrl } = await fetchDocumentUrl(
+          projectId,
+          documentId
+        );
         const response = await fetch(htmlUrl);
         const text = await response.text();
         setHtmlContent(text);
@@ -189,13 +204,13 @@ const Editor = () => {
     fetchContent();
   }, [projectId, documentId]);
 
-  // ------------------------------------------------------------------
-  // Initialize Quill (with Custom Toolbar)
-  // ------------------------------------------------------------------
   useEffect(() => {
-    if (isInitialContentSet && editorContainerRef.current && !quillRef.current) {
+    if (
+      isInitialContentSet &&
+      editorContainerRef.current &&
+      !quillRef.current
+    ) {
       const modules = {
-        // Use the custom toolbar via its container ID.
         toolbar: "#toolbar",
         "better-table": {
           operationMenu: {
@@ -221,19 +236,16 @@ const Editor = () => {
         modules,
       });
 
-      // If there is initial content, paste it into the editor.
       if (htmlContent) {
         quillRef.current.clipboard.dangerouslyPasteHTML(htmlContent);
       }
 
-      // Listen for text changes and update htmlContent state.
       quillRef.current.on("text-change", () => {
-        const editorHtml = editorContainerRef.current.querySelector(".ql-editor")
-          .innerHTML;
+        const editorHtml =
+          editorContainerRef.current.querySelector(".ql-editor").innerHTML;
         setHtmlContent(editorHtml);
       });
 
-      // Bind a custom click handler to the better-table button to open our table dialog.
       const tableButton = document.querySelector(".ql-better-table");
       if (tableButton) {
         tableButton.addEventListener("click", (e) => {
@@ -244,9 +256,7 @@ const Editor = () => {
     }
   }, [isInitialContentSet, htmlContent]);
 
-  // ------------------------------------------------------------------
-  // Auto-save Debounced Content Changes
-  // ------------------------------------------------------------------
+  // Auto-save debounced changes.
   useEffect(() => {
     const saveContent = async () => {
       if (!debouncedHtmlContent) return;
@@ -279,9 +289,6 @@ const Editor = () => {
     fetchKyroticsCompanyId();
   }, []);
 
-  // ------------------------------------------------------------------
-  // Auth State Changes
-  // ------------------------------------------------------------------
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -306,9 +313,6 @@ const Editor = () => {
     fetchName();
   }, [projectId, documentId]);
 
-  // ------------------------------------------------------------------
-  // Handler for Table Insertion from the Dialog
-  // ------------------------------------------------------------------
   const handleInsertTable = () => {
     const betterTable = quillRef.current.getModule("better-table");
     if (betterTable) {
@@ -317,9 +321,6 @@ const Editor = () => {
     setShowTableDialog(false);
   };
 
-  // ------------------------------------------------------------------
-  // Other Handlers (Save, Download, Back)
-  // ------------------------------------------------------------------
   const handleSave = async () => {
     try {
       const serverDate = await fetchServerTimestamp();
@@ -354,14 +355,11 @@ const Editor = () => {
     try {
       const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
       await toast
-        .promise(
-          axios.get(endpoint, { responseType: "blob" }),
-          {
-            loading: "Downloading...",
-            success: "Zip File Downloaded!",
-            error: "An error occurred while downloading the document.",
-          }
-        )
+        .promise(axios.get(endpoint, { responseType: "blob" }), {
+          loading: "Downloading...",
+          success: "Zip File Downloaded!",
+          error: "An error occurred while downloading the document.",
+        })
         .then((response) => {
           const contentDisposition = response.headers["content-disposition"];
           const filename = contentDisposition
@@ -400,11 +398,12 @@ const Editor = () => {
     setDialogOpen(false);
   };
 
-  // ------------------------------------------------------------------
-  // Render Component with Custom Toolbar & Editor Container
-  // ------------------------------------------------------------------
   if (loading) {
-    return <div className="h-screen flex justify-center items-center"><Loader /> </div>;
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <Loader />{" "}
+      </div>
+    );
   }
   if (error) {
     return <div>{error}</div>;
@@ -427,190 +426,188 @@ const Editor = () => {
         ) : (
           <div>Loading...</div>
         )}
-        {/* <Button
-          onClick={handleBack}
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{
-            position: "fixed",
-            top: 60,
-            right: 120,
-            width: "80px",
-            height: "29px",
-            fontSize: "14px",
-            zIndex: 100,
-          }}
-        >
-          <ArrowBackIcon sx={{ marginRight: "3px" }} />
-          Back
-        </Button> */}
       </div>
 
       {/* Right Side: Editor with Custom Toolbar */}
       <div style={{ flex: 1, padding: "10px", overflowY: "auto" }}>
-        {/* Custom Toolbar */}
-        <div id="toolbar" style={{ marginBottom: "10px" }}>
-          {/* Font Family Dropdown */}
-          <select className="ql-font">
-            <option value="calibri">Calibri</option>
-            <option value="times-new-roman">Times New Roman</option>
-            <option value="arial">Arial</option>
-            <option value="nirmala-ui">Nirmala UI</option>
-          </select>
-          {/* Font Size Dropdown */}
-          <select className="ql-size">
-            <option value="8pt">8pt</option>
-            <option value="9pt">9pt</option>
-            <option value="10pt">10pt</option>
-            <option value="11pt">11pt</option>
-            <option value="12pt">12pt</option>
-            <option value="14pt">14pt</option>
-            <option value="16pt">16pt</option>
-            <option value="18pt">18pt</option>
-            <option value="20pt">20pt</option>
-            <option value="22pt">22pt</option>
-            <option value="24pt">24pt</option>
-            <option value="26pt">26pt</option>
-            <option value="28pt">28pt</option>
-            <option value="36pt">36pt</option>
-            <option value="48pt">48pt</option>
-            <option value="72pt">72pt</option>
-          </select>
-          {/* Other Toolbar Items */}
-          <Tooltip title="Bold" arrow>
-            <button className="ql-bold" />
-          </Tooltip>
-          <Tooltip title="Italic" arrow>
-            <button className="ql-italic" />
-          </Tooltip>
-          <Tooltip title="Underline" arrow>
-            <button className="ql-underline" />
-          </Tooltip>
-          <Tooltip title="Subscript" arrow>
-            <button className="ql-script" value="sub" />
-          </Tooltip>
-          <Tooltip title="Superscript" arrow>
-            <button className="ql-script" value="super" />
-          </Tooltip>
-          <Tooltip title="Text Color" arrow>
-            <select className="ql-color" title="Text Color" />
-          </Tooltip>
-          <Tooltip title="Background Color" arrow>
-            <select className="ql-background" title="Background  Color" />
-          </Tooltip>
-          <Tooltip title="Align" arrow>
-            <select className="ql-align" />
-          </Tooltip>
-          <Tooltip title="Ordered List" arrow>
-            <button className="ql-list" value="ordered" />
-          </Tooltip>
-          <Tooltip title="Bullet List" arrow>
-            <button className="ql-list" value="bullet" />
-          </Tooltip>
-          <Tooltip title="Decrease Indent" arrow>
-            <button className="ql-indent" value="-1" />
-          </Tooltip>
-          <Tooltip title="Increase Indent" arrow>
-            <button className="ql-indent" value="+1" />
-          </Tooltip>
-
-          <Tooltip title="Insert Image" arrow>
-            <button className="ql-image" />
-          </Tooltip>
-
-          <Tooltip title="Insert Table" arrow>
-            <button className="ql-better-table" />
-          </Tooltip>
-          <Tooltip title="Download">
-            <DownloadIcon
-              onClick={handleDownload}
-              sx={{
-                fontSize: "20px",
-              }}
-              className="text-gray-600 hover:text-blue-600 hover:scale-125 cursor-pointer"
-            />
-          </Tooltip>
-
-          <Tooltip title="Clear Formatting" arrow>
-            <button className="ql-clean" />
-          </Tooltip>
-
-          <div className="flex flex-row space-x-4 ">
-
-            <button onClick={handleBack}>
-              {/* <ArrowBackIcon sx={{ marginRight: "3px" }} /> */}
-              Back
-            </button>
-            <button onClick={handleSave}>
-              Submit
-            </button>
-          </div>
-
-
-
-
-          {/* 
-            <button className="ql-bold" />
-          <button className="ql-italic" />
-          <button className="ql-underline" />
-          <button className="ql-script" value="sub" title="Subscript"></button>
-          <button className="ql-script" value="super" title="Superscript"></button>
-          <select className="ql-color" />
-          <select className="ql-background" />
-          <select className="ql-align" />
-          <button className="ql-list" value="ordered" />
-          <button className="ql-list" value="bullet" />
-          <button className="ql-indent" value="-1" />
-          <button className="ql-indent" value="+1" />
-          <button className="ql-image" />
-          <button className="ql-clean" />
-          <button className="ql-better-table" /> */}
-        </div>
-
-        {/* Editor Container */}
+        {/* Fixed Toolbar */}
         <div
-          ref={editorContainerRef}
           style={{
-            height: "87vh",
-            minHeight: "500px",
-            backgroundColor: "#fff",
-            padding: "10px",
-            border: "1px solid #ccc",
-            boxSizing: "border-box",
-          }}
-        />
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
+            paddingBottom: "10px",
+            marginBottom: "10px",
 
-        {/* <Button
-          onClick={handleSave}
-          variant="contained"
-          color="success"
-          size="large"
-          sx={{
-            position: "fixed",
-            top: 60,
-            right: 30,
-            width: "80px",
-            height: "29px",
-            fontSize: "14px",
-            zIndex: 100,
+       
           }}
         >
-          Submit
-        </Button> */}
-        {/* <Tooltip title="Download">
-          <DownloadIcon
-            onClick={handleDownload}
-            sx={{
-              position: "fixed",
-              top: 60,
-              right: 400,
-              fontSize: "20px",
-              zIndex: 100,
+
+          <div id="toolbar">
+            <select className="ql-font">
+              <option value="calibri">Calibri</option>
+              <option value="times-new-roman">Times New Roman</option>
+              <option value="arial">Arial</option>
+              <option value="nirmala-ui">Nirmala UI</option>
+            </select>
+            <select className="ql-size">
+              <option value="8pt">8pt</option>
+              <option value="9pt">9pt</option>
+              <option value="10pt">10pt</option>
+              <option value="11pt">11pt</option>
+              <option value="12pt">12pt</option>
+              <option value="14pt">14pt</option>
+              <option value="16pt">16pt</option>
+              <option value="18pt">18pt</option>
+              <option value="20pt">20pt</option>
+              <option value="22pt">22pt</option>
+              <option value="24pt">24pt</option>
+              <option value="26pt">26pt</option>
+              <option value="28pt">28pt</option>
+              <option value="36pt">36pt</option>
+              <option value="48pt">48pt</option>
+              <option value="72pt">72pt</option>
+            </select>
+            <Tooltip title="Bold" arrow>
+              <button className="ql-bold" />
+            </Tooltip>
+            <Tooltip title="Italic" arrow>
+              <button className="ql-italic" />
+            </Tooltip>
+            <Tooltip title="Underline" arrow>
+              <button className="ql-underline" />
+            </Tooltip>
+            <Tooltip title="Subscript" arrow>
+              <button className="ql-script" value="sub" />
+            </Tooltip>
+            <Tooltip title="Superscript" arrow>
+              <button className="ql-script" value="super" />
+            </Tooltip>
+            <Tooltip title="Text Color" arrow>
+              <select className="ql-color" title="Text Color" />
+            </Tooltip>
+            <Tooltip title="Background Color" arrow>
+              <select className="ql-background" title="Background Color" />
+            </Tooltip>
+            <Tooltip title="Align" arrow>
+              <select className="ql-align" />
+            </Tooltip>
+            <Tooltip title="Ordered List" arrow>
+              <button className="ql-list" value="ordered" />
+            </Tooltip>
+            <Tooltip title="Bullet List" arrow>
+              <button className="ql-list" value="bullet" />
+            </Tooltip>
+            <Tooltip title="Decrease Indent" arrow>
+              <button className="ql-indent" value="-1" />
+            </Tooltip>
+            <Tooltip title="Increase Indent" arrow>
+              <button className="ql-indent" value="+1" />
+            </Tooltip>
+            <Tooltip title="Insert Image" arrow>
+              <button className="ql-image" />
+            </Tooltip>
+            <Tooltip title="Insert Table" arrow>
+              <button className="ql-better-table" />
+            </Tooltip>
+            <Tooltip title="Download">
+              <DownloadIcon
+                onClick={handleDownload}
+                sx={{ fontSize: "20px" }}
+                className="text-gray-600 hover:text-blue-600 hover:scale-125 cursor-pointer"
+              />
+            </Tooltip>
+            <Tooltip title="Clear Formatting" arrow>
+              <button className="ql-clean" />
+            </Tooltip>
+            <Tooltip title="Go back" arrow>
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<ArrowBackIcon />}
+                onClick={handleBack}
+                sx={{
+                  borderRadius: "20px",
+                  textTransform: "none",
+                  paddingX: 2,
+                  paddingY: 1,
+                  fontWeight: "bold",
+                  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+                  "&:hover": { backgroundColor: "#66bb6a" },
+                }}
+              >
+                Back
+              </Button>
+            </Tooltip>
+            <Tooltip title="Submit changes" arrow>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleSave}
+                sx={{
+                  borderRadius: "20px",
+                  textTransform: "none",
+                  paddingX: 2,
+                  paddingY: 1,
+                  fontWeight: "bold",
+                  color: "#000000",
+                  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+                  "&:hover": { backgroundColor: "#66bb6a" },
+                }}
+              >
+                Submit
+              </Button>
+            </Tooltip>
+          </div>
+        </div>
+
+        {/* Editor Container Wrapper with Page Numbers Overlay */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            position: "relative",
+          }}
+        >
+          <div
+            ref={editorContainerRef}
+            style={{
+              position: "relative",
+              width: "210mm", // A4 width (portrait)
+              minHeight: "297mm", // A4 height (portrait)
+              backgroundColor: "#fff",
+              padding: "20mm",
+              border: "1px solid #ccc",
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+              boxSizing: "border-box",
+              backgroundImage: `repeating-linear-gradient(
+                to bottom,
+                transparent,
+                transparent calc(297mm - 1px),
+                #ccc calc(297mm - 1px),
+                #ccc 297mm
+              )`,
+              backgroundSize: "100% 297mm",
             }}
-            className="text-gray-600 hover:text-blue-600 hover:scale-125 cursor-pointer"
           />
-        </Tooltip> */}
+          {Array.from({ length: pageCount }, (_, i) => (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                right: "5mm",
+                top: `${(i + 1) * pageHeightPx - 5 * mmToPx}px`,
+                backgroundColor: "rgba(255,255,255,0.8)",
+                padding: "2px 4px",
+                borderRadius: "4px",
+                fontSize: "10px",
+              }}
+            >
+              {i + 1}
+            </div>
+          ))}
+        </div>
+
         <ConfirmationDialog
           open={dialogOpen}
           handleClose={handleCloseDialog}
@@ -618,7 +615,6 @@ const Editor = () => {
           title="Confirm Submission"
           message="Are you sure you want to submit?"
         />
-        {/* Table Dialog */}
         <TableDialog
           open={showTableDialog}
           onClose={() => setShowTableDialog(false)}
@@ -634,4 +630,3 @@ const Editor = () => {
 };
 
 export default Editor;
-

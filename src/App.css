@@ -20,5 +20,9 @@
 	gap: 0.5rem; /* Spacing between items */
   }
   
+  .ql-editor {
+	line-height: 1.5 !important; /* The !important ensures it overrides default styles */
+  }
+
 
   
