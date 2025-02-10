@@ -241,9 +241,9 @@ const FolderView = ({ project, onBack, superAdminCompanyId }) => {
   };
   // console.log("project file count", projectFileCount);
   // console.log("current folder", currentFolder);
-  // console.log("Folder length", folders.length);
-  console.log("currentUser", currentUser);
-  console.log("companyId", companyId);
+  // // console.log("Folder length", folders.length);
+  // console.log("currentUser", currentUser);
+  // console.log("companyId", companyId);
 
   return (
     <div className="flex flex-col items-center h-full  ">

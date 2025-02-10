@@ -102,7 +102,7 @@ function ProjectList() {
   const { currentUser } = useAuth();
   const [kyroId, setKyroId] = useState("");
   const [isGridView, setIsGridView] = useState(true);
-  console.log("superAdminCompanyId", superAdminCompanyId);
+  // console.log("superAdminCompanyId", superAdminCompanyId);
   useEffect(() => {
     const getKyroId = async () => {
       const id = await kyroCompanyId();

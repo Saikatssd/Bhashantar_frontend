@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import TableModule from "quill-better-table";
@@ -31,6 +31,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import Loader from "./common/Loader";
+import FindInPageIcon from "@mui/icons-material/FindInPage";
 
 Quill.register(
   {
@@ -134,10 +135,17 @@ const Editor = () => {
   const [role, setRole] = useState();
   const [isLayoutReady, setIsLayoutReady] = useState(false);
 
+
   // State for Table Dialog.
   const [showTableDialog, setShowTableDialog] = useState(false);
   const [tableRows, setTableRows] = useState(3);
   const [tableCols, setTableCols] = useState(3);
+
+
+  // New states for Find & Replace functionality
+  const [isFindReplaceDialogOpen, setIsFindReplaceDialogOpen] = useState(false);
+  const [findText, setFindText] = useState("");
+  const [replaceText, setReplaceText] = useState("");
 
   // New state for number of pages in the editor.
   const [pageCount, setPageCount] = useState(1);
@@ -398,6 +406,43 @@ const Editor = () => {
     setDialogOpen(false);
   };
 
+
+
+  // ------------------------------------------------------------------
+  // Find & Replace Handlers
+  // ------------------------------------------------------------------
+  const handleOpenFindReplaceDialog = () => {
+    setIsFindReplaceDialogOpen(true);
+  };
+
+  const handleCloseFindReplaceDialog = () => {
+    setIsFindReplaceDialogOpen(false);
+  };
+
+  const handleFindAndReplace = useCallback(() => {
+    if (!quillRef.current) return;
+    if (!findText) {
+      toast.error("Please enter text to find.");
+      return;
+    }
+    const delta = quillRef.current.getContents();
+    const newOps = delta.ops.map((op) => {
+      if (typeof op.insert === "string") {
+        return {
+          ...op,
+          insert: op.insert.split(findText).join(replaceText),
+        };
+      }
+      return op;
+    });
+    quillRef.current.setContents({ ops: newOps });
+    toast.success(`All occurrences of "${findText}" have been replaced.`);
+    setFindText("");
+    setReplaceText("");
+    handleCloseFindReplaceDialog();
+  }, [findText, replaceText]);
+
+
   if (loading) {
     return (
       <div className="h-screen flex justify-center items-center">
@@ -439,7 +484,7 @@ const Editor = () => {
             paddingBottom: "10px",
             marginBottom: "10px",
 
-       
+
           }}
         >
 
@@ -483,12 +528,8 @@ const Editor = () => {
             <Tooltip title="Superscript" arrow>
               <button className="ql-script" value="super" />
             </Tooltip>
-            <Tooltip title="Text Color" arrow>
-              <select className="ql-color" title="Text Color" />
-            </Tooltip>
-            <Tooltip title="Background Color" arrow>
-              <select className="ql-background" title="Background Color" />
-            </Tooltip>
+            <select className="ql-color" title="Text Color" />
+            <select className="ql-background" title="Background Color" />
             <Tooltip title="Align" arrow>
               <select className="ql-align" />
             </Tooltip>
@@ -509,6 +550,16 @@ const Editor = () => {
             </Tooltip>
             <Tooltip title="Insert Table" arrow>
               <button className="ql-better-table" />
+            </Tooltip>
+
+            <Tooltip title="Find & Replace">
+              <FindInPageIcon
+                onClick={handleOpenFindReplaceDialog}
+                sx={{
+                  fontSize: "20px",
+                  cursor:"pointer",
+                }}
+              />
             </Tooltip>
             <Tooltip title="Download">
               <DownloadIcon
@@ -624,6 +675,35 @@ const Editor = () => {
           tableCols={tableCols}
           setTableCols={setTableCols}
         />
+        {/* Find & Replace Dialog */}
+        <Dialog open={isFindReplaceDialogOpen} onClose={handleCloseFindReplaceDialog}>
+          <DialogTitle>Find and Replace</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Find"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={findText}
+              onChange={(e) => setFindText(e.target.value)}
+            />
+            <TextField
+              margin="dense"
+              label="Replace with"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={replaceText}
+              onChange={(e) => setReplaceText(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseFindReplaceDialog}>Cancel</Button>
+            <Button onClick={handleFindAndReplace}>Replace All</Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </div>
   );
