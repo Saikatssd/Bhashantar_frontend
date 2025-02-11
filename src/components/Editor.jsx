@@ -32,6 +32,11 @@ import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import Loader from "./common/Loader";
 import FindInPageIcon from "@mui/icons-material/FindInPage";
+import QuillResizeImage from 'quill-resize-image';
+// import 'quill-pagination';
+// import 'quill-pagination/lib/style.css';
+
+Quill.register("modules/resize", QuillResizeImage);
 
 Quill.register(
   {
@@ -171,7 +176,9 @@ const Editor = () => {
     window.addEventListener("resize", updatePageCount);
     return () => window.removeEventListener("resize", updatePageCount);
   }, [htmlContent, pageHeightPx]);
+  
 
+  console.log('htmlContent', htmlContent);
   useEffect(() => {
     const handleOffline = () => {
       toast.error(
@@ -236,7 +243,10 @@ const Editor = () => {
               colors: ["#fff", "#000"],
             },
           },
+        },  resize: {
+          locale: {},
         },
+
       };
 
       quillRef.current = new Quill(editorContainerRef.current, {
