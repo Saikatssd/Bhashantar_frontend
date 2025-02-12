@@ -33,6 +33,7 @@ import TextField from "@mui/material/TextField";
 import Loader from "./common/Loader";
 import FindInPageIcon from "@mui/icons-material/FindInPage";
 import QuillResizeImage from 'quill-resize-image';
+import "../config/quillConfig";
 // import 'quill-pagination';
 // import 'quill-pagination/lib/style.css';
 
