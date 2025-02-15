@@ -32,8 +32,10 @@ import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import Loader from "./common/Loader";
 import FindInPageIcon from "@mui/icons-material/FindInPage";
-import QuillResizeImage from 'quill-resize-image';
+import QuillResizeImage from "quill-resize-image";
 import "../config/quillConfig";
+import "../config/pageBreakBlot";
+import { InsertPageBreak } from "@mui/icons-material";
 // import 'quill-pagination';
 // import 'quill-pagination/lib/style.css';
 
@@ -141,12 +143,10 @@ const Editor = () => {
   const [role, setRole] = useState();
   const [isLayoutReady, setIsLayoutReady] = useState(false);
 
-
   // State for Table Dialog.
   const [showTableDialog, setShowTableDialog] = useState(false);
   const [tableRows, setTableRows] = useState(3);
   const [tableCols, setTableCols] = useState(3);
-
 
   // New states for Find & Replace functionality
   const [isFindReplaceDialogOpen, setIsFindReplaceDialogOpen] = useState(false);
@@ -165,7 +165,8 @@ const Editor = () => {
   // Update page count based on editor container height.
   useEffect(() => {
     function updatePageCount() {
-      const editorContentEl = editorContainerRef.current?.querySelector(".ql-editor");
+      const editorContentEl =
+        editorContainerRef.current?.querySelector(".ql-editor");
       if (editorContentEl) {
         const height = editorContentEl.scrollHeight;
         const count = Math.ceil(height / pageHeightPx);
@@ -177,9 +178,8 @@ const Editor = () => {
     window.addEventListener("resize", updatePageCount);
     return () => window.removeEventListener("resize", updatePageCount);
   }, [htmlContent, pageHeightPx]);
-  
 
-  console.log('htmlContent', htmlContent);
+  console.log("htmlContent", htmlContent);
   useEffect(() => {
     const handleOffline = () => {
       toast.error(
@@ -227,7 +227,25 @@ const Editor = () => {
       !quillRef.current
     ) {
       const modules = {
-        toolbar: "#toolbar",
+        toolbar: {
+          container: "#toolbar",
+          handlers: {
+            // Custom handler for pageBreak to simply insert one break without prompting.
+            pageBreak: function () {
+              const range = this.quill.getSelection(true);
+              if (range) {
+                // Insert the page break blot at the cursor and move the cursor after.
+                this.quill.insertEmbed(
+                  range.index,
+                  "pageBreak",
+                  true,
+                  Quill.sources.USER
+                );
+                this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
+              }
+            },
+          },
+        },
         "better-table": {
           operationMenu: {
             items: {
@@ -244,10 +262,10 @@ const Editor = () => {
               colors: ["#fff", "#000"],
             },
           },
-        },  resize: {
+        },
+        resize: {
           locale: {},
         },
-
       };
 
       quillRef.current = new Quill(editorContainerRef.current, {
@@ -417,8 +435,6 @@ const Editor = () => {
     setDialogOpen(false);
   };
 
-
-
   // ------------------------------------------------------------------
   // Find & Replace Handlers
   // ------------------------------------------------------------------
@@ -452,7 +468,6 @@ const Editor = () => {
     setReplaceText("");
     handleCloseFindReplaceDialog();
   }, [findText, replaceText]);
-
 
   if (loading) {
     return (
@@ -494,11 +509,8 @@ const Editor = () => {
             zIndex: 10,
             paddingBottom: "10px",
             marginBottom: "10px",
-
-
           }}
         >
-
           <div id="toolbar">
             <select className="ql-font">
               <option value="calibri">Calibri</option>
@@ -562,13 +574,17 @@ const Editor = () => {
             <Tooltip title="Insert Table" arrow>
               <button className="ql-better-table" />
             </Tooltip>
-
+            <Tooltip title="Page Break" arrow>
+              <button className="ql-pageBreak">
+                <InsertPageBreak />
+              </button>
+            </Tooltip>
             <Tooltip title="Find & Replace">
               <FindInPageIcon
                 onClick={handleOpenFindReplaceDialog}
                 sx={{
                   fontSize: "20px",
-                  cursor:"pointer",
+                  cursor: "pointer",
                 }}
               />
             </Tooltip>
@@ -687,7 +703,10 @@ const Editor = () => {
           setTableCols={setTableCols}
         />
         {/* Find & Replace Dialog */}
-        <Dialog open={isFindReplaceDialogOpen} onClose={handleCloseFindReplaceDialog}>
+        <Dialog
+          open={isFindReplaceDialogOpen}
+          onClose={handleCloseFindReplaceDialog}
+        >
           <DialogTitle>Find and Replace</DialogTitle>
           <DialogContent>
             <TextField

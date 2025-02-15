@@ -24,5 +24,8 @@
 	line-height: 1.5 !important; /* The !important ensures it overrides default styles */
   }
 
-
-  
+  .ql-editor hr.page-break {
+    page-break-before: always;
+    border-top: 2px dashed #ccc;
+    margin: 20px 0;
+  }
