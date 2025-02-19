@@ -234,7 +234,6 @@ const Editor = () => {
             pageBreak: function () {
               const range = this.quill.getSelection(true);
               if (range) {
-                // Insert the page break blot at the cursor and move the cursor after.
                 this.quill.insertEmbed(
                   range.index,
                   "pageBreak",
@@ -246,21 +245,24 @@ const Editor = () => {
             },
           },
         },
+        table: false,
         "better-table": {
           operationMenu: {
             items: {
-              unmergeCells: { text: "Unmerge Cells" },
-              mergeCells: { text: "Merge Cells" },
-              insertRowAbove: { text: "Insert Row Above" },
-              insertRowBelow: { text: "Insert Row Below" },
-              insertColumnLeft: { text: "Insert Column Left" },
-              insertColumnRight: { text: "Insert Column Right" },
-              deleteRow: { text: "Delete Row" },
-              deleteColumn: { text: "Delete Column" },
+              mergeCells: {
+                text: "Merge Cells",
+              },
+              unmergeCells: {
+                text: "Unmerge Cells",
+              },
             },
             color: {
-              colors: ["#fff", "#000"],
+              colors: ["green", "red", "yellow", "blue", "white"],
+              text: "Background Colors:",
             },
+          },
+          keyboard: {
+            bindings: TableModule.keyboardBindings,
           },
         },
         resize: {
