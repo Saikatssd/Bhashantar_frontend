@@ -159,25 +159,25 @@ const Editor = () => {
   const quillRef = useRef(null);
 
   // Constant to convert mm to px (standard 96 DPI)
-  const mmToPx = 96 / 25.4;
-  const pageHeightPx = 297 * mmToPx; // A4 page height in px (approx 1123px)
+  // const mmToPx = 96 / 25.4;
+  // const pageHeightPx = 297 * mmToPx; // A4 page height in px (approx 1123px)
 
-  // Update page count based on editor container height.
-  useEffect(() => {
-    function updatePageCount() {
-      const editorContentEl =
-        editorContainerRef.current?.querySelector(".ql-editor");
-      if (editorContentEl) {
-        const height = editorContentEl.scrollHeight;
-        const count = Math.ceil(height / pageHeightPx);
-        setPageCount(count);
-      }
-    }
-    // Update after content has been rendered.
-    updatePageCount();
-    window.addEventListener("resize", updatePageCount);
-    return () => window.removeEventListener("resize", updatePageCount);
-  }, [htmlContent, pageHeightPx]);
+  // // Update page count based on editor container height.
+  // useEffect(() => {
+  //   function updatePageCount() {
+  //     const editorContentEl =
+  //       editorContainerRef.current?.querySelector(".ql-editor");
+  //     if (editorContentEl) {
+  //       const height = editorContentEl.scrollHeight;
+  //       const count = Math.ceil(height / pageHeightPx);
+  //       setPageCount(count);
+  //     }
+  //   }
+  //   // Update after content has been rendered.
+  //   updatePageCount();
+  //   window.addEventListener("resize", updatePageCount);
+  //   return () => window.removeEventListener("resize", updatePageCount);
+  // }, [htmlContent, pageHeightPx]);
 
   console.log("htmlContent", htmlContent);
   useEffect(() => {
@@ -658,17 +658,17 @@ const Editor = () => {
               border: "1px solid #ccc",
               boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
               boxSizing: "border-box",
-              backgroundImage: `repeating-linear-gradient(
-                to bottom,
-                transparent,
-                transparent calc(297mm - 1px),
-                #ccc calc(297mm - 1px),
-                #ccc 297mm
-              )`,
-              backgroundSize: "100% 297mm",
+              // backgroundImage: `repeating-linear-gradient(
+              //   to bottom,
+              //   transparent,
+              //   transparent calc(297mm - 1px),
+              //   #ccc calc(297mm - 1px),
+              //   #ccc 297mm
+              // )`,
+              // backgroundSize: "100% 297mm",
             }}
           />
-          {Array.from({ length: pageCount }, (_, i) => (
+          {/* {Array.from({ length: pageCount }, (_, i) => (
             <div
               key={i}
               style={{
@@ -683,7 +683,7 @@ const Editor = () => {
             >
               {i + 1}
             </div>
-          ))}
+          ))} */}
         </div>
 
         <ConfirmationDialog
