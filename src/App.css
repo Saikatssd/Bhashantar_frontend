@@ -89,3 +89,9 @@
   min-height: 11in;
   position: relative;
 }
+
+.ql-editor sub,
+.ql-editor sup {
+  font-size: 0.75em !important;
+}
+

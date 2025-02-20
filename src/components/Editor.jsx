@@ -5,7 +5,7 @@ import TableModule from "quill-better-table";
 import "quill-better-table/dist/quill-better-table.css";
 import useDebounce from "../hooks/useDebounce";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { auth } from "../utils/firebase";
 import ConfirmationDialog from "./ConfirmationDialog";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -24,7 +24,6 @@ import {
 import { formatDate, fetchServerTimestamp } from "../utils/formatDate";
 import { kyroCompanyId } from "../services/companyServices";
 import "../App.css";
-
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -152,6 +151,8 @@ const Editor = () => {
   const [isFindReplaceDialogOpen, setIsFindReplaceDialogOpen] = useState(false);
   const [findText, setFindText] = useState("");
   const [replaceText, setReplaceText] = useState("");
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
+  const [matches, setMatches] = useState([]);
 
   // New state for number of pages in the editor.
   const [pageCount, setPageCount] = useState(1);
@@ -179,7 +180,7 @@ const Editor = () => {
   //   return () => window.removeEventListener("resize", updatePageCount);
   // }, [htmlContent, pageHeightPx]);
 
-  console.log("htmlContent", htmlContent);
+  // console.log("htmlContent", htmlContent);
   useEffect(() => {
     const handleOffline = () => {
       toast.error(
@@ -267,6 +268,51 @@ const Editor = () => {
         },
         resize: {
           locale: {},
+        },
+        keyboard: {
+          bindings: {
+            tab: {
+              key: 9,
+              handler: function (range) {
+                this.quill.insertText(
+                  range.index,
+                  "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0",
+                  "user"
+                );
+                this.quill.setSelection(range.index + 8);
+                return false;
+              },
+            },
+            backspace: {
+              key: 8,
+              handler: function (range) {
+                const textBefore = this.quill.getText(range.index - 8, 8);
+                if (
+                  textBefore ===
+                  "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"
+                ) {
+                  this.quill.deleteText(range.index - 8, 8, "user");
+                  this.quill.setSelection(range.index - 8);
+                  return false;
+                }
+                return true;
+              },
+            },
+            delete: {
+              key: 46,
+              handler: function (range) {
+                const textAfter = this.quill.getText(range.index, 8);
+                if (
+                  textAfter ===
+                  "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"
+                ) {
+                  this.quill.deleteText(range.index, 8, "user");
+                  return false;
+                }
+                return true;
+              },
+            },
+          },
         },
       };
 
@@ -442,15 +488,88 @@ const Editor = () => {
   // ------------------------------------------------------------------
   const handleOpenFindReplaceDialog = () => {
     setIsFindReplaceDialogOpen(true);
+    setCurrentMatchIndex(-1);
+    setMatches([]);
   };
 
   const handleCloseFindReplaceDialog = () => {
     setIsFindReplaceDialogOpen(false);
+    setFindText("");
+    setReplaceText("");
+    setCurrentMatchIndex(-1);
+    setMatches([]);
   };
 
-  const handleFindAndReplace = useCallback(() => {
-    if (!quillRef.current) return;
-    if (!findText) {
+  const handleFind = useCallback(() => {
+    if (!quillRef.current || !findText) {
+      toast.error("Please enter text to find.");
+      return;
+    }
+
+    const delta = quillRef.current.getContents();
+    const text = quillRef.current.getText();
+    const newMatches = [];
+    let index = 0;
+
+    while (index !== -1) {
+      index = text.indexOf(findText, index);
+      if (index !== -1) {
+        newMatches.push(index);
+        index += findText.length;
+      }
+    }
+
+    setMatches(newMatches);
+    if (newMatches.length > 0) {
+      setCurrentMatchIndex(0);
+      quillRef.current.setSelection(newMatches[0], findText.length);
+      toast.success(`Found ${newMatches.length} occurrence(s)`);
+    } else {
+      toast.info("No matches found");
+    }
+  }, [findText]);
+
+  const handleNextMatch = useCallback(() => {
+    if (matches.length === 0 || !quillRef.current) return;
+    const nextIndex = (currentMatchIndex + 1) % matches.length;
+    setCurrentMatchIndex(nextIndex);
+    quillRef.current.setSelection(matches[nextIndex], findText.length);
+  }, [matches, currentMatchIndex]);
+
+  const handleReplace = useCallback(() => {
+    if (!quillRef.current || currentMatchIndex === -1) return;
+   
+    const position = matches[currentMatchIndex];
+    quillRef.current.deleteText(position, findText.length);
+    quillRef.current.insertText(position, replaceText);
+   
+    // Calculate the difference in length
+    const lengthDifference = replaceText.length - findText.length;
+   
+    // Update matches after replacement
+    const updatedMatches = matches.map((match, index) => {
+      if (index > currentMatchIndex) {
+        return match + lengthDifference; // Adjust position for matches after the current one
+      }
+      return match; // Keep the current index as is
+    });
+   
+    updatedMatches.splice(currentMatchIndex, 1); // Remove the replaced match
+    setMatches(updatedMatches);
+   
+    if (updatedMatches.length > 0) {
+      // Adjust current match index if necessary
+      setCurrentMatchIndex(Math.min(currentMatchIndex, updatedMatches.length - 1));
+      quillRef.current.setSelection(updatedMatches[currentMatchIndex], replaceText.length);
+    } else {
+      setCurrentMatchIndex(-1);
+    }
+   
+    toast.success("Replaced one occurrence");
+  }, [findText, replaceText, currentMatchIndex, matches]);
+
+  const handleReplaceAll = useCallback(() => {
+    if (!quillRef.current || !findText) {
       toast.error("Please enter text to find.");
       return;
     }
@@ -465,11 +584,13 @@ const Editor = () => {
       return op;
     });
     quillRef.current.setContents({ ops: newOps });
-    toast.success(`All occurrences of "${findText}" have been replaced.`);
+    toast.success(`Replaced ${matches.length} occurrence(s)`);
     setFindText("");
     setReplaceText("");
+    setMatches([]);
+    setCurrentMatchIndex(-1);
     handleCloseFindReplaceDialog();
-  }, [findText, replaceText]);
+  }, [findText, replaceText, matches]);
 
   if (loading) {
     return (
@@ -513,7 +634,7 @@ const Editor = () => {
             marginBottom: "10px",
           }}
         >
-          <div id="toolbar">
+          <div id="toolbar" style={{ display: "flex", alignItems: "center" }}>
             <select className="ql-font">
               <option value="calibri">Calibri</option>
               <option value="times-new-roman">Times New Roman</option>
@@ -600,44 +721,72 @@ const Editor = () => {
             <Tooltip title="Clear Formatting" arrow>
               <button className="ql-clean" />
             </Tooltip>
-            <Tooltip title="Go back" arrow>
-              <Button
-                variant="outlined"
-                color="primary"
-                startIcon={<ArrowBackIcon />}
-                onClick={handleBack}
-                sx={{
-                  borderRadius: "20px",
-                  textTransform: "none",
-                  paddingX: 2,
-                  paddingY: 1,
-                  fontWeight: "bold",
-                  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
-                  "&:hover": { backgroundColor: "#66bb6a" },
-                }}
-              >
-                Back
-              </Button>
-            </Tooltip>
-            <Tooltip title="Submit changes" arrow>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={handleSave}
-                sx={{
-                  borderRadius: "20px",
-                  textTransform: "none",
-                  paddingX: 2,
-                  paddingY: 1,
-                  fontWeight: "bold",
-                  color: "#000000",
-                  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
-                  "&:hover": { backgroundColor: "#66bb6a" },
-                }}
-              >
-                Submit
-              </Button>
-            </Tooltip>
+            {/* Spacer */}
+            <div style={{ flexGrow: 1 }}></div>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <Tooltip title="Go back" arrow>
+                <button
+                  onClick={handleBack}
+                  style={{
+                    borderRadius: "20px",
+                    textTransform: "none",
+                    padding: "10px 20px", // Matches Submit button padding
+                    minWidth: "100px", // Matches Submit button minWidth
+                    fontWeight: "bold",
+                    fontSize: "16px", // Matches Submit button fontSize
+                    color: "#00000", // Default Material-UI primary color (blue)
+                    backgroundColor: "transparent", // No green background by default
+                    border: "1px solid #1976d2", // Blue border to match outlined style
+                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+                    cursor: "pointer",
+                    boxSizing: "border-box",
+                    display: "flex", // Flexbox for centering
+                    alignItems: "center", // Vertically center content
+                    justifyContent: "center", // Horizontally center content
+                    height: "40px", // Matches Submit button height
+                    lineHeight: "1", // Matches Submit button lineHeight
+                  }}
+                  // onMouseOver={(e) => (e.target.style.backgroundColor = "#808080")} // Green on hover
+                  // onMouseOut={(e) => (e.target.style.backgroundColor = "transparent")} // Reset to transparent
+                >
+                  <ArrowBackIcon style={{ marginRight: "8px" }} />{" "}
+                  {/* Matches startIcon */}
+                  Back
+                </button>
+              </Tooltip>
+              <Tooltip title="Submit changes" arrow>
+                <button
+                  onClick={handleSave}
+                  style={{
+                    borderRadius: "20px",
+                    textTransform: "none",
+                    padding: "10px 20px", // Consistent padding
+                    minWidth: "100px", // Minimum width for the button
+                    fontWeight: "bold",
+                    fontSize: "16px", // Explicit font size
+                    color: "#000000",
+                    backgroundColor: "#66bb6a", // Green background
+                    border: "1px solid #66bb6a",
+                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+                    cursor: "pointer",
+                    boxSizing: "border-box",
+                    display: "flex", // Flexbox to center content
+                    alignItems: "center", // Vertically center the text
+                    justifyContent: "center", // Horizontally center the text
+                    height: "40px", // Explicit height to control button size
+                    lineHeight: "1", // Normalize line height to prevent shifting
+                  }}
+                  onMouseOver={(e) =>
+                    (e.target.style.backgroundColor = "#558b2f")
+                  }
+                  onMouseOut={(e) =>
+                    (e.target.style.backgroundColor = "#66bb6a")
+                  }
+                >
+                  Submit
+                </button>
+              </Tooltip>
+            </div>
           </div>
         </div>
 
@@ -730,10 +879,22 @@ const Editor = () => {
               value={replaceText}
               onChange={(e) => setReplaceText(e.target.value)}
             />
+            {matches.length > 0 && (
+              <Typography variant="caption" sx={{ mt: 1 }}>
+                Match {currentMatchIndex + 1} of {matches.length}
+              </Typography>
+            )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseFindReplaceDialog}>Cancel</Button>
-            <Button onClick={handleFindAndReplace}>Replace All</Button>
+            <Button onClick={handleFind}>Find</Button>
+            <Button onClick={handleNextMatch} disabled={matches.length <= 1}>
+              Next
+            </Button>
+            <Button onClick={handleReplace} disabled={currentMatchIndex === -1}>
+              Replace
+            </Button>
+            <Button onClick={handleReplaceAll}>Replace All</Button>
+            <Button onClick={handleCloseFindReplaceDialog}>Close</Button>
           </DialogActions>
         </Dialog>
       </div>
