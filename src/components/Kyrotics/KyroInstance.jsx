@@ -17,26 +17,33 @@ import KyroAdminHome from "../../pages/Admin/KyroticsAdminHome";
 import UserReport from "../reports/UserReport";
 import UserList from "../../pages/userList";
 import ProjectList from "../../pages/ProjectList";
+import { useAuth } from "../../context/AuthContext";
 
 export default function KyroInstance({ role }) {
   const [userCompanyId, setUserCompanyId] = useState("");
 
   const { companyId } = useParams();
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const token = await user.getIdTokenResult();
-        // console.log(token)
-        user.roleName = token.claims.roleName;
-        user.companyId = token.claims.companyId;
+  // useEffect(() => {
+  //   const unsubscribe = auth.onAuthStateChanged(async (user) => {
+  //     if (user) {
+  //       const token = await user.getIdTokenResult();
+  //       // console.log(token)
+  //       user.roleName = token.claims.roleName;
+  //       user.companyId = token.claims.companyId;
 
-        // setRole(user.roleName);
-        setUserCompanyId(user.companyId);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+  //       // setRole(user.roleName);
+  //       setUserCompanyId(user.companyId);
+  //     }
+  //   });
+  //   return () => unsubscribe();
+  // }, []);
+
+  const { currentUser } = useAuth();
+  useEffect(() => {
+    setUserCompanyId(currentUser?.companyId);
+  }, currentUser);
+  // console.log("current", currentUser);
 
   return (
     <div className="flex">
@@ -45,7 +52,10 @@ export default function KyroInstance({ role }) {
         <Routes>
           <Route path="/profile" element={<Profile />} />
           <Route path="project" element={<ProjectList />} />
-          <Route path="clientCompanies" element={<ClientCompanies companyId={companyId}/>} />
+          <Route
+            path="clientCompanies"
+            element={<ClientCompanies companyId={userCompanyId} />}
+          />
 
           {role === "user" && (
             <>
@@ -68,17 +78,16 @@ export default function KyroInstance({ role }) {
                 path="project/:projectId"
                 element={<KyroAdminFileFlow />}
               />
-              <Route path="clientCompanies" element={<ClientCompanies />} />
+              {/* <Route path="clientCompanies" element={<ClientCompanies />} /> */}
               <Route path="permissionManage" element={<PermissionsManage />} />
               <Route path="roleManage" element={<RoleManage />} />
               <Route path="fileStatus" element={<FileStatusManager />} />
               <Route path="userReport" element={<UserReport />} />
-             
-               <Route
+
+              <Route
                 path="userList"
                 element={<UserList companyId={userCompanyId} />}
               />
-
             </>
           )}
           {role === "superAdmin" && (
@@ -91,7 +100,7 @@ export default function KyroInstance({ role }) {
                 path="/report"
                 element={<KyroAdminHome instanceCompanyId={companyId} />}
               />
-               <Route
+              <Route
                 path="userManage"
                 element={<UserManage companyId={companyId} />}
               />

@@ -103,73 +103,72 @@ const KyroAdminFileFlow = ({ projectId, companyId }) => {
     return () => unsubscribe();
   }, []);
 
+  const getFiles = async () => {
+    if (!companyId || !projectId) return;
+    setIsLoading(true);
+    try {
+      const projectFiles = await fetchProjectFiles(projectId);
+      const projectName = await fetchProjectName(projectId);
+
+      const fetchFileUsers = async (files) => {
+        return await Promise.all(
+          files.map(async (file) => {
+            try {
+              const assignedUser = file.kyro_assignedTo
+                ? await fetchUserNameById(file.kyro_assignedTo)
+                : null;
+              return {
+                ...file,
+                kyro_assignedToName: assignedUser,
+              };
+            } catch (error) {
+              console.error(
+                `Error fetching user name for file ${file.id}:`,
+                error
+              );
+              return {
+                ...file,
+                kyro_assignedToName: file.kyro_assignedTo, // Fallback to ID if name fetch fails
+              };
+            }
+          })
+        );
+      };
+
+      const readyForWork = await fetchFileUsers(
+        projectFiles.filter((file) => file.status === 2)
+      );
+      const inProgress = await fetchFileUsers(
+        projectFiles.filter((file) => file.status === 3)
+      );
+      const completed = await fetchFileUsers(
+        projectFiles.filter((file) => file.status === 4)
+      );
+      const qa = await fetchFileUsers(
+        projectFiles.filter((file) => file.status >= 5)
+      );
+
+      setReadyForWorkFiles(
+        readyForWork.map((file, index) => ({ ...file, slNo: index + 1 }))
+      );
+      setInProgressFiles(
+        inProgress.map((file, index) => ({ ...file, slNo: index + 1 }))
+      );
+      setCompletedFiles(
+        completed.map((file, index) => ({ ...file, slNo: index + 1 }))
+      );
+      setQaFiles(qa.map((file, index) => ({ ...file, slNo: index + 1 })));
+      setProjectName(projectName);
+    } catch (err) {
+      console.error("Error fetching files:", err);
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
-    const getFiles = async () => {
-      if (!companyId || !projectId) return;
-      setIsLoading(true);
-      try {
-        const projectFiles = await fetchProjectFiles(projectId);
-        const projectName = await fetchProjectName(projectId);
-
-        const fetchFileUsers = async (files) => {
-          return await Promise.all(
-            files.map(async (file) => {
-              try {
-                const assignedUser = file.kyro_assignedTo
-                  ? await fetchUserNameById(file.kyro_assignedTo)
-                  : null;
-                return {
-                  ...file,
-                  kyro_assignedToName: assignedUser,
-                };
-              } catch (error) {
-                console.error(
-                  `Error fetching user name for file ${file.id}:`,
-                  error
-                );
-                return {
-                  ...file,
-                  kyro_assignedToName: file.kyro_assignedTo, // Fallback to ID if name fetch fails
-                };
-              }
-            })
-          );
-        };
-
-        const readyForWork = await fetchFileUsers(
-          projectFiles.filter((file) => file.status === 2)
-        );
-        const inProgress = await fetchFileUsers(
-          projectFiles.filter((file) => file.status === 3)
-        );
-        const completed = await fetchFileUsers(
-          projectFiles.filter((file) => file.status === 4)
-        );
-        const qa = await fetchFileUsers(
-          projectFiles.filter((file) => file.status >= 5)
-        );
-
-        setReadyForWorkFiles(
-          readyForWork.map((file, index) => ({ ...file, slNo: index + 1 }))
-        );
-        setInProgressFiles(
-          inProgress.map((file, index) => ({ ...file, slNo: index + 1 }))
-        );
-        setCompletedFiles(
-          completed.map((file, index) => ({ ...file, slNo: index + 1 }))
-        );
-        setQaFiles(qa.map((file, index) => ({ ...file, slNo: index + 1 })));
-        setProjectName(projectName);
-      } catch (err) {
-        console.error("Error fetching files:", err);
-        setError(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     getFiles();
-  }, [companyId, projectId]);
+  }, [companyId, projectId, tabValue]);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -301,25 +300,29 @@ const KyroAdminFileFlow = ({ projectId, companyId }) => {
       // setCompletedFiles(files.filter(file => file.id !== fileId));
     }
     setSelectedRows([]);
-    const updatedFiles = await fetchProjectFiles(projectId);
-    setFiles(updatedFiles);
 
-    navigate(-1);
+    await getFiles();
+
+    // Switch to the delivered tab
+    setTabValue(1);
   };
 
   const handleSendSelected = async () => {
+    const serverDate = await fetchServerTimestam();
+    const formattedDate = formatDate(serverDate);
     for (const fileId of selectedRows) {
-      // await updateFileStatus(projectId, fileId, { status: 5, kyro_completedDate: formatDate(new Date()) });
       await updateFileStatus(projectId, fileId, {
         status: 5,
-        kyro_deliveredDate: formatDate(new Date()),
+        kyro_deliveredDate: formattedDate,
       });
     }
-    setSelectedRows([]);
-    const updatedFiles = await fetchProjectFiles(projectId);
-    setFiles(updatedFiles);
 
-    navigate(-1);
+    setSelectedRows([]);
+
+    await getFiles();
+
+    // Switch to the delivered tab
+    setTabValue(3);
   };
 
   const handleDownloadSelected = async () => {

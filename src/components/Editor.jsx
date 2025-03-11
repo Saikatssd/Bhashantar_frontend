@@ -414,7 +414,7 @@ const Editor = () => {
         if (role === "QA") {
           await updateFileStatus(projectId, documentId, {
             status: 5,
-            kyro_completedDate: formattedDate,
+            kyro_deliveredDate: formattedDate,
           });
         } else {
           await updateFileStatus(projectId, documentId, {

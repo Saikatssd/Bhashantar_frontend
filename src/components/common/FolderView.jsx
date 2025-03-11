@@ -31,6 +31,7 @@ import { useAuth } from "../../context/AuthContext";
 import KyroAdminFileFlow from "../Kyrotics/KyroAdminFileFlow";
 import KyroUserFileAssign from "../Kyrotics/KyroUserFileAssign";
 import UserFileAssign from "../ClientCompany/UserFileAssign";
+import QAWorkspace from "../../pages/QA/QAWorkspace";
 
 const FolderView = ({ project, onBack, superAdminCompanyId }) => {
   const { companyId } = useParams();
@@ -214,6 +215,7 @@ const FolderView = ({ project, onBack, superAdminCompanyId }) => {
     const { roleName, companyId: userCompanyId } = currentUser || {};
     const commonProps = { companyId, projectId: project.id };
     const isSuperAdmin = roleName === 'superAdmin';
+    const isQa = roleName === 'QA';
     const isKyroUser = userCompanyId === kyroId;
     const isRegularUser = roleName === 'user';
   
@@ -225,6 +227,10 @@ const FolderView = ({ project, onBack, superAdminCompanyId }) => {
       );
     }
   
+    if (isQa) {
+      return <QAWorkspace {...commonProps}/>
+    }
+  
     if (isKyroUser) {
       return isRegularUser ? (
         <KyroUserFileAssign {...commonProps} />
@@ -232,6 +238,8 @@ const FolderView = ({ project, onBack, superAdminCompanyId }) => {
         <KyroAdminFileFlow {...commonProps} />
       );
     }
+
+    
   
     return isRegularUser ? (
       <UserFileAssign {...commonProps} />

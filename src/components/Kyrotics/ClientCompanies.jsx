@@ -4,14 +4,24 @@ import { Link, useParams } from "react-router-dom";
 import { server } from "../../main";
 import { fetchClientCompanies } from "../../services/companyServices";
 import Loader from "../common/Loader";
+import { useAuth } from "../../context/AuthContext";
 
-const ClientCompanies = () => {
-  const { companyId } = useParams();
+const ClientCompanies = ({companyId}) => {
+  // const { companyId } = useParams();
+  const { currentUser } = useAuth();
 
   const [companies, setCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  console.log("companyId", companyId);
+  const [role, setRole] = useState("");
+
+  // Set role in useEffect, not in component body
+  useEffect(() => {
+    if (currentUser?.roleName) {
+      setRole(currentUser.roleName);
+      // console.log("Role updated:", currentUser.roleName);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -38,7 +48,11 @@ const ClientCompanies = () => {
             {companies.map((company) => (
               <Grid item xs={12} sm={6} md={4} key={company.id}>
                 <Link
-                  to={`/kyro/${company.id}/project?superAdminCompanyId=${companyId}`}
+                  to={`${
+                    role === "superAdmin"
+                      ? `/kyro/${company.id}/project?superAdminCompanyId=${companyId}`
+                      : `/kyro/${company.id}/project`
+                  }`}
                   key={company.id}
                 >
                   <Card

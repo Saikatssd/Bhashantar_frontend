@@ -1,15 +1,24 @@
-// src/components/ConfirmationDialog.js
+import React from "react";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
+import { Warning } from "@mui/icons-material";
 
-import React from 'react';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Button from '@mui/material/Button';
-import { Warning } from '@mui/icons-material';
+const ConfirmationDialog = ({
+  open,
+  handleClose,
+  handleConfirm,
+  title,
+  message,
+}) => {
+  const handleConfirmAndClose = () => {
+    handleConfirm();
+    handleClose();
+  };
 
-const ConfirmationDialog = ({ open, handleClose, handleConfirm, title, message }) => {
   return (
     <Dialog
       open={open}
@@ -30,7 +39,11 @@ const ConfirmationDialog = ({ open, handleClose, handleConfirm, title, message }
         <Button onClick={handleClose} className="text-gray-500">
           Cancel
         </Button>
-        <Button onClick={handleConfirm} className="bg-red-500 text-white hover:bg-red-600" autoFocus>
+        <Button
+          onClick={handleConfirmAndClose}
+          className="bg-red-500 hover:text-white hover:bg-red-600"
+          autoFocus
+        >
           Confirm
         </Button>
       </DialogActions>
