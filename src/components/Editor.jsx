@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import Quill from "quill";
+import Quill  from "quill";
 import "quill/dist/quill.snow.css";
 import TableModule from "quill-better-table";
 import "quill-better-table/dist/quill-better-table.css";
@@ -227,11 +227,12 @@ const Editor = () => {
       editorContainerRef.current &&
       !quillRef.current
     ) {
+      
+      // Configure Quill modules
       const modules = {
         toolbar: {
           container: "#toolbar",
           handlers: {
-            // Custom handler for pageBreak to simply insert one break without prompting.
             pageBreak: function () {
               const range = this.quill.getSelection(true);
               if (range) {
@@ -245,6 +246,11 @@ const Editor = () => {
               }
             },
           },
+        },
+        history: {
+          delay: 1000,
+          maxStack: 500,
+          userOnly: true
         },
         table: false,
         "better-table": {
@@ -312,25 +318,140 @@ const Editor = () => {
                 return true;
               },
             },
+            undo: {
+              key: 'z',
+              shortKey: true,
+              handler: function(range, context) {
+                // Get the current contents before attempting undo
+                const beforeContents = this.quill.getContents();
+                const beforeLength = this.quill.getLength();
+                
+                // Check if there's anything in the undo stack
+                const history = this.quill.history;
+                if (!history || !history.stack || !history.stack.undo || history.stack.undo.length === 0) {
+                  // No undo history, do nothing
+                  console.log("Nothing to undo");
+                  return false;
+                }
+                
+                // Try to undo
+                this.quill.history.undo();
+                
+                // Check if the editor is now empty (just contains a newline)
+                if (this.quill.getLength() <= 1 && beforeLength > 1) {
+                  // Undo cleared the editor - restore previous content
+                  this.quill.setContents(beforeContents);
+                  
+                  // Reset the undo stack to prevent further undos
+                  this.quill.history.stack.undo = [];
+                  
+                  console.log("You've reached the beginning of your edit history");
+                }
+                
+                return false;
+              }
+            },
           },
         },
       };
-
+  
+      // Initialize Quill
       quillRef.current = new Quill(editorContainerRef.current, {
         theme: "snow",
         modules,
       });
-
+  
+      // Process the initial HTML content for tab spaces
       if (htmlContent) {
-        quillRef.current.clipboard.dangerouslyPasteHTML(htmlContent);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlContent;
+        
+        // Find all text nodes that might contain non-breaking spaces
+        const textNodes = [];
+        const findTextNodes = (node) => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            textNodes.push(node);
+          } else if (node.nodeType === Node.ELEMENT_NODE) {
+            Array.from(node.childNodes).forEach(findTextNodes);
+          }
+        };
+        
+        findTextNodes(tempDiv);
+        
+        // Replace any sequences of 8 consecutive &nbsp; with a special marker
+        textNodes.forEach(node => {
+          if (node.textContent.includes('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0')) {
+            node.textContent = node.textContent.replace(
+              /\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0/g, 
+              '§TAB§'
+            );
+          }
+        });
+        
+        // Get the processed HTML
+        const processedContent = tempDiv.innerHTML;
+        
+        // Load the content with the special markers
+        quillRef.current.clipboard.dangerouslyPasteHTML(processedContent);
+        
+        // Now replace the markers with actual non-breaking spaces
+        const Delta = Quill.import('delta');
+        const delta = quillRef.current.getContents();
+        const newDelta = new Delta();
+        
+        delta.ops.forEach(op => {
+          if (typeof op.insert === 'string' && op.insert.includes('§TAB§')) {
+            const parts = op.insert.split('§TAB§');
+            for (let i = 0; i < parts.length; i++) {
+              if (i > 0) {
+                // Insert our tab spaces
+                newDelta.insert('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', op.attributes);
+              }
+              if (parts[i]) {
+                newDelta.insert(parts[i], op.attributes);
+              }
+            }
+          } else {
+            newDelta.insert(op.insert, op.attributes);
+          }
+        });
+        
+        quillRef.current.setContents(newDelta);
+        
+        // Clear the history stack to make this the starting point
+        if (quillRef.current.history) {
+          quillRef.current.history.clear();
+        }
       }
-
+      
+      // Add text-change handler to preserve tab spaces
       quillRef.current.on("text-change", () => {
-        const editorHtml =
-          editorContainerRef.current.querySelector(".ql-editor").innerHTML;
-        setHtmlContent(editorHtml);
+        // Get the editor content
+        const editorHtml = editorContainerRef.current.querySelector(".ql-editor").innerHTML;
+        
+        // Preserve tab spaces
+        const preservedHtml = editorHtml.replace(
+          /(\u00A0){8}/g, 
+          '<span class="ql-tab-space">\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0</span>'
+        );
+        
+        setHtmlContent(preservedHtml);
       });
-
+  
+      // Add keyboard event listener for Ctrl+Z prevention
+      const handleKeyDown = (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+          if (quillRef.current.getLength() <= 2) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        }
+      };
+      
+      document.addEventListener('keydown', handleKeyDown, true);
+  
+      // Set up the table button
       const tableButton = document.querySelector(".ql-better-table");
       if (tableButton) {
         tableButton.addEventListener("click", (e) => {
@@ -338,8 +459,31 @@ const Editor = () => {
           setShowTableDialog(true);
         });
       }
+  
+      // Clean up function
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown, true);
+      };
     }
   }, [isInitialContentSet, htmlContent]);
+  
+  // Add CSS for tab spaces
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .ql-tab-space {
+        white-space: pre !important;
+        display: inline-block;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
+    };
+  }, []);
 
   // Auto-save debounced changes.
   useEffect(() => {
