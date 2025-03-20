@@ -95,3 +95,26 @@
   font-size: 0.75em !important;
 }
 
+.ql-searched-string {
+  background-color: #FFFF00; /* Yellow background */
+  display: inline;
+  border-radius: 2px;
+  padding: 1px 0;
+}
+
+/* Add this class to your quill container when you want to highlight the current match */
+.quill-container-searching .ql-editor .ql-searched-string:nth-of-type(1) {
+  background-color: #FFA500; /* Orange background for current match */
+  border: 1px solid #FF8C00; /* Slightly darker orange border */
+}
+
+/* Optional animation to draw attention to matches */
+@keyframes pulse-highlight {
+  0% { background-color: #FFFF00; }
+  50% { background-color: #FFFFA0; }
+  100% { background-color: #FFFF00; }
+}
+
+.ql-searched-string {
+  animation: pulse-highlight 1.5s ease-in-out 1;
+}
