@@ -18,26 +18,15 @@ import UserReport from "../reports/UserReport";
 import UserList from "../../pages/userList";
 import ProjectList from "../../pages/ProjectList";
 import { useAuth } from "../../context/AuthContext";
+import InstanceIndicator from "../common/InstanceIndicator"; // Add this
+
 
 export default function KyroInstance({ role }) {
   const [userCompanyId, setUserCompanyId] = useState("");
 
   const { companyId } = useParams();
 
-  // useEffect(() => {
-  //   const unsubscribe = auth.onAuthStateChanged(async (user) => {
-  //     if (user) {
-  //       const token = await user.getIdTokenResult();
-  //       // console.log(token)
-  //       user.roleName = token.claims.roleName;
-  //       user.companyId = token.claims.companyId;
 
-  //       // setRole(user.roleName);
-  //       setUserCompanyId(user.companyId);
-  //     }
-  //   });
-  //   return () => unsubscribe();
-  // }, []);
 
   const { currentUser } = useAuth();
   useEffect(() => {
@@ -47,6 +36,7 @@ export default function KyroInstance({ role }) {
 
   return (
     <div className="flex">
+      <InstanceIndicator /> 
       <KyroSidebar companyId={companyId} role={role} />
       <div className="flex-grow">
         <Routes>

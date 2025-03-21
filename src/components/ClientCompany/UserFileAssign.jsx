@@ -117,14 +117,14 @@ const UserFileAssign = ({ projectId, companyId }) => {
   //   }
   // };
 
-  // const handleChangePage = (event, newPage) => {
-  //   setPage(newPage);
-  // };
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
-  // const handleChangeRowsPerPage = (event) => {
-  //   setRowsPerPage(+event.target.value);
-  //   setPage(0);
-  // };
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
   const handleFileAssign = async (id) => {
     try {

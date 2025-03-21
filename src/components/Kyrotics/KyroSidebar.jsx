@@ -188,7 +188,7 @@ export default function KyroSidebar({ companyId, role }) {
 
                     <li>
                       <Link
-                        to={`/company/${companyId}/register`}
+                        to={`/kyro/${companyId}/register`}
                         className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/register`)
                           ? "bg-[#e3d2fa] text-gray-700"
                           : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"

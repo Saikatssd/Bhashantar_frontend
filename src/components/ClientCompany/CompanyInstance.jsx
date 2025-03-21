@@ -16,6 +16,7 @@ import UserManage from "../../pages/UserManage";
 import ClientUserReport from "../reports/ClientUserReport";
 import AdminHome from "../../pages/Admin/AdminHome";
 import { kyroCompanyId } from "../../services/companyServices";
+import InstanceIndicator from "../common/InstanceIndicator"; // Add this
 
 
 const CompanyInstance = ({ role }) => {
@@ -33,7 +34,7 @@ const CompanyInstance = ({ role }) => {
         console.error(err);
       }
     };
-  
+
     fetchKyroticsCompanyId();
   }, []);
 
@@ -41,6 +42,8 @@ const CompanyInstance = ({ role }) => {
 
   return (
     <div className="flex">
+      <InstanceIndicator />
+
       {/* {companyId == kyroId ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />} */}
       {companyId === 'jpG7fAhdeGKAOzgCiaK5' ? <KyroSidebar companyId={companyId} role={role} /> : <Sidebar companyId={companyId} role={role} />}
 
