@@ -308,7 +308,7 @@ const KyroAdminFileFlow = ({ projectId, companyId }) => {
   };
 
   const handleSendSelected = async () => {
-    const serverDate = await fetchServerTimestam();
+    const serverDate = await fetchServerTimestamp();
     const formattedDate = formatDate(serverDate);
     for (const fileId of selectedRows) {
       await updateFileStatus(projectId, fileId, {
