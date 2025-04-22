@@ -118,3 +118,36 @@
 .ql-searched-string {
   animation: pulse-highlight 1.5s ease-in-out 1;
 }
+
+.ql-editor table {
+  max-width: 100%;
+  width: auto;
+  table-layout: auto;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.ql-editor td,
+.ql-editor th {
+  max-width: 200px;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.ql-editor {
+  overflow-x: hidden;
+}
+
+.quill-better-table {
+  border-collapse: collapse !important;
+  width: 100%;
+}
+
+.quill-better-table td {
+  border: 1px solid #000 !important;
+  padding: 8px;
+}
+
+.quill-better-table tr {
+  border: 1px solid #000 !important;
+}

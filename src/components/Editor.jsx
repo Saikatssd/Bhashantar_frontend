@@ -39,9 +39,6 @@ import { InsertPageBreak } from "@mui/icons-material";
 import Searcher from "../config/Searcher";
 import SearchedStringBlot from "../config/SearchBlot";
 
-// import 'quill-pagination';
-// import 'quill-pagination/lib/style.css';
-
 Quill.register("modules/resize", QuillResizeImage);
 
 Quill.register(
@@ -165,7 +162,6 @@ const Editor = () => {
   const editorContainerRef = useRef(null);
   const quillRef = useRef(null);
 
-
   // Add these state variables at the component level, not inside a useEffect
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -177,57 +173,66 @@ const Editor = () => {
       setIsOnline(false);
       toast.error(
         "You're offline 😢. Don't refresh the page or you may lose unsaved changes. We'll auto-save when connection returns.",
-        { 
+        {
           duration: 10000,
-          id: "offline-toast" // Using an ID prevents duplicate toasts
+          id: "offline-toast", // Using an ID prevents duplicate toasts
         }
       );
-      
+
       // Disable the Submit button when offline
-      const submitButton = document.querySelector("button[onClick='handleSave']");
+      const submitButton = document.querySelector(
+        "button[onClick='handleSave']"
+      );
       if (submitButton) submitButton.disabled = true;
     };
-  
+
     // Handler when user comes back online
     const handleOnline = () => {
       setIsOnline(true);
-      toast.success("You're back online! Your changes will now be saved.", { 
-        id: "online-toast" 
+      toast.success("You're back online! Your changes will now be saved.", {
+        id: "online-toast",
       });
-      
+
       // Re-enable the Submit button
-      const submitButton = document.querySelector("button[onClick='handleSave']");
+      const submitButton = document.querySelector(
+        "button[onClick='handleSave']"
+      );
       if (submitButton) submitButton.disabled = false;
-      
+
       // Try to save content immediately when coming back online
       if (hasUnsavedChanges) {
-        saveContent().then(() => {
-          setHasUnsavedChanges(false);
-          toast.success("Your changes have been saved successfully!");
-        }).catch(err => {
-          console.error("Error saving changes after reconnection:", err);
-          toast.error("Failed to save your changes. Please try saving manually.");
-        });
+        saveContent()
+          .then(() => {
+            setHasUnsavedChanges(false);
+            toast.success("Your changes have been saved successfully!");
+          })
+          .catch((err) => {
+            console.error("Error saving changes after reconnection:", err);
+            toast.error(
+              "Failed to save your changes. Please try saving manually."
+            );
+          });
       }
     };
-  
+
     // Listen for network status changes
     window.addEventListener("offline", handleOffline);
     window.addEventListener("online", handleOnline);
-    
+
     // Monitor for beforeunload event to warn about unsaved changes
     const handleBeforeUnload = (e) => {
       if (hasUnsavedChanges || !isOnline) {
         // Standard way to show a confirmation dialog before leaving
         e.preventDefault();
-        const message = "You have unsaved changes. Are you sure you want to leave?";
+        const message =
+          "You have unsaved changes. Are you sure you want to leave?";
         e.returnValue = message; // For Chrome
         return message; // For other browsers
       }
     };
-    
+
     window.addEventListener("beforeunload", handleBeforeUnload);
-  
+
     // Clean up all event listeners
     return () => {
       window.removeEventListener("offline", handleOffline);
@@ -245,7 +250,7 @@ const Editor = () => {
         });
       };
       trackChanges();
-      
+
       return () => {
         quillRef.current.off("text-change");
       };
@@ -255,34 +260,37 @@ const Editor = () => {
   // Update document title based on unsaved changes
   useEffect(() => {
     if (hasUnsavedChanges) {
-      document.title = `* ${fileName || 'Document'} (Unsaved changes)`;
+      document.title = `* ${fileName || "Document"} (Unsaved changes)`;
     } else {
-      document.title = fileName || 'Document';
+      document.title = fileName || "Document";
     }
   }, [hasUnsavedChanges, fileName]);
-  
+
   // Server ping functionality in a separate useEffect
   useEffect(() => {
     let pingInterval;
-    
+
     // Only run the ping check when browser reports we're online
     if (navigator.onLine) {
       pingInterval = setInterval(async () => {
         try {
           // Using a lightweight endpoint that returns quickly
-          const response = await fetch(`${server}`, { 
-            method: 'GET',
+          const response = await fetch(`${server}`, {
+            method: "GET",
             // Small timeout to avoid hanging
-            signal: AbortSignal.timeout(3000)
+            signal: AbortSignal.timeout(3000),
           });
-          
+
           if (!response.ok && isOnline) {
             // We thought we were online but server is unreachable
             setIsOnline(false);
-            toast.warning("Connection to server is unstable. Your changes will be backed up locally.", {
-              id: "connection-warning",
-              duration: 5000
-            });
+            toast.warning(
+              "Connection to server is unstable. Your changes will be backed up locally.",
+              {
+                id: "connection-warning",
+                duration: 5000,
+              }
+            );
           } else if (response.ok && !isOnline) {
             // Connection restored
             setIsOnline(true);
@@ -293,22 +301,25 @@ const Editor = () => {
           if (error.name !== "AbortError" && isOnline) {
             // Only update if not a timeout and we thought we were online
             setIsOnline(false);
-            toast.warning("Server connection lost. Changes will be saved locally until connection returns.", {
-              id: "connection-warning",
-              duration: 5000
-            });
+            toast.warning(
+              "Server connection lost. Changes will be saved locally until connection returns.",
+              {
+                id: "connection-warning",
+                duration: 5000,
+              }
+            );
           }
         }
       }, 30000); // Check every 30 seconds
     }
-    
+
     return () => clearInterval(pingInterval);
   }, [isOnline]);
 
   // Modified saveContent function with offline support
   const saveContent = async () => {
     if (!htmlContent) return;
-    
+
     try {
       // If offline, store in localStorage as backup
       if (!navigator.onLine) {
@@ -316,19 +327,19 @@ const Editor = () => {
         setHasUnsavedChanges(true);
         return;
       }
-      
+
       const blob = new Blob([htmlContent], {
         type: "text/html; charset=utf-8",
       });
-      
+
       await updateDocumentContent(projectId, documentId, blob);
       setHasUnsavedChanges(false);
-      
+
       // Clear any backup from localStorage after successful save
       localStorage.removeItem(`editor_backup_${documentId}`);
     } catch (err) {
       console.error("Error saving document:", err);
-      
+
       // Fallback to localStorage if server save fails
       localStorage.setItem(`editor_backup_${documentId}`, htmlContent);
       setHasUnsavedChanges(true);
@@ -346,10 +357,14 @@ const Editor = () => {
   useEffect(() => {
     const checkForLocalBackup = () => {
       const backupContent = localStorage.getItem(`editor_backup_${documentId}`);
-      
+
       if (backupContent && quillRef.current) {
         // Show recovery dialog to user
-        if (confirm("We found a locally saved backup of your document. Would you like to recover it?")) {
+        if (
+          confirm(
+            "We found a locally saved backup of your document. Would you like to recover it?"
+          )
+        ) {
           quillRef.current.clipboard.dangerouslyPasteHTML(backupContent);
           toast.success("Backup content has been restored!");
         } else {
@@ -358,35 +373,34 @@ const Editor = () => {
         }
       }
     };
-    
+
     if (isInitialContentSet && quillRef.current) {
       checkForLocalBackup();
     }
   }, [isInitialContentSet, documentId]);
 
-  // Constant to convert mm to px (standard 96 DPI)
-  // const mmToPx = 96 / 25.4;
-  // const pageHeightPx = 297 * mmToPx; // A4 page height in px (approx 1123px)
+  const extractTextOnly = (node) => {
+    if (!node) return "";
 
-  // // Update page count based on editor container height.
-  // useEffect(() => {
-  //   function updatePageCount() {
-  //     const editorContentEl =
-  //       editorContainerRef.current?.querySelector(".ql-editor");
-  //     if (editorContentEl) {
-  //       const height = editorContentEl.scrollHeight;
-  //       const count = Math.ceil(height / pageHeightPx);
-  //       setPageCount(count);
-  //     }
-  //   }
-  //   // Update after content has been rendered.
-  //   updatePageCount();
-  //   window.addEventListener("resize", updatePageCount);
-  //   return () => window.removeEventListener("resize", updatePageCount);
-  // }, [htmlContent, pageHeightPx]);
+    // If it's a text node, return its text content
+    if (node.nodeType === 3) return node.textContent;
 
-  // console.log("htmlContent", htmlContent);
+    // If it's not an element node, return empty string
+    if (node.nodeType !== 1) return "";
 
+    // Recursively extract text from children
+    let text = "";
+    for (let child of node.childNodes) {
+      text += extractTextOnly(child);
+    }
+
+    // Add spaces around block elements to separate words
+    if (window.getComputedStyle(node).display === "block") {
+      text = " " + text + " ";
+    }
+
+    return text;
+  };
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -568,6 +582,59 @@ const Editor = () => {
         theme: "snow",
         modules,
       });
+
+      // Wait until next tick to add clipboard matchers
+      setTimeout(() => {
+        // Add clipboard matchers after initialization is complete
+        if (quillRef.current && quillRef.current.clipboard) {
+          const Delta = Quill.import("delta");
+
+          quillRef.current.clipboard.addMatcher("td", (node, delta) => {
+            const textContent = extractTextOnly(node);
+            return new Delta().insert(textContent);
+          });
+
+          quillRef.current.clipboard.addMatcher("table", (node, delta) => {
+            const textContent = extractTextOnly(node);
+            return new Delta().insert(textContent);
+          });
+
+          quillRef.current.clipboard.addMatcher(
+            "div.quill-better-table-wrapper",
+            (node, delta) => {
+              const textContent = extractTextOnly(node);
+              return new Delta().insert(textContent);
+            }
+          );
+
+          // Add paste event listener
+          quillRef.current.root.addEventListener("paste", function (e) {
+            const selection = quillRef.current.getSelection();
+            if (!selection) return;
+
+            const [leaf] = quillRef.current.getLeaf(selection.index);
+            let isInsideTableCell = false;
+
+            let node = leaf.domNode;
+            while (node && node !== quillRef.current.root) {
+              if (
+                node.tagName === "TD" ||
+                node.classList.contains("qlbt-cell-line")
+              ) {
+                isInsideTableCell = true;
+                break;
+              }
+              node = node.parentNode;
+            }
+
+            if (isInsideTableCell) {
+              e.preventDefault();
+              const text = e.clipboardData.getData("text/plain");
+              quillRef.current.insertText(selection.index, text, "user");
+            }
+          });
+        }
+      }, 100); // Short delay to ensure initialization is complete
 
       // Process the initial HTML content for tab spaces
       if (htmlContent) {
@@ -842,115 +909,6 @@ const Editor = () => {
   const handleCloseDialog = () => {
     setDialogOpen(false);
   };
-
-  // // ------------------------------------------------------------------
-  // // Find & Replace Handlers
-  // // ------------------------------------------------------------------
-  // const handleOpenFindReplaceDialog = () => {
-  //   setIsFindReplaceDialogOpen(true);
-  //   setCurrentMatchIndex(-1);
-  //   setMatches([]);
-  // };
-
-  // const handleCloseFindReplaceDialog = () => {
-  //   setIsFindReplaceDialogOpen(false);
-  //   setFindText("");
-  //   setReplaceText("");
-  //   setCurrentMatchIndex(-1);
-  //   setMatches([]);
-  // };
-
-  // const handleFind = useCallback(() => {
-  //   if (!quillRef.current || !findText) {
-  //     toast.error("Please enter text to find.");
-  //     return;
-  //   }
-
-  //   const delta = quillRef.current.getContents();
-  //   const text = quillRef.current.getText();
-  //   const newMatches = [];
-  //   let index = 0;
-
-  //   while (index !== -1) {
-  //     index = text.indexOf(findText, index);
-  //     if (index !== -1) {
-  //       newMatches.push(index);
-  //       index += findText.length;
-  //     }
-  //   }
-
-  //   setMatches(newMatches);
-  //   if (newMatches.length > 0) {
-  //     setCurrentMatchIndex(0);
-  //     quillRef.current.setSelection(newMatches[0], findText.length);
-  //     toast.success(`Found ${newMatches.length} occurrence(s)`);
-  //   } else {
-  //     toast.info("No matches found");
-  //   }
-  // }, [findText]);
-
-  // const handleNextMatch = useCallback(() => {
-  //   if (matches.length === 0 || !quillRef.current) return;
-  //   const nextIndex = (currentMatchIndex + 1) % matches.length;
-  //   setCurrentMatchIndex(nextIndex);
-  //   quillRef.current.setSelection(matches[nextIndex], findText.length);
-  // }, [matches, currentMatchIndex]);
-
-  // const handleReplace = useCallback(() => {
-  //   if (!quillRef.current || currentMatchIndex === -1) return;
-
-  //   const position = matches[currentMatchIndex];
-  //   quillRef.current.deleteText(position, findText.length);
-  //   quillRef.current.insertText(position, replaceText);
-
-  //   // Calculate the difference in length
-  //   const lengthDifference = replaceText.length - findText.length;
-
-  //   // Update matches after replacement
-  //   const updatedMatches = matches.map((match, index) => {
-  //     if (index > currentMatchIndex) {
-  //       return match + lengthDifference; // Adjust position for matches after the current one
-  //     }
-  //     return match; // Keep the current index as is
-  //   });
-
-  //   updatedMatches.splice(currentMatchIndex, 1); // Remove the replaced match
-  //   setMatches(updatedMatches);
-
-  //   if (updatedMatches.length > 0) {
-  //     // Adjust current match index if necessary
-  //     setCurrentMatchIndex(Math.min(currentMatchIndex, updatedMatches.length - 1));
-  //     quillRef.current.setSelection(updatedMatches[currentMatchIndex], replaceText.length);
-  //   } else {
-  //     setCurrentMatchIndex(-1);
-  //   }
-
-  //   toast.success("Replaced one occurrence");
-  // }, [findText, replaceText, currentMatchIndex, matches]);
-
-  // const handleReplaceAll = useCallback(() => {
-  //   if (!quillRef.current || !findText) {
-  //     toast.error("Please enter text to find.");
-  //     return;
-  //   }
-  //   const delta = quillRef.current.getContents();
-  //   const newOps = delta.ops.map((op) => {
-  //     if (typeof op.insert === "string") {
-  //       return {
-  //         ...op,
-  //         insert: op.insert.split(findText).join(replaceText),
-  //       };
-  //     }
-  //     return op;
-  //   });
-  //   quillRef.current.setContents({ ops: newOps });
-  //   toast.success(`Replaced ${matches.length} occurrence(s)`);
-  //   setFindText("");
-  //   setReplaceText("");
-  //   setMatches([]);
-  //   setCurrentMatchIndex(-1);
-  //   handleCloseFindReplaceDialog();
-  // }, [findText, replaceText, matches]);
 
   // ------------------------------------------------------------------
   // Find & Replace Handlers
@@ -1323,8 +1281,6 @@ const Editor = () => {
                     height: "40px", // Matches Submit button height
                     lineHeight: "1", // Matches Submit button lineHeight
                   }}
-                  // onMouseOver={(e) => (e.target.style.backgroundColor = "#808080")} // Green on hover
-                  // onMouseOut={(e) => (e.target.style.backgroundColor = "transparent")} // Reset to transparent
                 >
                   <ArrowBackIcon style={{ marginRight: "8px" }} />{" "}
                   {/* Matches startIcon */}
@@ -1386,32 +1342,8 @@ const Editor = () => {
               border: "1px solid #ccc",
               boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
               boxSizing: "border-box",
-              // backgroundImage: `repeating-linear-gradient(
-              //   to bottom,
-              //   transparent,
-              //   transparent calc(297mm - 1px),
-              //   #ccc calc(297mm - 1px),
-              //   #ccc 297mm
-              // )`,
-              // backgroundSize: "100% 297mm",
             }}
           />
-          {/* {Array.from({ length: pageCount }, (_, i) => (
-            <div
-              key={i}
-              style={{
-                position: "absolute",
-                right: "5mm",
-                top: `${(i + 1) * pageHeightPx - 5 * mmToPx}px`,
-                backgroundColor: "rgba(255,255,255,0.8)",
-                padding: "2px 4px",
-                borderRadius: "4px",
-                fontSize: "10px",
-              }}
-            >
-              {i + 1}
-            </div>
-          ))} */}
         </div>
 
         <ConfirmationDialog
@@ -1431,56 +1363,12 @@ const Editor = () => {
           setTableCols={setTableCols}
         />
         {/* Find & Replace Dialog */}
-        {/* <Dialog
-          open={isFindReplaceDialogOpen}
-          onClose={handleCloseFindReplaceDialog}
-        >
-          <DialogTitle>Find and Replace</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Find"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={findText}
-              onChange={(e) => setFindText(e.target.value)}
-            />
-            <TextField
-              margin="dense"
-              label="Replace with"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={replaceText}
-              onChange={(e) => setReplaceText(e.target.value)}
-            />
-            {matches.length > 0 && (
-              <Typography variant="caption" sx={{ mt: 1 }}>
-                Match {currentMatchIndex + 1} of {matches.length}
-              </Typography>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleFind}>Find</Button>
-            <Button onClick={handleNextMatch} disabled={matches.length <= 1}>
-              Next
-            </Button>
-            <Button onClick={handleReplace} disabled={currentMatchIndex === -1}>
-              Replace
-            </Button>
-            <Button onClick={handleReplaceAll}>Replace All</Button>
-            <Button onClick={handleCloseFindReplaceDialog}>Close</Button>
-          </DialogActions>
-        </Dialog> */}
+
         <Dialog
           open={isFindReplaceDialogOpen}
           onClose={handleCloseFindReplaceDialog}
-          // Make it non-modal so editor is usable while dialog is open
           disableEnforceFocus
           hideBackdrop
-          // Position it in the top-right corner instead of center
           PaperProps={{
             sx: {
               position: "fixed",
