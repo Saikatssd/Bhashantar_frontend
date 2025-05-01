@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Button,
   FormControl,
@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
 import { FilePageSum } from "../../utils/FilepageSum";
 import Loader from "../common/Loader";
+import { useParams } from "react-router-dom";
 
 const UserReport = () => {
   const today = format(new Date().setHours(0, 0, 0, 0), "yyyy-MM-dd");
@@ -30,7 +31,7 @@ const UserReport = () => {
     start: today,
     end: today,
   });
-
+  const {companyId} = useParams();
  
 
   const clearFilters = () => {
@@ -71,6 +72,7 @@ const UserReport = () => {
         );
         const endDate = new Date(completedDateRange.end).setHours(0, 0, 0, 0);
         const data = await fetchUserCompletedFilesReport(
+          companyId,
           selectedCompany,
           startDate,
           endDate
@@ -93,6 +95,19 @@ const UserReport = () => {
   const handleCompanyChange = (event) => {
     setSelectedCompany(event.target.value);
   };
+
+  // Sort the filtered details to put users with 0 files at the bottom
+  const sortedDetails = useMemo(() => {
+    return [...filteredDetails].sort((a, b) => {
+      // First sort by file count (users with 0 files at the bottom)
+      if (a.totalFiles === 0 && b.totalFiles > 0) return 1;
+      if (a.totalFiles > 0 && b.totalFiles === 0) return -1;
+      
+      // If both have same file count status (both 0 or both > 0),
+      // sort alphabetically by name as secondary criteria
+      return b.totalPages - a.totalPages;
+    });
+  }, [filteredDetails]);
 
   const totals = FilePageSum(filteredDetails);
 
@@ -167,7 +182,7 @@ const UserReport = () => {
           </button>
           <Button
             variant="outlined"
-            onClick={() => exportToExcel(filteredDetails, "User_Report")}
+            onClick={() => exportToExcel(sortedDetails, "User_Report")}
           >
             Export to XLS
           </Button>
@@ -177,7 +192,7 @@ const UserReport = () => {
       {isLoading ? (
         <Loader/>
       ) : (
-        <table className="min-w-full bg-white border  my-10">
+        <table className="min-w-full bg-white border my-10">
           <thead>
             <tr className="bg-[#6c7ae0] text-white">
               <th className="whitespace-nowrap px-6 py-2 font-medium">
@@ -189,15 +204,20 @@ const UserReport = () => {
               <th className="whitespace-nowrap px-6 py-2 font-medium">
                 Completed Pages
               </th>
+              <th className="whitespace-nowrap px-6 py-2 font-medium">
+                Status
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 ">
-            {filteredDetails.map((data, index) => (
+          <tbody className="divide-y divide-gray-200">
+            {sortedDetails.map((data, index) => (
               <tr
                 key={index}
-                className="even:bg-[#f0f2ff] odd:bg-white hover:bg-[#b6bffa]"
+                className={`even:bg-[#f0f2ff] odd:bg-white hover:bg-[#b6bffa] ${
+                  !data.isActive ? "text-gray-500" : ""
+                }`}
               >
-                <td className="whitespace-nowrap px-6 py-2 font-medium  text-center">
+                <td className="whitespace-nowrap px-6 py-2 font-medium text-center">
                   {data.userName}
                 </td>
                 <td className="whitespace-nowrap px-6 py-2 font-medium text-center">
@@ -205,6 +225,9 @@ const UserReport = () => {
                 </td>
                 <td className="whitespace-nowrap px-6 py-2 font-medium text-center">
                   {data.totalPages}
+                </td>
+                <td className="whitespace-nowrap px-6 py-2 font-medium text-center">
+                  {data.isActive ? "Active" : "Disabled"}
                 </td>
               </tr>
             ))}
@@ -218,6 +241,9 @@ const UserReport = () => {
               </td>
               <td className="whitespace-nowrap px-6 py-2 text-center">
                 {totals.totalPages}
+              </td>
+              <td className="whitespace-nowrap px-6 py-2 text-center">
+                -
               </td>
             </tr>
           </tbody>

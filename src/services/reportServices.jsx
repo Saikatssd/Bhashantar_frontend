@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { db, storage } from "../utils/firebase";
 import { fetchProjectFiles } from "../services/projectServices";
-import { fetchCompanyProjects } from "./companyServices";
+import { fetchCompanyProjects, fetchCompanyUsers } from "./companyServices";
 import { fetchUserNameById } from "../utils/firestoreUtil";
 import { parse } from "date-fns";
 
@@ -289,18 +289,101 @@ export const fetchDeliveryReportDetails = async (
 
 
 
+// export const fetchUserCompletedFilesReport = async (
+//   companyId,
+//   startDate,
+//   endDate
+// ) => {
+//   // Fetch all projects in parallel
+//   const projects = await fetchCompanyProjects(companyId);
+
+//   const userFiles = {};
+//   const userNameCache = {}; // Cache to store fetched usernames to avoid multiple fetches
+
+//   // Process all project files in parallel using Promise.all
+//   await Promise.all(
+//     projects.map(async (project) => {
+//       const files = await fetchProjectFiles(project.id);
+
+//       // Filter files based on status and completed date range
+//       const filteredFiles = files.filter((file) => {
+//         const completedDate = file.kyro_completedDate
+//           ? parse(file.kyro_completedDate, "dd/MM/yyyy", new Date())
+//           : null;
+
+//         return (
+//           file.status >= 4 &&
+//           completedDate &&
+//           completedDate >= startDate &&
+//           completedDate <= endDate
+//         );
+//       });
+
+//       // Process filtered files
+//       for (const file of filteredFiles) {
+//         // Use cached username if available
+//         let userName = userNameCache[file.kyro_assignedTo];
+
+//         // If not in cache, fetch and store it
+//         if (!userName) {
+//           userName = file.kyro_assignedTo
+//             ? await fetchUserNameById(file.kyro_assignedTo)
+//             : "Unknown";
+//           userNameCache[file.kyro_assignedTo] = userName;
+//         }
+
+//         // Skip if userName is 'Unknown'
+//         if (userName === "Unknown") {
+//           continue;
+//         }
+
+//         if (!userFiles[userName]) {
+//           userFiles[userName] = { fileCount: 0, pageCount: 0 };
+//         }
+
+//         userFiles[userName].fileCount += 1;
+//         userFiles[userName].pageCount += file.pageCount || 0;
+//       }
+//     })
+//   );
+
+//   // Convert userFiles object to an array of objects
+//   const formattedData = Object.keys(userFiles).map((userName) => ({
+//     userName,
+//     totalFiles: userFiles[userName].fileCount,
+//     totalPages: userFiles[userName].pageCount,
+//   }));
+
+//   return formattedData;
+// };
 export const fetchUserCompletedFilesReport = async (
   companyId,
+  selectedCompanyId,
   startDate,
   endDate
 ) => {
-  // Fetch all projects in parallel
-  const projects = await fetchCompanyProjects(companyId);
 
-  const userFiles = {};
-  const userNameCache = {}; // Cache to store fetched usernames to avoid multiple fetches
+  // Fetch all company users and projects in parallel
+  const [allCompanyUsers, projects] = await Promise.all([
+    fetchCompanyUsers(companyId),
+    fetchCompanyProjects(selectedCompanyId)
+  ]);
 
-  // Process all project files in parallel using Promise.all
+  // Create a map of all users with their status (active/disabled)
+  const userCache = {};
+  allCompanyUsers.forEach(user => {
+    userCache[user.id] = {
+      userName: user.name,
+      isActive: !user.disabled,
+      fileCount: 0,
+      pageCount: 0
+    };
+  });
+
+  // Track users who completed files in the date range
+  const fileUserCache = {};
+
+  // Process all project files in parallel
   await Promise.all(
     projects.map(async (project) => {
       const files = await fetchProjectFiles(project.id);
@@ -321,42 +404,37 @@ export const fetchUserCompletedFilesReport = async (
 
       // Process filtered files
       for (const file of filteredFiles) {
-        // Use cached username if available
-        let userName = userNameCache[file.kyro_assignedTo];
-
-        // If not in cache, fetch and store it
-        if (!userName) {
-          userName = file.kyro_assignedTo
-            ? await fetchUserNameById(file.kyro_assignedTo)
-            : "Unknown";
-          userNameCache[file.kyro_assignedTo] = userName;
-        }
-
-        // Skip if userName is 'Unknown'
-        if (userName === "Unknown") {
-          continue;
-        }
-
-        if (!userFiles[userName]) {
-          userFiles[userName] = { fileCount: 0, pageCount: 0 };
-        }
-
-        userFiles[userName].fileCount += 1;
-        userFiles[userName].pageCount += file.pageCount || 0;
+        if (!file.kyro_assignedTo) continue;
+        
+        const userId = file.kyro_assignedTo;
+        
+        // Skip if user not found in userCache (might be deleted or from another company)
+        if (!userCache[userId]) continue;
+        
+        // Update user stats
+        userCache[userId].fileCount += 1;
+        userCache[userId].pageCount += file.pageCount || 0;
+        
+        // Track this user in fileUserCache (users who completed files)
+        fileUserCache[userId] = true;
       }
     })
   );
 
-  // Convert userFiles object to an array of objects
-  const formattedData = Object.keys(userFiles).map((userName) => ({
-    userName,
-    totalFiles: userFiles[userName].fileCount,
-    totalPages: userFiles[userName].pageCount,
-  }));
+  // Format the output data according to requirements
+  const formattedData = Object.values(userCache)
+    // Filter out disabled users with 0 files
+    .filter(user => user.isActive || user.fileCount > 0)
+    // Map to output format
+    .map(user => ({
+      userName: user.userName,
+      totalFiles: user.fileCount,
+      totalPages: user.pageCount,
+      isActive: user.isActive
+    }));
 
   return formattedData;
 };
-
 
 export const fetchClientUserCompletedFilesReport = async (
   companyId,

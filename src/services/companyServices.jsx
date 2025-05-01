@@ -131,3 +131,23 @@ export const fetchCompanyProjects = async (companyId) => {
     throw new Error("Error fetching projects");
   }
 };
+// Fetch all users for a specific company
+export const fetchCompanyUsers = async (companyId) => {
+  try {
+    const usersQuery = query(
+      collection(db, "users"),
+      where("companyId", "==", companyId),
+      where("roleId", "==", "vHy9iTgtdYglS3yxf0s9")
+    );
+    const usersSnapshot = await getDocs(usersQuery);
+    const users = usersSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    return users;
+  }
+  catch (error) {
+    console.error("Error fetching users:", error);
+    throw new Error("Error fetching users");
+  }
+}
