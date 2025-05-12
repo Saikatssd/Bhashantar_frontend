@@ -4,6 +4,7 @@ import axios from "axios";
 import { server } from "../../main";
 import { useParams } from "react-router-dom";
 import { fetchCompanyNameByCompanyId } from "../../utils/firestoreUtil";
+import { useInstance } from "../../context/InstanceContext";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -15,8 +16,16 @@ const Register = () => {
   const [companies, setCompanies] = useState([]);
   const [companyName, setCompanyName] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
-  const { companyId } = useParams();
-  const currentCompany = "";
+  let { companyId } = useParams();
+
+
+
+  const { kyroId, isKyroInstance } = useInstance();
+
+  if (isKyroInstance) {
+    companyId = kyroId;
+  }
+
 
   const resetForm = () => {
     setEmail("");
