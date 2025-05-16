@@ -259,6 +259,30 @@ export const fetchProjectFilesByFolder = async (projectId, folderId) => {
   }
 };
 
+
+export const fetchProjectFilesByFolderWithStatus = async (
+  projectId,
+  folderId,
+  status
+) => {
+  const filesCollection = collection(db, "projects", projectId, "files");
+
+  // Build an array of where-clauses
+  const conditions = [ where("status", "==", status) ];
+  if (folderId) {
+    conditions.push( where("folderId", "==", folderId) );
+  }
+
+  // Apply them all at once
+  const filesQuery = query(filesCollection, ...conditions);
+  const snapshot   = await getDocs(filesQuery);
+
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+};
+
 export const fetchTotalProjectFilesCount = async (projectId) => {
   try {
     const q = query(collection(db, "projects", projectId, "files"));

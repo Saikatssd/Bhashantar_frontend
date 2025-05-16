@@ -536,7 +536,7 @@
 // export default UploadDocument;
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import FolderView from "./UploadFolderView";
+import UploadFolderView from "./UploadFolderView";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useParams } from "react-router-dom";
@@ -724,7 +724,7 @@ const UploadDocument = () => {
         )}
 
         {selectedProject && (
-          <FolderView project={selectedProject} onBack={handleBack} />
+          <UploadFolderView project={selectedProject} onBack={handleBack} />
         )}
 
         {/* Create Project Modal */}

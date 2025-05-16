@@ -31,7 +31,7 @@ export default function KyroInstance({ role }) {
   const { currentUser } = useAuth();
   useEffect(() => {
     setUserCompanyId(currentUser?.companyId);
-  }, currentUser);
+  }, [currentUser]);
   // console.log("current", currentUser);
 
   return (

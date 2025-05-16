@@ -23,7 +23,7 @@ const UserHome = ({ companyId, userId })=> {
 
         const counts = await fetchClientUserProjectsCount(userId);
         setProjectCounts(counts);
-        console.log(projectCounts);
+        // console.log(projectCounts);
       } catch (error) {
         console.error("Error loading user project counts:", error);
       }
