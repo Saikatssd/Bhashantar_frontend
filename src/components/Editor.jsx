@@ -402,6 +402,8 @@ const Editor = () => {
     return text;
   };
 
+  
+
   useEffect(() => {
     const fetchContent = async () => {
       try {
@@ -423,6 +425,8 @@ const Editor = () => {
     };
     fetchContent();
   }, [projectId, documentId]);
+
+
 
   useEffect(() => {
     if (
@@ -583,6 +587,8 @@ const Editor = () => {
         modules,
       });
 
+     
+
       // Wait until next tick to add clipboard matchers
       setTimeout(() => {
         // Add clipboard matchers after initialization is complete
@@ -731,8 +737,37 @@ const Editor = () => {
           }
         }
       };
-
       document.addEventListener("keydown", handleKeyDown, true);
+
+      // Prevent deleting an empty table cell
+      const handleTableCellDelete = (e) => {
+        if (e.key === "Backspace" || e.key === "Delete") {
+          const sel = quillRef.current.getSelection();
+          if (!sel) return;
+          const [leaf] = quillRef.current.getLeaf(sel.index);
+          let node = leaf.domNode;
+          // Walk up until we hit the table cell (<td>) or the editor root
+          while (node && node !== quillRef.current.root) {
+            if (
+              node.tagName === "TD" ||
+              node.classList.contains("qlbt-cell-line")
+            ) {
+              // If the cell is empty (no text or just whitespace), block deletion
+              if (!node.textContent.trim()) {
+                e.preventDefault();
+                return;
+              }
+              break;
+            }
+            node = node.parentNode;
+          }
+        }
+      };
+      quillRef.current.root.addEventListener(
+        "keydown",
+        handleTableCellDelete,
+        true
+      );
 
       // Set up the table button
       const tableButton = document.querySelector(".ql-better-table");
@@ -749,6 +784,7 @@ const Editor = () => {
       };
     }
   }, [isInitialContentSet, htmlContent]);
+
 
   // Add CSS for tab spaces
   useEffect(() => {
