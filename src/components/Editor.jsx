@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
-import TableModule from "quill-better-table";
-import "quill-better-table/dist/quill-better-table.css";
+
+import QuillTableBetter from "quill-table-better";
+import "quill-table-better/dist/quill-table-better.css";
+
 import useDebounce from "../hooks/useDebounce";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Button, IconButton, Typography } from "@mui/material";
+import { Box, Button, IconButton, Typography } from "@mui/material"; // Keep Button for other uses if any
 import { auth } from "../utils/firebase";
 import ConfirmationDialog from "./ConfirmationDialog";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -40,26 +42,15 @@ import Searcher from "../config/Searcher";
 import SearchedStringBlot from "../config/SearchBlot";
 
 Quill.register("modules/resize", QuillResizeImage);
-
-Quill.register(
-  {
-    "modules/better-table": TableModule,
-  },
-  true
-);
 Quill.register(SearchedStringBlot);
 Quill.register("modules/Searcher", Searcher);
 
-const icons = Quill.import("ui/icons");
-icons["better-table"] = `
-  <svg viewBox="0 0 18 18">
-    <rect class="ql-stroke" height="12" width="12" x="3" y="3"></rect>
-    <line class="ql-stroke" x1="3" x2="15" y1="7" y2="7"></line>
-    <line class="ql-stroke" x1="3" x2="15" y1="11" y2="11"></line>
-    <line class="ql-stroke" x1="7" x2="7" y1="3" y2="15"></line>
-    <line class="ql-stroke" x1="11" x2="11" y1="3" y2="15"></line>
-  </svg>
-`;
+Quill.register(
+  {
+    "modules/table-better": QuillTableBetter,
+  },
+  true
+);
 
 const Font = Quill.import("attributors/style/font");
 Font.whitelist = ["calibri", "times-new-roman", "arial", "nirmala-ui"];
@@ -118,7 +109,8 @@ const TableDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>Cancel</Button>{" "}
+        {/* MUI Button is fine here */}
         <Button onClick={onInsert} variant="contained" color="primary">
           Insert
         </Button>
@@ -143,63 +135,46 @@ const Editor = () => {
   const debouncedHtmlContent = useDebounce(htmlContent, 3000);
   const [companyId, setCompanyId] = useState(null);
   const [role, setRole] = useState();
-  const [isLayoutReady, setIsLayoutReady] = useState(false);
+  // const [isLayoutReady, setIsLayoutReady] = useState(false); // Not strictly needed for this layout
 
-  // State for Table Dialog.
   const [showTableDialog, setShowTableDialog] = useState(false);
   const [tableRows, setTableRows] = useState(3);
   const [tableCols, setTableCols] = useState(3);
 
-  // New states for Find & Replace functionality
   const [isFindReplaceDialogOpen, setIsFindReplaceDialogOpen] = useState(false);
   const [findText, setFindText] = useState("");
   const [replaceText, setReplaceText] = useState("");
   const [currentMatchIndex, setCurrentMatchIndex] = useState(-1);
   const [matches, setMatches] = useState([]);
 
-  // New state for number of pages in the editor.
-  const [pageCount, setPageCount] = useState(1);
+  // const [pageCount, setPageCount] = useState(1); // Not currently used
   const editorContainerRef = useRef(null);
   const quillRef = useRef(null);
 
-  // Add these state variables at the component level, not inside a useEffect
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
-  // Network status monitoring useEffect
   useEffect(() => {
-    // Handler when user goes offline
     const handleOffline = () => {
       setIsOnline(false);
       toast.error(
         "You're offline 😢. Don't refresh the page or you may lose unsaved changes. We'll auto-save when connection returns.",
         {
           duration: 10000,
-          id: "offline-toast", // Using an ID prevents duplicate toasts
+          id: "offline-toast",
         }
       );
-
-      // Disable the Submit button when offline
-      const submitButton = document.querySelector(
-        "button[onClick='handleSave']"
-      );
+      const submitButton = document.getElementById("submit-button-editor"); // Use ID for submit button
       if (submitButton) submitButton.disabled = true;
     };
 
-    // Handler when user comes back online
     const handleOnline = () => {
       setIsOnline(true);
       toast.success("You're back online! Your changes will now be saved.", {
         id: "online-toast",
       });
-
-      // Re-enable the Submit button
-      const submitButton = document.querySelector(
-        "button[onClick='handleSave']"
-      );
+      const submitButton = document.getElementById("submit-button-editor"); // Use ID for submit button
       if (submitButton) submitButton.disabled = false;
-
-      // Try to save content immediately when coming back online
       if (hasUnsavedChanges) {
         saveContent()
           .then(() => {
@@ -215,33 +190,28 @@ const Editor = () => {
       }
     };
 
-    // Listen for network status changes
     window.addEventListener("offline", handleOffline);
     window.addEventListener("online", handleOnline);
 
-    // Monitor for beforeunload event to warn about unsaved changes
     const handleBeforeUnload = (e) => {
       if (hasUnsavedChanges || !isOnline) {
-        // Standard way to show a confirmation dialog before leaving
         e.preventDefault();
         const message =
           "You have unsaved changes. Are you sure you want to leave?";
-        e.returnValue = message; // For Chrome
-        return message; // For other browsers
+        e.returnValue = message;
+        return message;
       }
     };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
 
-    // Clean up all event listeners
     return () => {
       window.removeEventListener("offline", handleOffline);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [hasUnsavedChanges, isOnline]); // Dependencies
+  }, [hasUnsavedChanges, isOnline]);
 
-  // Track editor changes in a separate useEffect
+  
   useEffect(() => {
     if (quillRef.current) {
       const trackChanges = () => {
@@ -250,14 +220,14 @@ const Editor = () => {
         });
       };
       trackChanges();
-
       return () => {
-        quillRef.current.off("text-change");
+        if (quillRef.current) {
+          quillRef.current.off("text-change");
+        }
       };
     }
-  }, [quillRef.current]); // Only re-run if quillRef.current changes
+  }, [quillRef.current]);
 
-  // Update document title based on unsaved changes
   useEffect(() => {
     if (hasUnsavedChanges) {
       document.title = `* ${fileName || "Document"} (Unsaved changes)`;
@@ -266,23 +236,16 @@ const Editor = () => {
     }
   }, [hasUnsavedChanges, fileName]);
 
-  // Server ping functionality in a separate useEffect
   useEffect(() => {
     let pingInterval;
-
-    // Only run the ping check when browser reports we're online
     if (navigator.onLine) {
       pingInterval = setInterval(async () => {
         try {
-          // Using a lightweight endpoint that returns quickly
           const response = await fetch(`${server}`, {
             method: "GET",
-            // Small timeout to avoid hanging
             signal: AbortSignal.timeout(3000),
           });
-
           if (!response.ok && isOnline) {
-            // We thought we were online but server is unreachable
             setIsOnline(false);
             toast.warning(
               "Connection to server is unstable. Your changes will be backed up locally.",
@@ -292,14 +255,10 @@ const Editor = () => {
               }
             );
           } else if (response.ok && !isOnline) {
-            // Connection restored
             setIsOnline(true);
-            // Manually trigger online handler here or set a flag
-            // to trigger in the main online/offline useEffect
           }
         } catch (error) {
           if (error.name !== "AbortError" && isOnline) {
-            // Only update if not a timeout and we thought we were online
             setIsOnline(false);
             toast.warning(
               "Server connection lost. Changes will be saved locally until connection returns.",
@@ -310,115 +269,123 @@ const Editor = () => {
             );
           }
         }
-      }, 30000); // Check every 30 seconds
+      }, 30000);
     }
-
     return () => clearInterval(pingInterval);
   }, [isOnline]);
 
-  // Modified saveContent function with offline support
   const saveContent = async () => {
-    if (!htmlContent) return;
+    const currentEditorHtml = quillRef.current
+      ? quillRef.current.root.innerHTML
+      : htmlContent;
+    if (!currentEditorHtml && htmlContent === "") {
+      // Allow saving empty content if it was intentionally cleared
+      // If htmlContent is also empty, it means the editor was cleared.
+    } else if (!currentEditorHtml) {
+      return; // Don't save if quill isn't ready or htmlContent is null/undefined but not explicitly empty
+    }
 
     try {
-      // If offline, store in localStorage as backup
       if (!navigator.onLine) {
-        localStorage.setItem(`editor_backup_${documentId}`, htmlContent);
+        localStorage.setItem(`editor_backup_${documentId}`, currentEditorHtml);
         setHasUnsavedChanges(true);
+        toast.info("Offline: Changes saved to local backup.", {
+          id: "local-backup-save",
+        });
         return;
       }
 
-      const blob = new Blob([htmlContent], {
+      const blob = new Blob([currentEditorHtml], {
         type: "text/html; charset=utf-8",
       });
 
       await updateDocumentContent(projectId, documentId, blob);
       setHasUnsavedChanges(false);
-
-      // Clear any backup from localStorage after successful save
       localStorage.removeItem(`editor_backup_${documentId}`);
     } catch (err) {
       console.error("Error saving document:", err);
-
-      // Fallback to localStorage if server save fails
-      localStorage.setItem(`editor_backup_${documentId}`, htmlContent);
+      localStorage.setItem(`editor_backup_${documentId}`, currentEditorHtml);
       setHasUnsavedChanges(true);
+      toast.error("Save failed. Changes backed up locally.", {
+        id: "remote-save-fail",
+      });
     }
   };
 
-  // Auto-save debounced changes.
   useEffect(() => {
-    if (debouncedHtmlContent) {
+    // Save if debouncedHtmlContent exists (even if empty string) and initial content is set
+    if (typeof debouncedHtmlContent === "string" && isInitialContentSet) {
       saveContent();
     }
-  }, [debouncedHtmlContent]);
+  }, [debouncedHtmlContent, isInitialContentSet]);
 
-  // Check for local backup when initializing
   useEffect(() => {
     const checkForLocalBackup = () => {
       const backupContent = localStorage.getItem(`editor_backup_${documentId}`);
-
       if (backupContent && quillRef.current) {
-        // Show recovery dialog to user
-        if (
-          confirm(
-            "We found a locally saved backup of your document. Would you like to recover it?"
-          )
-        ) {
-          quillRef.current.clipboard.dangerouslyPasteHTML(backupContent);
-          toast.success("Backup content has been restored!");
-        } else {
-          // If user declines, remove the backup
-          localStorage.removeItem(`editor_backup_${documentId}`);
-        }
+        toast(
+          (t) => (
+            <span>
+              Found a local backup. Recover it?
+              <Button
+                sx={{ ml: 1 }}
+                size="small"
+                variant="outlined"
+                onClick={() => {
+                  quillRef.current.clipboard.dangerouslyPasteHTML(
+                    0,
+                    backupContent
+                  );
+                  toast.dismiss(t.id);
+                  toast.success("Backup content restored!");
+                  localStorage.removeItem(`editor_backup_${documentId}`);
+                  setHasUnsavedChanges(true);
+                }}
+              >
+                Yes
+              </Button>
+              <Button
+                sx={{ ml: 1 }}
+                size="small"
+                variant="outlined"
+                color="error"
+                onClick={() => {
+                  localStorage.removeItem(`editor_backup_${documentId}`);
+                  toast.dismiss(t.id);
+                }}
+              >
+                No
+              </Button>
+            </span>
+          ),
+          { duration: Infinity, id: "backup-recovery-toast" }
+        );
       }
     };
-
     if (isInitialContentSet && quillRef.current) {
       checkForLocalBackup();
     }
   }, [isInitialContentSet, documentId]);
 
-  const extractTextOnly = (node) => {
-    if (!node) return "";
-
-    // If it's a text node, return its text content
-    if (node.nodeType === 3) return node.textContent;
-
-    // If it's not an element node, return empty string
-    if (node.nodeType !== 1) return "";
-
-    // Recursively extract text from children
-    let text = "";
-    for (let child of node.childNodes) {
-      text += extractTextOnly(child);
-    }
-
-    // Add spaces around block elements to separate words
-    if (window.getComputedStyle(node).display === "block") {
-      text = " " + text + " ";
-    }
-
-    return text;
-  };
-
-  
-
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const { htmlUrl, pdfUrl } = await fetchDocumentUrl(
+        setLoading(true);
+        const { htmlUrl, pdfUrl: fetchedPdfUrl } = await fetchDocumentUrl(
           projectId,
           documentId
         );
         const response = await fetch(htmlUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch HTML: ${response.statusText}`);
+        }
         const text = await response.text();
         setHtmlContent(text);
-        setPdfUrl(pdfUrl);
-        setIsInitialContentSet(true);
+        setPdfUrl(fetchedPdfUrl);
       } catch (err) {
         setError("Error fetching document");
         console.error("Error fetching document:", err);
+        toast.error("Could not load document content.");
       } finally {
         setLoading(false);
       }
@@ -426,27 +393,20 @@ const Editor = () => {
     fetchContent();
   }, [projectId, documentId]);
 
-
-
   useEffect(() => {
     if (
-      isInitialContentSet &&
       editorContainerRef.current &&
-      !quillRef.current
+      !quillRef.current &&
+      htmlContent !== null &&
+      typeof htmlContent === "string"
     ) {
-      // Register the necessary Quill components
       const Inline = Quill.import("blots/inline");
-
-      // Define the SearchedStringBlot class
       class SearchedStringBlot extends Inline {}
       SearchedStringBlot.blotName = "SearchedString";
       SearchedStringBlot.className = "ql-searched-string";
       SearchedStringBlot.tagName = "span";
-
-      // Register the blot
       Quill.register(SearchedStringBlot);
 
-      // Configure Quill modules
       const modules = {
         toolbar: {
           container: "#toolbar",
@@ -472,24 +432,19 @@ const Editor = () => {
         },
         Searcher: true,
         table: false,
-        "better-table": {
-          operationMenu: {
-            items: {
-              mergeCells: {
-                text: "Merge Cells",
-              },
-              unmergeCells: {
-                text: "Unmerge Cells",
-              },
-            },
-            color: {
-              colors: ["green", "red", "yellow", "blue", "white"],
-              text: "Background Colors:",
-            },
-          },
-          keyboard: {
-            bindings: TableModule.keyboardBindings,
-          },
+        "table-better": {
+          language: "en_US",
+          menus: [
+            "column",
+            "row",
+            "merge",
+            "table",
+            "cell",
+            "wrap",
+            "copy",
+            "delete",
+          ],
+          toolbarTable: true,
         },
         resize: {
           locale: {},
@@ -541,11 +496,8 @@ const Editor = () => {
               key: "z",
               shortKey: true,
               handler: function (range, context) {
-                // Get the current contents before attempting undo
                 const beforeContents = this.quill.getContents();
                 const beforeLength = this.quill.getLength();
-
-                // Check if there's anything in the undo stack
                 const history = this.quill.history;
                 if (
                   !history ||
@@ -553,101 +505,34 @@ const Editor = () => {
                   !history.stack.undo ||
                   history.stack.undo.length === 0
                 ) {
-                  // No undo history, do nothing
                   console.log("Nothing to undo");
                   return false;
                 }
-
-                // Try to undo
                 this.quill.history.undo();
-
-                // Check if the editor is now empty (just contains a newline)
                 if (this.quill.getLength() <= 1 && beforeLength > 1) {
-                  // Undo cleared the editor - restore previous content
                   this.quill.setContents(beforeContents);
-
-                  // Reset the undo stack to prevent further undos
-                  this.quill.history.stack.undo = [];
-
+                  this.quill.history.clear();
                   console.log(
                     "You've reached the beginning of your edit history"
                   );
                 }
-
                 return false;
               },
             },
+            ...QuillTableBetter.keyboardBindings,
           },
         },
       };
 
-      // Initialize Quill
       quillRef.current = new Quill(editorContainerRef.current, {
         theme: "snow",
         modules,
       });
 
-     
-
-      // Wait until next tick to add clipboard matchers
-      setTimeout(() => {
-        // Add clipboard matchers after initialization is complete
-        if (quillRef.current && quillRef.current.clipboard) {
-          const Delta = Quill.import("delta");
-
-          quillRef.current.clipboard.addMatcher("td", (node, delta) => {
-            const textContent = extractTextOnly(node);
-            return new Delta().insert(textContent);
-          });
-
-          quillRef.current.clipboard.addMatcher("table", (node, delta) => {
-            const textContent = extractTextOnly(node);
-            return new Delta().insert(textContent);
-          });
-
-          quillRef.current.clipboard.addMatcher(
-            "div.quill-better-table-wrapper",
-            (node, delta) => {
-              const textContent = extractTextOnly(node);
-              return new Delta().insert(textContent);
-            }
-          );
-
-          // Add paste event listener
-          quillRef.current.root.addEventListener("paste", function (e) {
-            const selection = quillRef.current.getSelection();
-            if (!selection) return;
-
-            const [leaf] = quillRef.current.getLeaf(selection.index);
-            let isInsideTableCell = false;
-
-            let node = leaf.domNode;
-            while (node && node !== quillRef.current.root) {
-              if (
-                node.tagName === "TD" ||
-                node.classList.contains("qlbt-cell-line")
-              ) {
-                isInsideTableCell = true;
-                break;
-              }
-              node = node.parentNode;
-            }
-
-            if (isInsideTableCell) {
-              e.preventDefault();
-              const text = e.clipboardData.getData("text/plain");
-              quillRef.current.insertText(selection.index, text, "user");
-            }
-          });
-        }
-      }, 100); // Short delay to ensure initialization is complete
-
-      // Process the initial HTML content for tab spaces
       if (htmlContent) {
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = htmlContent;
 
-        // Find all text nodes that might contain non-breaking spaces
         const textNodes = [];
         const findTextNodes = (node) => {
           if (node.nodeType === Node.TEXT_NODE) {
@@ -656,10 +541,8 @@ const Editor = () => {
             Array.from(node.childNodes).forEach(findTextNodes);
           }
         };
-
         findTextNodes(tempDiv);
 
-        // Replace any sequences of 8 consecutive &nbsp; with a special marker
         textNodes.forEach((node) => {
           if (
             node.textContent.includes(
@@ -672,121 +555,66 @@ const Editor = () => {
             );
           }
         });
+        const processedContentWithMarkers = tempDiv.innerHTML;
 
-        // Get the processed HTML
-        const processedContent = tempDiv.innerHTML;
+        const deltaWithMarkers = quillRef.current.clipboard.convert({
+          html: processedContentWithMarkers,
+        });
 
-        // Load the content with the special markers
-        quillRef.current.clipboard.dangerouslyPasteHTML(processedContent);
-
-        // Now replace the markers with actual non-breaking spaces
         const Delta = Quill.import("delta");
-        const delta = quillRef.current.getContents();
-        const newDelta = new Delta();
-
-        delta.ops.forEach((op) => {
+        const finalDelta = new Delta();
+        deltaWithMarkers.ops.forEach((op) => {
           if (typeof op.insert === "string" && op.insert.includes("§TAB§")) {
             const parts = op.insert.split("§TAB§");
             for (let i = 0; i < parts.length; i++) {
               if (i > 0) {
-                // Insert our tab spaces
-                newDelta.insert(
+                finalDelta.insert(
                   "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0",
                   op.attributes
                 );
               }
               if (parts[i]) {
-                newDelta.insert(parts[i], op.attributes);
+                finalDelta.insert(parts[i], op.attributes);
               }
             }
           } else {
-            newDelta.insert(op.insert, op.attributes);
+            if (op.insert) {
+              finalDelta.insert(op.insert, op.attributes);
+            } else if (op.delete) {
+              finalDelta.delete(op.delete);
+            } else if (op.retain) {
+              finalDelta.retain(op.retain, op.attributes);
+            }
           }
         });
 
-        quillRef.current.setContents(newDelta);
+        quillRef.current.updateContents(finalDelta, Quill.sources.USER);
 
-        // Clear the history stack to make this the starting point
+        const newLength = quillRef.current.getLength();
+        quillRef.current.setSelection(newLength, 0, Quill.sources.SILENT);
+
         if (quillRef.current.history) {
           quillRef.current.history.clear();
         }
       }
 
-      // Add text-change handler to preserve tab spaces
-      quillRef.current.on("text-change", () => {
-        // Get the editor content
-        const editorHtml =
-          editorContainerRef.current.querySelector(".ql-editor").innerHTML;
+      setIsInitialContentSet(true);
 
-        // Preserve tab spaces
-        const preservedHtml = editorHtml.replace(
-          /(\u00A0){8}/g,
-          '<span class="ql-tab-space">\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0</span>'
-        );
-
-        setHtmlContent(preservedHtml);
+      quillRef.current.on("text-change", (delta, oldDelta, source) => {
+        if (source === "user") {
+          const editorHtml =
+            editorContainerRef.current.querySelector(".ql-editor").innerHTML;
+          const preservedHtml = editorHtml.replace(
+            /(\u00A0){8}/g,
+            '<span class="ql-tab-space">\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0</span>'
+          );
+          setHtmlContent(preservedHtml);
+          setHasUnsavedChanges(true);
+        }
       });
-
-      // Add keyboard event listener for Ctrl+Z prevention
-      const handleKeyDown = (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
-          if (quillRef.current.getLength() <= 2) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-          }
-        }
-      };
-      document.addEventListener("keydown", handleKeyDown, true);
-
-      // Prevent deleting an empty table cell
-      const handleTableCellDelete = (e) => {
-        if (e.key === "Backspace" || e.key === "Delete") {
-          const sel = quillRef.current.getSelection();
-          if (!sel) return;
-          const [leaf] = quillRef.current.getLeaf(sel.index);
-          let node = leaf.domNode;
-          // Walk up until we hit the table cell (<td>) or the editor root
-          while (node && node !== quillRef.current.root) {
-            if (
-              node.tagName === "TD" ||
-              node.classList.contains("qlbt-cell-line")
-            ) {
-              // If the cell is empty (no text or just whitespace), block deletion
-              if (!node.textContent.trim()) {
-                e.preventDefault();
-                return;
-              }
-              break;
-            }
-            node = node.parentNode;
-          }
-        }
-      };
-      quillRef.current.root.addEventListener(
-        "keydown",
-        handleTableCellDelete,
-        true
-      );
-
-      // Set up the table button
-      const tableButton = document.querySelector(".ql-better-table");
-      if (tableButton) {
-        tableButton.addEventListener("click", (e) => {
-          e.preventDefault();
-          setShowTableDialog(true);
-        });
-      }
-
-      // Clean up function
-      return () => {
-        document.removeEventListener("keydown", handleKeyDown, true);
-      };
     }
-  }, [isInitialContentSet, htmlContent]);
+  }, [htmlContent]);
 
-
-  // Add CSS for tab spaces
   useEffect(() => {
     const style = document.createElement("style");
     style.textContent = `
@@ -796,7 +624,6 @@ const Editor = () => {
       }
     `;
     document.head.appendChild(style);
-
     return () => {
       if (document.head.contains(style)) {
         document.head.removeChild(style);
@@ -804,26 +631,10 @@ const Editor = () => {
     };
   }, []);
 
-  // Auto-save debounced changes.
-  // useEffect(() => {
-  //   const saveContent = async () => {
-  //     if (!debouncedHtmlContent) return;
-  //     try {
-  //       const blob = new Blob([debouncedHtmlContent], {
-  //         type: "text/html; charset=utf-8",
-  //       });
-  //       await updateDocumentContent(projectId, documentId, blob);
-  //     } catch (err) {
-  //       console.error("Error saving document (debounced save):", err);
-  //     }
-  //   };
-  //   saveContent();
-  // }, [debouncedHtmlContent, projectId, documentId]);
-
-  useEffect(() => {
-    setIsLayoutReady(true);
-    return () => setIsLayoutReady(false);
-  }, []);
+  // useEffect(() => { // This useEffect for isLayoutReady is not strictly necessary for the restored layout
+  //   setIsLayoutReady(true);
+  //   return () => setIsLayoutReady(false);
+  // }, []);
 
   useEffect(() => {
     const fetchKyroticsCompanyId = async () => {
@@ -862,14 +673,29 @@ const Editor = () => {
   }, [projectId, documentId]);
 
   const handleInsertTable = () => {
-    const betterTable = quillRef.current.getModule("better-table");
-    if (betterTable) {
-      betterTable.insertTable(tableRows, tableCols);
+    if (quillRef.current) {
+      const tableModule = quillRef.current.getModule("table-better");
+      if (tableModule) {
+        tableModule.insertTable(tableRows, tableCols);
+      } else {
+        console.error("Quill 'table-better' module not found.");
+        toast.error("Could not insert table. Module not available.");
+      }
     }
     setShowTableDialog(false);
   };
 
   const handleSave = async () => {
+    await saveContent();
+    if (hasUnsavedChanges && isOnline) {
+      toast.error("Please ensure changes are saved before submitting.");
+      return;
+    }
+    if (!isOnline) {
+      toast.error("You are offline. Cannot submit now.");
+      return;
+    }
+
     try {
       const serverDate = await fetchServerTimestamp();
       const formattedDate = formatDate(serverDate);
@@ -892,9 +718,10 @@ const Editor = () => {
         });
       }
       navigate(-1);
-      console.log("Document status updated");
+      toast.success("Document status updated successfully!");
     } catch (err) {
       console.error("Error updating document status:", err);
+      toast.error("Failed to update document status.");
     }
   };
 
@@ -923,6 +750,7 @@ const Editor = () => {
           document.body.appendChild(link);
           link.click();
           link.remove();
+          window.URL.revokeObjectURL(url);
         });
     } catch (err) {
       console.log("Download error", err);
@@ -935,7 +763,39 @@ const Editor = () => {
   };
 
   const handleBack = () => {
-    navigate(-1);
+    if (hasUnsavedChanges) {
+      toast(
+        (t) => (
+          <span>
+            You have unsaved changes. Are you sure you want to go back?
+            {/* Using MUI Buttons here for consistency with other toasts, but could be plain HTML */}
+            <Button
+              sx={{ ml: 1 }}
+              size="small"
+              variant="outlined"
+              onClick={() => {
+                toast.dismiss(t.id);
+                navigate(-1);
+              }}
+            >
+              Yes
+            </Button>
+            <Button
+              sx={{ ml: 1 }}
+              size="small"
+              variant="outlined"
+              color="error"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              No
+            </Button>
+          </span>
+        ),
+        { duration: 10000, id: "back-confirm-toast" }
+      );
+    } else {
+      navigate(-1);
+    }
   };
 
   const handleOpenDialog = () => {
@@ -946,15 +806,10 @@ const Editor = () => {
     setDialogOpen(false);
   };
 
-  // ------------------------------------------------------------------
-  // Find & Replace Handlers
-  // ------------------------------------------------------------------
   const handleOpenFindReplaceDialog = () => {
     setIsFindReplaceDialogOpen(true);
     setCurrentMatchIndex(-1);
     setMatches([]);
-
-    // Check if there's text selected in the editor
     if (quillRef.current) {
       const selection = quillRef.current.getSelection();
       if (selection && selection.length > 0) {
@@ -972,21 +827,15 @@ const Editor = () => {
     setReplaceText("");
     setCurrentMatchIndex(-1);
     setMatches([]);
-
-    // Clear any search highlights
     if (quillRef.current) {
       const searcher = quillRef.current.getModule("Searcher");
-      if (searcher) {
-        // Use the Searcher's removeStyle static method
+      if (searcher && typeof searcher.constructor.removeStyle === "function") {
         searcher.constructor.removeStyle(quillRef.current);
       } else {
-        // Fallback to direct formatting if module not available
         quillRef.current.formatText(
           0,
           quillRef.current.getText().length,
-          {
-            SearchedString: false, // Use the format name, not 'background'
-          },
+          { SearchedString: false },
           Quill.sources.SILENT
         );
       }
@@ -999,15 +848,10 @@ const Editor = () => {
       toast.error("Please enter text to find.");
       return;
     }
-
-    // Get the Searcher module instance
     const searcher = quillRef.current.getModule("Searcher");
-
-    // Perform the search
     const matchCount = searcher.search(findText);
-
     if (matchCount > 0) {
-      setMatches(new Array(matchCount).fill(null)); // Just to track count
+      setMatches(new Array(matchCount).fill(null));
       setCurrentMatchIndex(0);
       toast.success(`Found ${matchCount} occurrence(s)`);
     } else {
@@ -1019,20 +863,16 @@ const Editor = () => {
 
   const handleNextMatch = useCallback(() => {
     if (!quillRef.current || matches.length === 0) return;
-
     const searcher = quillRef.current.getModule("Searcher");
     if (searcher.goToNextMatch()) {
-      // Update the current match index
       setCurrentMatchIndex((prevIndex) => (prevIndex + 1) % matches.length);
     }
   }, [matches]);
 
   const handlePrevMatch = useCallback(() => {
     if (!quillRef.current || matches.length === 0) return;
-
     const searcher = quillRef.current.getModule("Searcher");
     if (searcher.goToPrevMatch()) {
-      // Update the current match index
       setCurrentMatchIndex(
         (prevIndex) => (prevIndex - 1 + matches.length) % matches.length
       );
@@ -1044,27 +884,22 @@ const Editor = () => {
       toast.error("No match selected to replace.");
       return;
     }
-
     const searcher = quillRef.current.getModule("Searcher");
     if (!searcher) {
       toast.error("Search module not available");
       return;
     }
-
     try {
-      // Use the searcher's replace method
       const success = searcher.replace(replaceText);
-
       if (success) {
         toast.success("Replaced one occurrence");
-
-        // Update our tracking of matches count after replacement
         const newMatchCount = searcher.search(findText);
         setMatches(new Array(newMatchCount).fill(null));
-
         if (newMatchCount === 0) {
           setCurrentMatchIndex(-1);
-          toast("All occurrences replaced");
+          toast("All occurrences of current find text replaced");
+        } else {
+          setCurrentMatchIndex((prev) => Math.min(prev, newMatchCount - 1));
         }
       } else {
         toast.error("Failed to replace");
@@ -1077,45 +912,32 @@ const Editor = () => {
 
   const handleReplaceAll = useCallback(() => {
     if (!quillRef.current || !findText.trim()) {
-      toast.error("Please enter text to find.");
+      toast.error("Please enter text to find for replace all.");
       return;
     }
-
     const searcher = quillRef.current.getModule("Searcher");
     if (!searcher) {
       toast.error("Search module not available");
       return;
     }
-
     try {
-      // If no matches found, run search first
       if (matches.length === 0) {
-        const matchCount = searcher.search(findText);
-        if (matchCount === 0) {
-          toast("No matches found");
+        const initialMatchCount = searcher.search(findText);
+        if (initialMatchCount === 0) {
+          toast("No matches found to replace all.");
           return;
         }
-        setMatches(new Array(matchCount).fill(null));
       }
 
-      // Use the searcher's replaceAll method
       const replacedCount = searcher.replaceAll(replaceText);
-
       if (replacedCount > 0) {
         toast.success(`Replaced ${replacedCount} occurrence(s)`);
-
-        // Reset state
         setFindText("");
         setReplaceText("");
         setMatches([]);
         setCurrentMatchIndex(-1);
-
-        // Keep dialog open with a delay to show success message
-        setTimeout(() => {
-          handleCloseFindReplaceDialog();
-        }, 1000);
       } else {
-        toast.error("No replacements were made");
+        toast.error("No replacements were made by replace all");
       }
     } catch (error) {
       console.error("Replace all error:", error);
@@ -1124,30 +946,25 @@ const Editor = () => {
   }, [findText, replaceText, matches]);
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Check for Ctrl+Z or Command+Z (Mac)
+    const handleKeyDownGlobal = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
-        // If we have an ongoing search, clear highlights after undo
-        if (matches.length > 0) {
-          // Use setTimeout to execute after undo operation completes
+        if (matches.length > 0 && quillRef.current) {
           setTimeout(() => {
             if (quillRef.current) {
               const searcher = quillRef.current.getModule("Searcher");
               if (searcher) {
-                // Clear highlights
                 searcher.constructor.removeStyle(quillRef.current);
-
-                // Re-apply search to get updated positions after undo
                 if (findText && isFindReplaceDialogOpen) {
                   try {
                     const matchCount = searcher.search(findText);
                     setMatches(new Array(matchCount).fill(null));
-                    if (matchCount === 0) {
-                      setCurrentMatchIndex(-1);
-                    }
+                    setCurrentMatchIndex(matchCount > 0 ? 0 : -1);
                   } catch (error) {
                     console.error("Re-search after undo error:", error);
                   }
+                } else {
+                  setMatches([]);
+                  setCurrentMatchIndex(-1);
                 }
               }
             }
@@ -1155,15 +972,13 @@ const Editor = () => {
         }
       }
     };
-
-    document.addEventListener("keydown", handleKeyDown);
-
+    document.addEventListener("keydown", handleKeyDownGlobal);
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDownGlobal);
     };
   }, [matches, findText, isFindReplaceDialogOpen]);
 
-  if (loading) {
+  if (loading && !isInitialContentSet) {
     return (
       <div className="h-screen flex justify-center items-center">
         <Loader />{" "}
@@ -1171,7 +986,11 @@ const Editor = () => {
     );
   }
   if (error) {
-    return <div>{error}</div>;
+    return (
+      <div className="h-screen flex justify-center items-center text-red-500 p-4">
+        {error}
+      </div>
+    );
   }
 
   return (
@@ -1180,54 +999,60 @@ const Editor = () => {
       <div
         style={{
           flex: 1,
-          overflow: "auto",
+          overflow: "auto", // Scroll for PDF if it's too long
           padding: "10px",
           borderRight: "1px solid #ccc",
           width: "50%",
         }}
       >
-        {fileName ? (
-          <iframe src={pdfUrl} title={fileName} width="100%" height="100%" />
+        {pdfUrl ? (
+          <iframe
+            src={pdfUrl}
+            title={fileName || "Document Preview"}
+            width="100%"
+            height="100%"
+            frameBorder="0"
+          />
         ) : (
-          <div>Loading...</div>
+          <div className="flex justify-center items-center h-full">
+            Loading PDF preview...
+          </div>
         )}
       </div>
 
-      {/* Right Side: Editor with Custom Toolbar */}
+      {/* Right Side: Editor with Custom Toolbar - Reverted to original layout structure */}
       <div style={{ flex: 1, padding: "10px", overflowY: "auto" }}>
-        {/* Fixed Toolbar */}
+        {" "}
+        {/* This div handles the scrolling for the right panel */}
+        {/* Fixed Toolbar - using original sticky positioning */}
         <div
           style={{
-            position: "sticky",
+            position: "sticky", // Sticky toolbar
             top: 0,
-            zIndex: 10,
-            paddingBottom: "10px",
-            marginBottom: "10px",
+            zIndex: 10, // Ensure toolbar is above content
+            backgroundColor: "#f8f9fa", // Give toolbar a background to prevent content showing through
+            paddingBottom: "10px", // Space below toolbar before editor starts
+            marginBottom: "10px", // Space below toolbar before editor starts (original had this)
+            borderBottom: "1px solid #ccc", // Separator for toolbar
           }}
         >
-          <div id="toolbar" style={{ display: "flex", alignItems: "center" }}>
-            <select className="ql-font">
+          <div
+            id="toolbar"
+            style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}
+          >
+            <select className="ql-font" defaultValue="calibri">
               <option value="calibri">Calibri</option>
               <option value="times-new-roman">Times New Roman</option>
               <option value="arial">Arial</option>
               <option value="nirmala-ui">Nirmala UI</option>
             </select>
-            <select className="ql-size">
+            <select className="ql-size" defaultValue="11pt">
               <option value="8pt">8pt</option>
               <option value="9pt">9pt</option>
               <option value="10pt">10pt</option>
               <option value="11pt">11pt</option>
               <option value="12pt">12pt</option>
               <option value="14pt">14pt</option>
-              <option value="16pt">16pt</option>
-              <option value="18pt">18pt</option>
-              <option value="20pt">20pt</option>
-              <option value="22pt">22pt</option>
-              <option value="24pt">24pt</option>
-              <option value="26pt">26pt</option>
-              <option value="28pt">28pt</option>
-              <option value="36pt">36pt</option>
-              <option value="48pt">48pt</option>
               <option value="72pt">72pt</option>
             </select>
             <Tooltip title="Bold" arrow>
@@ -1245,8 +1070,12 @@ const Editor = () => {
             <Tooltip title="Superscript" arrow>
               <button className="ql-script" value="super" />
             </Tooltip>
-            <select className="ql-color" title="Text Color" />
-            <select className="ql-background" title="Background Color" />
+            <Tooltip title="Text Color" arrow>
+              <select className="ql-color" />
+            </Tooltip>
+            <Tooltip title="Background Color" arrow>
+              <select className="ql-background" />
+            </Tooltip>
             <Tooltip title="Align" arrow>
               <select className="ql-align" />
             </Tooltip>
@@ -1265,35 +1094,32 @@ const Editor = () => {
             <Tooltip title="Insert Image" arrow>
               <button className="ql-image" />
             </Tooltip>
-            <Tooltip title="Insert Table" arrow>
-              <button className="ql-better-table" />
+            <Tooltip title="Insert Table" placement="top-end"  arrow>
+              <button
+                className="ql-table-better"
+                onClick={() => setShowTableDialog(true)}
+              />
             </Tooltip>
             <Tooltip title="Page Break" arrow>
               <button className="ql-pageBreak">
                 <InsertPageBreak />
               </button>
             </Tooltip>
-            <Tooltip title="Find & Replace">
-              <FindInPageIcon
-                onClick={handleOpenFindReplaceDialog}
-                sx={{
-                  fontSize: "20px",
-                  cursor: "pointer",
-                }}
-              />
+            <Tooltip title="Find & Replace" arrow>
+              <IconButton onClick={handleOpenFindReplaceDialog} size="small">
+                <FindInPageIcon sx={{ fontSize: "20px" }} />
+              </IconButton>
             </Tooltip>
-            <Tooltip title="Download">
-              <DownloadIcon
-                onClick={handleDownload}
-                sx={{ fontSize: "20px" }}
-                className="text-gray-600 hover:text-blue-600 hover:scale-125 cursor-pointer"
-              />
+            <Tooltip title="Download" arrow>
+              <IconButton onClick={handleDownload} size="small">
+                <DownloadIcon sx={{ fontSize: "20px" }} />
+              </IconButton>
             </Tooltip>
             <Tooltip title="Clear Formatting" arrow>
               <button className="ql-clean" />
             </Tooltip>
-            {/* Spacer */}
-            <div style={{ flexGrow: 1 }}></div>
+            <div style={{ flexGrow: 1 }}></div> {/* Spacer */}
+            {/* Reverted Back and Submit buttons to original HTML button structure and styling */}
             <div style={{ display: "flex", gap: "10px" }}>
               <Tooltip title="Go back" arrow>
                 <button
@@ -1301,56 +1127,56 @@ const Editor = () => {
                   style={{
                     borderRadius: "20px",
                     textTransform: "none",
-                    padding: "10px 20px", // Matches Submit button padding
-                    minWidth: "100px", // Matches Submit button minWidth
+                    padding: "10px 20px",
+                    minWidth: "100px",
                     fontWeight: "bold",
-                    fontSize: "16px", // Matches Submit button fontSize
-                    color: "#00000", // Default Material-UI primary color (blue)
-                    backgroundColor: "transparent", // No green background by default
-                    border: "1px solid #1976d2", // Blue border to match outlined style
+                    fontSize: "16px",
+                    color: "#000000", // Original was black text
+                    backgroundColor: "transparent",
+                    border: "1px solid #1976d2", // Assuming a blue border like MUI outlined
                     boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
                     cursor: "pointer",
                     boxSizing: "border-box",
-                    display: "flex", // Flexbox for centering
-                    alignItems: "center", // Vertically center content
-                    justifyContent: "center", // Horizontally center content
-                    height: "40px", // Matches Submit button height
-                    lineHeight: "1", // Matches Submit button lineHeight
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "40px",
+                    lineHeight: "1",
                   }}
                 >
-                  <ArrowBackIcon style={{ marginRight: "8px" }} />{" "}
-                  {/* Matches startIcon */}
+                  <ArrowBackIcon style={{ marginRight: "8px" }} />
                   Back
                 </button>
               </Tooltip>
               <Tooltip title="Submit changes" arrow>
                 <button
+                  id="submit-button-editor" // Added ID for enabling/disabling
                   onClick={handleOpenDialog}
                   style={{
                     borderRadius: "20px",
                     textTransform: "none",
-                    padding: "10px 20px", // Consistent padding
-                    minWidth: "100px", // Minimum width for the button
+                    padding: "10px 20px",
+                    minWidth: "100px",
                     fontWeight: "bold",
-                    fontSize: "16px", // Explicit font size
-                    color: "#000000",
+                    fontSize: "16px",
+                    color: "#000000", // Original was black text
                     backgroundColor: "#66bb6a", // Green background
                     border: "1px solid #66bb6a",
                     boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
                     cursor: "pointer",
                     boxSizing: "border-box",
-                    display: "flex", // Flexbox to center content
-                    alignItems: "center", // Vertically center the text
-                    justifyContent: "center", // Horizontally center the text
-                    height: "40px", // Explicit height to control button size
-                    lineHeight: "1", // Normalize line height to prevent shifting
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "40px",
+                    lineHeight: "1",
                   }}
                   onMouseOver={(e) =>
-                    (e.target.style.backgroundColor = "#558b2f")
-                  }
+                    (e.currentTarget.style.backgroundColor = "#558b2f")
+                  } // Use currentTarget
                   onMouseOut={(e) =>
-                    (e.target.style.backgroundColor = "#66bb6a")
-                  }
+                    (e.currentTarget.style.backgroundColor = "#66bb6a")
+                  } // Use currentTarget
                 >
                   Submit
                 </button>
@@ -1358,21 +1184,20 @@ const Editor = () => {
             </div>
           </div>
         </div>
-
-        {/* Editor Container Wrapper with Page Numbers Overlay */}
+        {/* Editor Container Wrapper - original structure */}
         <div
           style={{
             display: "flex",
-            justifyContent: "center",
-            position: "relative",
+            justifyContent: "center", // Centers the A4 page
+            position: "relative", // For potential page number overlays if added later
           }}
         >
           <div
             ref={editorContainerRef}
             style={{
-              position: "relative",
-              width: "210mm", // A4 width (portrait)
-              minHeight: "297mm", // A4 height (portrait)
+              // position: "relative", // Not needed here, parent has it
+              width: "210mm",
+              minHeight: "297mm", // A4 page will grow if content exceeds this
               backgroundColor: "#fff",
               padding: "20mm",
               border: "1px solid #ccc",
@@ -1381,7 +1206,6 @@ const Editor = () => {
             }}
           />
         </div>
-
         <ConfirmationDialog
           open={dialogOpen}
           handleClose={handleCloseDialog}
@@ -1389,7 +1213,7 @@ const Editor = () => {
           title="Confirm Submission"
           message="Are you sure you want to submit?"
         />
-        <TableDialog
+        {/* <TableDialog
           open={showTableDialog}
           onClose={() => setShowTableDialog(false)}
           onInsert={handleInsertTable}
@@ -1397,9 +1221,7 @@ const Editor = () => {
           setTableRows={setTableRows}
           tableCols={tableCols}
           setTableCols={setTableCols}
-        />
-        {/* Find & Replace Dialog */}
-
+        /> */}
         <Dialog
           open={isFindReplaceDialogOpen}
           onClose={handleCloseFindReplaceDialog}
@@ -1408,13 +1230,13 @@ const Editor = () => {
           PaperProps={{
             sx: {
               position: "fixed",
-              top: 20,
+              top: 70,
               right: 20,
               m: 0,
               width: 320,
-              maxWidth: "90vw",
               boxShadow: 5,
               borderRadius: 2,
+              zIndex: 1301,
             },
           }}
         >
@@ -1424,6 +1246,7 @@ const Editor = () => {
               justifyContent: "space-between",
               alignItems: "center",
               pb: 1,
+              fontSize: "1rem",
             }}
           >
             Find and Replace
@@ -1437,7 +1260,7 @@ const Editor = () => {
               <CloseIcon fontSize="small" />
             </IconButton>
           </DialogTitle>
-          <DialogContent dividers sx={{ pt: 2 }}>
+          <DialogContent dividers sx={{ pt: 1 }}>
             <TextField
               autoFocus
               margin="dense"
@@ -1465,25 +1288,21 @@ const Editor = () => {
               </Typography>
             )}
           </DialogContent>
-          <DialogActions
-            sx={{ justifyContent: "space-between", px: 2, py: 1.5 }}
-          >
-            <Box>
-              <Button
-                onClick={handleFind}
-                variant="contained"
-                color="primary"
-                size="small"
-              >
-                Find
-              </Button>
-            </Box>
+          <DialogActions sx={{ justifyContent: "space-between", px: 2, py: 1 }}>
+            <Button
+              onClick={handleFind}
+              variant="contained"
+              color="primary"
+              size="small"
+            >
+              Find
+            </Button>
             <Box>
               <Button
                 onClick={handlePrevMatch}
                 disabled={matches.length <= 1}
                 size="small"
-                sx={{ mr: 1 }}
+                sx={{ mr: 0.5 }}
               >
                 Prev
               </Button>
@@ -1497,25 +1316,27 @@ const Editor = () => {
             </Box>
           </DialogActions>
           <DialogActions
-            sx={{ justifyContent: "space-between", px: 2, py: 1.5 }}
+            sx={{ justifyContent: "space-between", px: 2, pb: 1.5, pt: 0 }}
           >
             <Button
               onClick={handleReplace}
               disabled={currentMatchIndex === -1}
-              variant="contained"
+              variant="outlined"
               color="success"
               size="small"
             >
               Replace
-            </Button>
+            </Button>{" "}
+            {/* MUI Button is fine here */}
             <Button
               onClick={handleReplaceAll}
               variant="contained"
-              color="error"
+              color="secondary"
               size="small"
             >
               Replace All
-            </Button>
+            </Button>{" "}
+            {/* MUI Button is fine here */}
           </DialogActions>
         </Dialog>
       </div>

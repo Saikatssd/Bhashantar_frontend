@@ -151,3 +151,17 @@
 .quill-better-table tr {
   border: 1px solid #000 !important;
 }
+
+
+.ql-table-menus-container {
+  position: absolute;
+  left: 50% !important; 
+  transform: translateX(-50%) !important; 
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  padding: 5px;
+  display: flex; 
+  gap: 4px;
+}
+
