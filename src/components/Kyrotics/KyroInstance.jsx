@@ -24,16 +24,19 @@ import InstanceIndicator from "../common/InstanceIndicator"; // Add this
 export default function KyroInstance({ role }) {
   const [userCompanyId, setUserCompanyId] = useState("");
 
-  const { companyId } = useParams();
+  let { companyId } = useParams();
 
-
-
+  
+  
   const { currentUser } = useAuth();
   useEffect(() => {
     setUserCompanyId(currentUser?.companyId);
   }, [currentUser]);
   // console.log("current", currentUser);
-
+  
+  if(role === "user"){
+    companyId= currentUser?.companyId;
+  }
   return (
     <div className="flex">
       <InstanceIndicator /> 

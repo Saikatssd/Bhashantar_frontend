@@ -26,10 +26,12 @@ import {
 
 import { formatDate,fetchServerTimestamp } from "../utils/formatDate";
 
+import axios from "axios";
+import { auth } from "../utils/firebase";
+import { server } from "../main";
+
 // --- File Operations ---
 
-// import { storage } from "./firebaseConfig"; // Make sure to initialize Firebase and Firestore
-import { server } from "../main";
 
 
 // // Delete a file from a specific project
@@ -469,3 +471,58 @@ export const updateDocumentContent = async (
     console.error("Error updating HTML content:", error);
   }
 };
+
+
+
+
+export async function fetchUserWIPCount(projectId){
+  // 1) Make sure we have a logged-in user
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  // 2) Grab their ID token
+  const idToken = await user.getIdToken();
+
+  // 3) Call your backend endpoint with the Bearer token
+  const response = await axios.get(`${server}/api/project/${projectId}/user-wip-count`, {
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+    },
+  });
+
+  console.log("WIP count response:", response.data);
+  return response.data.count;
+}
+
+
+/**
+ * Fetch all “In Progress” files assigned to the current user.
+ */
+export async function fetchInProgressFiles() {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+
+  const idToken = await user.getIdToken();
+  const resp = await axios.get(`${server}/api/project/files/inProgress`, {
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  // resp.data should be an array of file objects
+  return resp.data;
+}
+
+/**
+ * Fetch all “Completed” files assigned to the current user.
+ */
+export async function fetchCompletedFiles() {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+
+  const idToken = await user.getIdToken();
+  const resp = await axios.get(`${server}/api/project/files/completed`, {
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  // resp.data should be an array of file objects
+  return resp.data;
+}

@@ -8,6 +8,9 @@ import { fetchProjectFiles, fetchProjects } from '../../utils/firestoreUtil';
 import { useAuth } from '../../context/AuthContext';
 import Table from '../../components/Table/Table';
 import Loader from '../common/Loader';
+import { server } from '../../main';
+import axios from 'axios';
+import { fetchCompletedFiles, fetchInProgressFiles } from '../../services/fileServices';
 
 
 const columnsInProgress = [
@@ -38,59 +41,78 @@ const KyroUserWorkspace = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const { currentUser } = useAuth();
 
-  useEffect(() => {
-    const getFiles = async () => {
-      setIsLoading(true);
-      try {
-        const projectsData = await fetchProjects();
-        const projectsWithFiles = await Promise.all(
-          projectsData.map(async (project) => {
-            const projectFiles = await fetchProjectFiles(project.id);
-            return { ...project, files: projectFiles };
-          })
-        );
+  // useEffect(() => {
+  //   const getFiles = async () => {
+  //     setIsLoading(true);
+  //     try {
+  //       const projectsData = await fetchProjects();
+  //       const projectsWithFiles = await Promise.all(
+  //         projectsData.map(async (project) => {
+  //           const projectFiles = await fetchProjectFiles(project.id);
+  //           return { ...project, files: projectFiles };
+  //         })
+  //       );
 
-        setProjects(projectsWithFiles);
+  //       setProjects(projectsWithFiles);
 
-        const allInProgressFiles = [];
-        const allCompletedFiles = [];
+  //       const allInProgressFiles = [];
+  //       const allCompletedFiles = [];
 
-        projectsWithFiles.forEach((project) => {
-          const projectInProgressFiles = project.files.filter(
-            (file) => file.status === 3 && file.kyro_assignedTo === currentUser.uid
-          );
-          const projectCompletedFiles = project.files.filter(
-            (file) => file.status >= 4 && file.kyro_assignedTo === currentUser.uid
-          );
+  //       projectsWithFiles.forEach((project) => {
+  //         const projectInProgressFiles = project.files.filter(
+  //           (file) => file.status === 3 && file.kyro_assignedTo === currentUser.uid
+  //         );
+  //         const projectCompletedFiles = project.files.filter(
+  //           (file) => file.status >= 4 && file.kyro_assignedTo === currentUser.uid
+  //         );
 
-          projectInProgressFiles.forEach((file) =>
-            allInProgressFiles.push({
-              ...file,
-              projectId: project.id,
-              projectName: project.name,
-            })
-          );
-          projectCompletedFiles.forEach((file) =>
-            allCompletedFiles.push({
-              ...file,
-              projectId: project.id,
-              projectName: project.name,
-            })
-          );
-        });
+  //         projectInProgressFiles.forEach((file) =>
+  //           allInProgressFiles.push({
+  //             ...file,
+  //             projectId: project.id,
+  //             projectName: project.name,
+  //           })
+  //         );
+  //         projectCompletedFiles.forEach((file) =>
+  //           allCompletedFiles.push({
+  //             ...file,
+  //             projectId: project.id,
+  //             projectName: project.name,
+  //           })
+  //         );
+  //       });
 
-        setInProgressFiles(allInProgressFiles);
-        setCompletedFiles(allCompletedFiles);
-      } catch (err) {
-        console.error('Error fetching files:', err);
-        setError(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  //       setInProgressFiles(allInProgressFiles);
+  //       setCompletedFiles(allCompletedFiles);
+  //     } catch (err) {
+  //       console.error('Error fetching files:', err);
+  //       setError(err);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    getFiles();
-  }, [currentUser.uid]);
+  //   getFiles();
+  // }, [currentUser.uid]);
+
+useEffect(() => {
+  setIsLoading(true);
+
+   Promise.all([fetchInProgressFiles(), fetchCompletedFiles()])
+    .then(([inProgress, completed]) => {
+      setInProgressFiles(inProgress);
+      setCompletedFiles(completed);
+    })
+    .catch((err) => {
+      console.error('Error loading workspaces:', err);
+      setError(err);
+    })
+    .finally(() => setIsLoading(false));
+}, [currentUser.uid]);
+
+console.log('In Progress Files:', inProgressFiles);
+console.log('Completed Files:', completedFiles);
+
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);

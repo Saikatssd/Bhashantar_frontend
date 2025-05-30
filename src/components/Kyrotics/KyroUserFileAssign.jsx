@@ -9,7 +9,7 @@ import {
   fetchProjectName,
   fetchProjectFiles,
 } from "../../services/projectServices";
-import { updateFileStatus } from "../../services/fileServices";
+import { fetchUserWIPCount, updateFileStatus } from "../../services/fileServices";
 import CircularProgress from "@mui/material/CircularProgress";
 import { auth } from "../../utils/firebase";
 import { useAuth } from "../../context/AuthContext";
@@ -99,28 +99,70 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
   //   }
   // };
 
-  const handleFileAssign = async (id) => {
+  // const handleFileAssign = async (id) => {
+  //   try {
+  //     // Fetch the latest data for the file from the database
+  //     const fileData = await fetchProjectFiles(projectId).then((files) =>
+  //       files.find((file) => file.id === id)
+  //     );
+
+  //     if (!fileData) {
+  //       toast.error("File is already assigned please assign another file.");
+  //       return; // Prevent further action
+  //     }
+
+  //     // Check if the file is already assigned
+  //     if (fileData.status === 3) {
+  //       toast.error("File is already assigned please assign another file.");
+  //       return; // Prevent further action
+  //     }
+
+  //     // If file is not assigned, proceed with assignment
+  //     const serverDate = await fetchServerTimestamp();
+  //     const formattedDate = formatDate(serverDate);
+
+  //     await updateFileStatus(projectId, id, {
+  //       status: 3,
+  //       kyro_assignedTo: currentUser.uid,
+  //       kyro_assignedDate: formattedDate,
+  //     });
+
+  //     toast.success("File assigned successfully!");
+  //     navigate(1);
+
+  //     // Update the local state by removing the assigned file
+  //     setFiles(files.filter((file) => file.id !== id));
+  //   } catch (err) {
+  //     console.error("Error assigning file:", err);
+  //     toast.error("Failed to assign the file. Please try again.");
+  //     setError(err);
+  //   }
+  // };
+
+   const handleFileAssign = async (id) => {
     try {
-      // Fetch the latest data for the file from the database
-      const fileData = await fetchProjectFiles(projectId).then((files) =>
-        files.find((file) => file.id === id)
-      );
-
-      if (!fileData) {
-        toast.error("File is already assigned please assign another file.");
-        return; // Prevent further action
+      // 1) Check backend if user already has a WIP
+      const wipCount = await fetchUserWIPCount(projectId);
+      if (wipCount > 0) {
+        toast.error(
+          "Cannot assign more than one file to Work In Progress. " +
+            "Please complete and submit your current WIP first."
+        );
+        return;
       }
 
-      // Check if the file is already assigned
-      if (fileData.status === 3) {
-        toast.error("File is already assigned please assign another file.");
-        return; // Prevent further action
+      // 2) Double-check this particular file isn’t already in-progress
+      const fileData = files.find((f) => f.id === id);
+      if (!fileData || fileData.status === 3) {
+        toast.error("This file is already assigned. Please pick another one.");
+        return;
       }
 
-      // If file is not assigned, proceed with assignment
+      // 3) Fetch server timestamp & format
       const serverDate = await fetchServerTimestamp();
       const formattedDate = formatDate(serverDate);
 
+      // 4) Update
       await updateFileStatus(projectId, id, {
         status: 3,
         kyro_assignedTo: currentUser.uid,
@@ -130,8 +172,8 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
       toast.success("File assigned successfully!");
       navigate(1);
 
-      // Update the local state by removing the assigned file
-      setFiles(files.filter((file) => file.id !== id));
+      // 5) Remove from local table
+      setFiles((prev) => prev.filter((f) => f.id !== id));
     } catch (err) {
       console.error("Error assigning file:", err);
       toast.error("Failed to assign the file. Please try again.");

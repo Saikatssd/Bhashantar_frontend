@@ -69,6 +69,8 @@ const columnsQA = [
 
 const KyroAdminFileFlow = ({ projectId, companyId }) => {
   // const { projectId,companyId } = useParams();
+    console.log('projectId ',projectId)
+  
   const [files, setFiles] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [kyroId, setKyroId] = useState("");
