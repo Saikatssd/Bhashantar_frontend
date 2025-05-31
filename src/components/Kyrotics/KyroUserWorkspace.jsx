@@ -11,6 +11,7 @@ import Loader from '../common/Loader';
 import { server } from '../../main';
 import axios from 'axios';
 import { fetchCompletedFiles, fetchInProgressFiles } from '../../services/fileServices';
+import UserTable from '../Table/UserTable';
 
 
 const columnsInProgress = [
@@ -110,8 +111,8 @@ useEffect(() => {
     .finally(() => setIsLoading(false));
 }, [currentUser.uid]);
 
-console.log('In Progress Files:', inProgressFiles);
-console.log('Completed Files:', completedFiles);
+// console.log('In Progress Files:', inProgressFiles);
+// console.log('Completed Files:', completedFiles);
 
 
   const handleTabChange = (event, newValue) => {
@@ -144,7 +145,7 @@ console.log('Completed Files:', completedFiles);
         </Tabs>
       </Box>
       <TabPanel value={tabValue} index={0}>
-        <Table
+        <UserTable
           columns={columnsInProgress}
           rows={inProgressFiles.map((file, index) => ({ ...file, slNo: index + 1 }))}
           page={page}
@@ -154,7 +155,7 @@ console.log('Completed Files:', completedFiles);
         />
       </TabPanel>
       <TabPanel value={tabValue} index={1}>
-        <Table
+        <UserTable
           columns={columnsCompleted}
           rows={completedFiles.map((file, index) => ({ ...file, slNo: index + 1 }))}
           page={page}

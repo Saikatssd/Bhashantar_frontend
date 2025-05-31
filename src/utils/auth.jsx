@@ -1,5 +1,13 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth,db } from "./firebase";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc
+} from "firebase/firestore";
+
 
 export const handleSignUp = async (email, password) => {
     try {
@@ -47,4 +55,22 @@ export const handleSendVerificationEmail = async (user) => {
 export const handleSendPasswordResetEmail = async (email) => {
     await sendPasswordResetEmail(auth, email);
     // Inform user that password reset email has been sent
+};
+
+
+
+// Fetch the user's name by their ID
+export const fetchUserNameById = async (userId) => {
+  try {
+    const userDocRef = doc(db, "users", userId);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      return userDoc.data().name;
+    } else {
+      throw new Error("User not found");
+    }
+  } catch (error) {
+    console.error("Error fetching user name:", error);
+    throw error;
+  }
 };
