@@ -4,12 +4,8 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import TabPanel from '../../components/TabPanel';
-import { fetchProjectFiles, fetchProjects } from '../../utils/firestoreUtil';
 import { useAuth } from '../../context/AuthContext';
-import Table from '../../components/Table/Table';
 import Loader from '../common/Loader';
-import { server } from '../../main';
-import axios from 'axios';
 import { fetchCompletedFiles, fetchInProgressFiles } from '../../services/fileServices';
 import UserTable from '../Table/UserTable';
 
@@ -42,59 +38,7 @@ const KyroUserWorkspace = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const { currentUser } = useAuth();
 
-  // useEffect(() => {
-  //   const getFiles = async () => {
-  //     setIsLoading(true);
-  //     try {
-  //       const projectsData = await fetchProjects();
-  //       const projectsWithFiles = await Promise.all(
-  //         projectsData.map(async (project) => {
-  //           const projectFiles = await fetchProjectFiles(project.id);
-  //           return { ...project, files: projectFiles };
-  //         })
-  //       );
 
-  //       setProjects(projectsWithFiles);
-
-  //       const allInProgressFiles = [];
-  //       const allCompletedFiles = [];
-
-  //       projectsWithFiles.forEach((project) => {
-  //         const projectInProgressFiles = project.files.filter(
-  //           (file) => file.status === 3 && file.kyro_assignedTo === currentUser.uid
-  //         );
-  //         const projectCompletedFiles = project.files.filter(
-  //           (file) => file.status >= 4 && file.kyro_assignedTo === currentUser.uid
-  //         );
-
-  //         projectInProgressFiles.forEach((file) =>
-  //           allInProgressFiles.push({
-  //             ...file,
-  //             projectId: project.id,
-  //             projectName: project.name,
-  //           })
-  //         );
-  //         projectCompletedFiles.forEach((file) =>
-  //           allCompletedFiles.push({
-  //             ...file,
-  //             projectId: project.id,
-  //             projectName: project.name,
-  //           })
-  //         );
-  //       });
-
-  //       setInProgressFiles(allInProgressFiles);
-  //       setCompletedFiles(allCompletedFiles);
-  //     } catch (err) {
-  //       console.error('Error fetching files:', err);
-  //       setError(err);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   getFiles();
-  // }, [currentUser.uid]);
 
 useEffect(() => {
   setIsLoading(true);

@@ -1,15 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 import {
-  fetchAllCompanies,
-} from "../../services/companyServices";
-import {
   fetchClientDetailedFileReport,
 } from "../../services/reportServices";
-// import {
-//   fetchAllCompanies,
-//   fetchClientDetailedFileReport,
-// } from "../../utils/firestoreUtil";
+
 import { exportToExcel } from "../../utils/exportExcel";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";

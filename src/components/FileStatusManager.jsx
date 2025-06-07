@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   fetchProjectFiles,
-  fetchProjects,
-  updateFileStatusNumber,
-} from "../utils/firestoreUtil";
+} from "../services/projectServices";
 import {
   fetchClientCompanies,
   fetchCompanyProjects,

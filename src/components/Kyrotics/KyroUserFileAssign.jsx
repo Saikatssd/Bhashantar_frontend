@@ -61,7 +61,7 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
    const handleFileAssign = async (id) => {
     try {
       // 1) Check backend if user already has a WIP
-      const wipCount = await fetchUserWIPCount(projectId);
+      const wipCount = await fetchUserWIPCount();
       if (wipCount > 0) {
         toast.error(
           "Cannot assign more than one file to Work In Progress. " +

@@ -13,10 +13,7 @@ import Checkbox from "@mui/material/Checkbox";
 import DownloadIcon from "@mui/icons-material/Download";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import {
-  fetchProjectFilesCount,
-  fetchTotalPagesInProject,
-} from "../../utils/firestoreUtil";
+
 
 function CompletedTable({
   columns,

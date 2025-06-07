@@ -13,7 +13,7 @@ import MuiTable from "@mui/material/Table";
 import {
   fetchProjectFilesCount,
   fetchTotalPagesInProject,
-} from "../../utils/firestoreUtil";
+} from "../../services/projectServices";
 
 function TableAdmin({
   columns,

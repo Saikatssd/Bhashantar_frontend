@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Route, Routes } from "react-router-dom";
-import { auth } from "../../utils/firebase";
 import PermissionsManage from "../../pages/PemissionManage";
 import RoleManage from "../../pages/RoleManage";
 import UserManage from "../../pages/UserManage";

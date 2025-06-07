@@ -3,7 +3,7 @@ import { uploadFile } from "../../services/fileServices";
 import { fetchProjectFiles, fetchProjectName } from "../../services/projectServices";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAuth } from "../../context/AuthContext";
-import { updateFileStatus } from "../../utils/firestoreUtil";
+import { updateFileStatus } from "../../services/fileServices";
 import { formatDate, fetchServerTimestamp } from "../../utils/formatDate";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";

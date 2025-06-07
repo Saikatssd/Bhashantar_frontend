@@ -512,3 +512,46 @@ export const fetchClientUserProjectsCount = async (userId) => {
     throw new Error("Error fetching project files by user");
   }
 };
+
+
+export const fetchTotalPagesInProject = async (status, projectId) => {
+  try {
+    const q = query(
+      collection(db, "projects", projectId, "files"),
+      where("status", "==", status)
+    );
+    const filesSnapshot = await getDocs(q);
+
+    let totalPages = 0;
+    filesSnapshot.forEach((doc) => {
+      const data = doc.data();
+      totalPages += data.pageCount || 0; // Safeguard against undefined pageCount
+    });
+
+    return totalPages;
+  } catch (error) {
+    console.error(
+      `Error fetching total pages in project with status ${status}:`,
+      error
+    );
+    throw new Error("Error fetching total pages in project");
+  }
+};
+
+export const fetchProjectFilesCount = async (status, projectId) => {
+  try {
+    const q = query(
+      collection(db, "projects", projectId, "files"),
+      where("status", "==", status)
+    );
+    const filesSnapshot = await getDocs(q);
+    const fileCount = filesSnapshot.size; // The 'size' property gives the number of documents in the snapshot
+    return fileCount;
+  } catch (error) {
+    console.error(
+      `Error fetching project files count with status ${status}:`,
+      error
+    );
+    throw new Error("Error fetching project files count");
+  }
+};

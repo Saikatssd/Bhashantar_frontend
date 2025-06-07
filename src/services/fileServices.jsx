@@ -277,13 +277,13 @@ export const updateDocumentContent = async (
 
 
 
-export async function fetchUserWIPCount(projectId){
+export async function fetchUserWIPCount(){
  const headers = await getIdTokenHeader();
-  const response = await axios.get(`${server}/api/project/${projectId}/user-wip-count`, {
+  const response = await axios.get(`${server}/api/project/user-wip-count`, {
     headers,
   });
 
-  console.log("WIP count response:", response.data);
+  // console.log("WIP count response:", response.data);
   return response.data.count;
 }
 

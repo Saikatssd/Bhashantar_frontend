@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { fetchUserNameById } from "../../utils/firestoreUtil";
+import { fetchUserNameById } from "../../utils/auth";
 
 function Table({
   columns,

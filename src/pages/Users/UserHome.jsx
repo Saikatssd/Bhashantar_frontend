@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/ClientCompany/Sidebar";
-import { fetchUserNameById } from "../../utils/firestoreUtil";
+import { fetchUserNameById } from "../../utils/auth";
 import { fetchClientUserProjectsCount } from "../../services/projectServices";
 import FolderIcon from "@mui/icons-material/Folder";
 import ArticleIcon from "@mui/icons-material/Article";

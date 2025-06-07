@@ -2,15 +2,11 @@ import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import TabPanel from "../TabPanel";
 import {
-  // fetchProjectFiles,
-  // fetchProjectName,
   fetchUserNameById,
-  // updateFileStatus,
-} from "../../utils/firestoreUtil";
+} from "../../utils/auth.jsx";
 import {
   fetchProjectName,
   fetchProjectFiles,

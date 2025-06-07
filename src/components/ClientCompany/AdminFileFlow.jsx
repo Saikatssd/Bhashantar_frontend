@@ -12,7 +12,7 @@ import {
   fetchProjectName,
 } from "../../services/projectServices.jsx";
 import { updateFileStatus } from "../../services/fileServices.jsx";
-import { fetchUserNameById } from "../../utils/firestoreUtil.jsx";
+import { fetchUserNameById } from "../../utils/auth.jsx";
 import { useParams } from "react-router-dom";
 import UserSelectModal from "../UserSelectModal.jsx";
 import { auth } from "../../utils/firebase.jsx";

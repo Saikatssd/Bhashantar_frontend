@@ -6,12 +6,18 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import TabPanel from "../../components/TabPanel";
 import {
+  fetchUserNameById,
+} from "../../utils/auth";
+import {
   fetchProjectFiles,
   fetchProjectName,
-  fetchUserNameById,
+} from "../../services/projectServices";
+import {
   updateFileStatus,
   updateFileStatusNumber,
-} from "../../utils/firestoreUtil";
+} from "../../services/fileServices";
+
+
 import { auth } from "../../utils/firebase";
 import { useNavigate, useParams } from "react-router-dom";
 import Table from "../../components/Table/Table";
