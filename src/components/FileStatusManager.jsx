@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   fetchProjectFiles,
 } from "../services/projectServices";
+
+import {updateFileStatusNumber, } from "../services/fileServices";
 import {
   fetchClientCompanies,
   fetchCompanyProjects,
