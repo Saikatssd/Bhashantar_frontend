@@ -12,6 +12,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  runTransaction,
 } from "firebase/firestore";
 
 import { formatDate,fetchServerTimestamp } from "../utils/formatDate";
@@ -289,7 +290,7 @@ export async function fetchUserWIPCount(){
 
 
 /**
- * Fetch all “In Progress” files assigned to the current user.
+ * Fetch all "In Progress" files assigned to the current user.
  */
 export async function fetchInProgressFiles() {
   const headers = await getIdTokenHeader();
@@ -301,7 +302,7 @@ export async function fetchInProgressFiles() {
 }
 
 /**
- * Fetch all “Completed” files assigned to the current user.
+ * Fetch all "Completed" files assigned to the current user.
  */
 export async function fetchCompletedFiles() {
  const headers = await getIdTokenHeader();
@@ -323,7 +324,7 @@ export async function fetchClientInProgressFiles() {
 }
 
 /**
- * Fetch all “Completed” files assigned to the current user.
+ * Fetch all "Completed" files assigned to the current user.
  */
 export async function fetchClientCompletedFiles() {
   const user = auth.currentUser;
@@ -343,7 +344,7 @@ export async function fetchClientCompletedFiles() {
 
 
 /**
- * Fetch user’s project‐count metrics (pending/underReview/completed).
+ * Fetch user's project‐count metrics (pending/underReview/completed).
  *
  * @param {Date} startDate - JS Date for earliest kyro_completedDate (inclusive)
  * @param {Date} endDate - JS Date for latest kyro_completedDate (inclusive)
@@ -372,3 +373,24 @@ export async function fetchUserFileCount(startDate, endDate) {
 
   return resp.data;
 }
+
+// Assignment-specific update (with status check)
+export const assignFileToUser = async (projectId, fileId, updates) => {
+  const fileRef = doc(db, "projects", projectId, "files", fileId);
+  try {
+    await runTransaction(db, async (transaction) => {
+      const fileDoc = await transaction.get(fileRef);
+      if (!fileDoc.exists()) {
+        throw new Error("File does not exist");
+      }
+      const fileData = fileDoc.data();
+      if (fileData.status !== 2) {
+        throw new Error("File is already assigned");
+      }
+      transaction.update(fileRef, updates);
+    });
+  } catch (error) {
+    console.error("Error assigning file:", error);
+    throw new Error(error.message || "Error assigning file");
+  }
+};

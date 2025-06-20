@@ -3,7 +3,7 @@ import {
   fetchProjectName,
   fetchProjectFiles,
 } from "../../services/projectServices";
-import { fetchUserWIPCount, updateFileStatus } from "../../services/fileServices";
+import { fetchUserWIPCount, assignFileToUser } from "../../services/fileServices";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { formatDate, fetchServerTimestamp } from "../../utils/formatDate";
@@ -32,33 +32,32 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
     { id: "assign", label: "Actions", minWidth: 100 },
   ];
 
-
+  // Move getProjectData outside useEffect
+  const getProjectData = async () => {
+    setIsLoading(true);
+    try {
+      const projectFiles = await fetchProjectFiles(projectId);
+      const projectName = await fetchProjectName(projectId);
+      const filteredFiles = projectFiles.filter(
+        (file) => file.status === 2
+      );
+      setFiles(filteredFiles);
+      setProjectName(projectName);
+    } catch (err) {
+      console.error("Error fetching project data:", err);
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (companyId) {
-      const getProjectData = async () => {
-        setIsLoading(true);
-        try {
-          const projectFiles = await fetchProjectFiles(projectId);
-          const projectName = await fetchProjectName(projectId);
-          const filteredFiles = projectFiles.filter(
-            (file) => file.status === 2
-          );
-          setFiles(filteredFiles);
-          setProjectName(projectName);
-        } catch (err) {
-          console.error("Error fetching project data:", err);
-          setError(err);
-        } finally {
-          setIsLoading(false);
-        }
-      };
       getProjectData();
     }
   }, [projectId, companyId]);
 
- 
-   const handleFileAssign = async (id) => {
+  const handleFileAssign = async (id) => {
     try {
       // 1) Check backend if user already has a WIP
       const wipCount = await fetchUserWIPCount();
@@ -70,7 +69,7 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
         return;
       }
 
-      // 2) Double-check this particular file isn’t already in-progress
+      // 2) Double-check this particular file isn't already in-progress
       const fileData = files.find((f) => f.id === id);
       if (!fileData || fileData.status === 3) {
         toast.error("This file is already assigned. Please pick another one.");
@@ -81,8 +80,8 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
       const serverDate = await fetchServerTimestamp();
       const formattedDate = formatDate(serverDate);
 
-      // 4) Update
-      await updateFileStatus(projectId, id, {
+      // 4) Assignment with concurrency check
+      await assignFileToUser(projectId, id, {
         status: 3,
         kyro_assignedTo: currentUser.uid,
         kyro_assignedDate: formattedDate,
@@ -94,9 +93,14 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
       // 5) Remove from local table
       setFiles((prev) => prev.filter((f) => f.id !== id));
     } catch (err) {
-      console.error("Error assigning file:", err);
-      toast.error("Failed to assign the file. Please try again.");
-      setError(err);
+      // console.error("Error assigning file:", err);
+      if (err.message === "File is already assigned") {
+        toast.error("This file was just assigned to someone else. Refreshing the list...");
+        getProjectData(); // Refresh the list
+      } else {
+        toast.error("Failed to assign the file. Please try again.");
+        setError(err);
+      }
     }
   };
 
