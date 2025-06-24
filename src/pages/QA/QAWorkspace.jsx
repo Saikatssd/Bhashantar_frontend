@@ -17,6 +17,8 @@ import {
   updateFileStatusNumber,
 } from "../../services/fileServices";
 
+import {logRevertAction} from "../../services/trackFileServices";
+
 
 import { auth } from "../../utils/firebase";
 import { useNavigate, useParams } from "react-router-dom";
@@ -55,6 +57,9 @@ const QAWorkspace = ({ projectId }) => {
   const [role, setRole] = useState("");
   const [selectedRows, setSelectedRows] = useState([]);
   const navigate = useNavigate();
+
+  const [user,setUser]=useState()
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -62,6 +67,8 @@ const QAWorkspace = ({ projectId }) => {
         // console.log(token)
         user.roleName = token.claims.roleName;
         user.companyId = token.claims.companyId;
+        setUser(user)
+        console.log('user',user)
 
         setRole(user.roleName);
         setCompanyId(user.companyId);
@@ -164,10 +171,13 @@ const QAWorkspace = ({ projectId }) => {
     setTabValue(1);
   };
 
+  
   const handleRevertBackSelected = async () => {
     for (const fileId of selectedRows) {
       await updateFileStatusNumber(projectId, fileId, 3);
+      console.log("ids", fileId, projectId, user.uid);
       // setCompletedFiles(files.filter(file => file.id !== fileId));
+      await logRevertAction(projectId, fileId, user.uid,'reverted')
     }
     setSelectedRows([]);
     // const updatedFiles = await fetchProjectFiles(projectId);

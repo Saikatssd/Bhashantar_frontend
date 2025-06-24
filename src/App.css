@@ -152,7 +152,11 @@
   border: 1px solid #000 !important;
 }
 
-
+/* .ql-table-menus-container{
+  
+} */
+ /* Style for quill-table-better's operation menu */
+/* Adjust this selector if the module uses a different class */
 .ql-table-menus-container {
   position: absolute;
   left: 50% !important; 

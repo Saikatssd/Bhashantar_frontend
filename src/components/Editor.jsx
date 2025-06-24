@@ -40,6 +40,7 @@ import "../config/pageBreakBlot";
 import { InsertPageBreak } from "@mui/icons-material";
 import Searcher from "../config/Searcher";
 import SearchedStringBlot from "../config/SearchBlot";
+import { recordFileSubmission } from "../services/trackFileServices";
 
 Quill.register("modules/resize", QuillResizeImage);
 Quill.register(SearchedStringBlot);
@@ -211,7 +212,6 @@ const Editor = () => {
     };
   }, [hasUnsavedChanges, isOnline]);
 
-  
   useEffect(() => {
     if (quillRef.current) {
       const trackChanges = () => {
@@ -699,6 +699,16 @@ const Editor = () => {
     try {
       const serverDate = await fetchServerTimestamp();
       const formattedDate = formatDate(serverDate);
+      // Record file submission before updating status
+      await recordFileSubmission({
+        projectId,
+        documentId,
+        userId: user?.uid,
+        userName: user?.displayName || user?.name|| user?.email || "Unknown",
+        fileName: fileName || "Document",
+        fileUrl: pdfUrl || "",
+        companyId,
+      });
       if (companyId === kyroId) {
         if (role === "QA") {
           await updateFileStatus(projectId, documentId, {
@@ -1094,7 +1104,7 @@ const Editor = () => {
             <Tooltip title="Insert Image" arrow>
               <button className="ql-image" />
             </Tooltip>
-            <Tooltip title="Insert Table" placement="top-end"  arrow>
+            <Tooltip title="Insert Table" placement="top-end" arrow>
               <button
                 className="ql-table-better"
                 onClick={() => setShowTableDialog(true)}
