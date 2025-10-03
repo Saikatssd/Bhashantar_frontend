@@ -400,7 +400,7 @@ const SuperAdminHome = () => {
                                                     </Typography>
 
                                                     <div className="flex justify-between items-center mt-6">
-                                                        <div className="flex items-center">
+                                                        {/* <div className="flex items-center">
                                                             {!isKyroCompany && (
                                                                 <IconButton
                                                                     size="small"
@@ -419,7 +419,7 @@ const SuperAdminHome = () => {
                                                                     <Delete fontSize="small" />
                                                                 </IconButton>
                                                             )}
-                                                        </div>
+                                                        </div> */}
 
                                                         <div className="bg-white bg-opacity-20 text-white p-1 px-3 rounded-full flex items-center text-sm font-medium">
                                                             Access

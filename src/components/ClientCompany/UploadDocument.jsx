@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import UploadFolderView from "./UploadFolderView";
+import { Dialog as HeadlessDialog } from "@headlessui/react";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useParams } from "react-router-dom";
@@ -28,6 +28,9 @@ const UploadDocument = () => {
   const [newProjectName, setNewProjectName] = useState("");
   const { currentUser } = useAuth();
   const [isGridView, setIsGridView] = useState(true);
+  // State for skipped files popup
+  const [skippedFiles, setSkippedFiles] = useState([]);
+  const [showSkippedDialog, setShowSkippedDialog] = useState(false);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -46,8 +49,17 @@ const UploadDocument = () => {
     fetchProjects();
   }, [companyId]);
 
+  // Handler to pass to UploadFolderView for bulk upload
   const handleProjectClick = (project) => {
     setSelectedProject(project);
+  };
+
+  // Handler for bulk upload result from UploadFolderView
+  const handleBulkUploadResult = (skipped) => {
+    if (skipped && skipped.length > 0) {
+      setSkippedFiles(skipped);
+      setShowSkippedDialog(true);
+    }
   };
 
   const handleBack = () => {
@@ -189,8 +201,43 @@ const UploadDocument = () => {
         )}
 
         {selectedProject && (
-          <UploadFolderView project={selectedProject} onBack={handleBack} />
+          <UploadFolderView
+            project={selectedProject}
+            onBack={handleBack}
+            onBulkUploadResult={handleBulkUploadResult}
+          />
         )}
+        {/* Skipped files dialog */}
+        <HeadlessDialog
+          open={showSkippedDialog}
+          onClose={() => setShowSkippedDialog(false)}
+        >
+          <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <DialogPanel className="backdrop-blur-md bg-white/90 rounded-xl shadow-xl p-6 w-full max-w-md mx-4 transform transition-all">
+              <DialogTitle className="text-lg font-semibold text-gray-900 mb-4">
+                Some files were not uploaded
+              </DialogTitle>
+              <div className="mb-4 text-gray-700">
+                The following files were not uploaded because a file with the
+                same name already exists:
+                <ul className="list-disc pl-6 mt-2">
+                  {skippedFiles.map((name, idx) => (
+                    <li key={idx}>{name}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  onClick={() => setShowSkippedDialog(false)}
+                >
+                  OK
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </HeadlessDialog>
 
         {/* Create Project Modal */}
         {isModalOpen && (

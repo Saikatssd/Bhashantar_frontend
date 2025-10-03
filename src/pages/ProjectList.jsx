@@ -1,13 +1,14 @@
-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { server } from "../main";
 import { useParams, useSearchParams } from "react-router-dom";
 import Loader from "../components/common/Loader";
+import NotificationBadge from "../components/common/NotificationBadge";
 import FolderIcon from "@mui/icons-material/Folder";
 import FolderView from "../components/common/FolderView";
 import { useAuth } from "../context/AuthContext";
 import { kyroCompanyId } from "../services/companyServices";
+import { fetchProjectsWithNotifications } from "../services/projectServices";
 import { getQuarter } from "date-fns";
 import { GridIcon, ListIcon } from "lucide-react";
 
@@ -42,10 +43,11 @@ function ProjectList() {
     const fetchProjects = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(
-          `${server}/api/project/${companyId}/getprojects`
+        // Use the new function that includes notification counts
+        const projectsWithNotifications = await fetchProjectsWithNotifications(
+          companyId
         );
-        setProjects(response.data);
+        setProjects(projectsWithNotifications);
       } catch (err) {
         setError(err);
       } finally {
@@ -133,9 +135,14 @@ function ProjectList() {
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-medium text-gray-900 truncate">
-                          {project.name}
-                        </h3>
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-medium text-gray-900 truncate">
+                            {project.name}
+                          </h3>
+                          <NotificationBadge
+                            count={project.notificationCount}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -146,7 +153,11 @@ function ProjectList() {
         )}
 
         {selectedProject && (
-          <FolderView project={selectedProject} onBack={handleBack} superAdminCompanyId={superAdminCompanyId}/>
+          <FolderView
+            project={selectedProject}
+            onBack={handleBack}
+            superAdminCompanyId={superAdminCompanyId}
+          />
         )}
       </div>
     </div>

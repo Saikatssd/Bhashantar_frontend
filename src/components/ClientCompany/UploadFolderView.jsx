@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
   fetchProjectFolders,
@@ -33,7 +32,7 @@ import {
 } from "../../services/projectServices";
 import { file, folder } from "jszip";
 
-const UploadFolderView = ({ project, onBack }) => {
+const UploadFolderView = ({ project, onBack, onBulkUploadResult }) => {
   const [folders, setFolders] = useState([]); // All folders data
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [currentPath, setCurrentPath] = useState([]);
@@ -68,7 +67,11 @@ const UploadFolderView = ({ project, onBack }) => {
   };
 
   const fetchFolderFiles = useCallback(async () => {
-    const files = await fetchProjectFilesByFolderWithStatus(project.id, currentFolder.id,0);
+    const files = await fetchProjectFilesByFolderWithStatus(
+      project.id,
+      currentFolder.id,
+      0
+    );
 
     setFiles(files);
   }, [project.id, currentFolder?.id]);
@@ -181,7 +184,6 @@ const UploadFolderView = ({ project, onBack }) => {
     }
   };
 
-  
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) {
       setError("Folder name cannot be empty");
@@ -211,21 +213,23 @@ const UploadFolderView = ({ project, onBack }) => {
     const uploadedFiles = Array.from(e.target.files).filter(
       (file) => file.type === "application/pdf"
     );
-    // console.log('upload')
-
     try {
       setIsLoading(true);
       const uploadPromises = uploadedFiles.map((file) =>
-        uploadFile(
-          project.id,
-          file,
-          currentFolder?.id
-          // currentPath.length ? currentPath[currentPath.length - 1].id : null
-        )
+        uploadFile(project.id, file, currentFolder?.id)
       );
       const uploadedFilesData = await Promise.all(uploadPromises);
-      setFiles([...files, ...uploadedFilesData]);
+      // Separate skipped and successfully uploaded files
+      const skipped = uploadedFilesData
+        .filter((f) => f && f.skipped)
+        .map((f) => f.name);
+      const successful = uploadedFilesData.filter((f) => f && !f.skipped);
+      setFiles([...files, ...successful]);
       setError(null);
+      // Call onBulkUploadResult if provided
+      if (onBulkUploadResult && skipped.length > 0) {
+        onBulkUploadResult(skipped);
+      }
     } catch (err) {
       setError(err.message || "Failed to upload files");
     } finally {
@@ -301,7 +305,7 @@ const UploadFolderView = ({ project, onBack }) => {
             No files or folders found
           </div>
         )}
-        
+
       {/* File List */}
       {hasFetchedFolders && (folders.length == 0 || files.length > 0) && (
         <div className="w-full">

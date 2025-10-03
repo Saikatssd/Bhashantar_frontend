@@ -6,6 +6,7 @@
 import { db } from "../utils/firebase";
 import { PDFDocument } from "pdf-lib";
 import {
+  collectionGroup,
   collection,
   addDoc,
   getDoc,
@@ -15,16 +16,13 @@ import {
   runTransaction,
 } from "firebase/firestore";
 
-import { formatDate,fetchServerTimestamp } from "../utils/formatDate";
+import { formatDate, fetchServerTimestamp } from "../utils/formatDate";
 
 import axios from "axios";
 import { auth } from "../utils/firebase";
 import { server } from "../main";
 
 // --- File Operations ---
-
-
-
 
 async function getIdTokenHeader() {
   const user = auth.currentUser;
@@ -48,7 +46,9 @@ export const uploadFile = async (projectId, file, folderId = null) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Failed to get signed URL: ${response.status} - ${errorText}`);
+      console.error(
+        `Failed to get signed URL: ${response.status} - ${errorText}`
+      );
       throw new Error("Failed to get signed URL");
     }
 
@@ -74,8 +74,37 @@ export const uploadFile = async (projectId, file, folderId = null) => {
     const pdfDoc = await PDFDocument.load(arrayBuffer);
     const pageCount = pdfDoc.getPageCount();
 
-    // Step 5: Store file metadata in Firestore under the project's files subcollection
+    // Step 5: Check for duplicate file name across all projects (use collectionGroup)
+    const filesGroupRef = collectionGroup(db, "files");
+    let duplicate = false;
+    try {
+      // Query for existing file with the same name across all "files" subcollections
+      const { getDocs, query, where } = await import("firebase/firestore");
+      // If you want case-insensitive checks, query a normalized field (e.g. name_lower)
+      const q = query(filesGroupRef, where("name", "==", file.name));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        duplicate = true;
+      }
+    } catch (err) {
+      console.error(
+        "Error checking for duplicate file (collectionGroup):",
+        err
+      );
+    }
+
+    // If duplicate, skip upload and return info for UI
+    if (duplicate) {
+      return {
+        skipped: true,
+        name: file.name,
+      };
+    }
+
     const filesCollectionRef = collection(db, "projects", projectId, "files");
+
+
+    // Step 6: Store file metadata in Firestore under the project's files subcollection
     const fileDocRef = await addDoc(filesCollectionRef, {
       name: file.name,
       pdfUrl: filePath,
@@ -95,13 +124,13 @@ export const uploadFile = async (projectId, file, folderId = null) => {
       status: 0,
       pageCount: pageCount,
       folderId: folderId || null,
+      skipped: false,
     };
   } catch (error) {
     console.error("Error uploading file:", error);
     throw new Error("Error uploading file");
   }
 };
-
 
 export const deleteFile = async (projectId, fileId, fileName) => {
   try {
@@ -129,11 +158,8 @@ export const deleteFile = async (projectId, fileId, fileName) => {
   }
 };
 
-
-
 export const fetchFileNameById = async (projectId, fileId) => {
   try {
-  
     const fileDocRef = doc(db, "projects", projectId, "files", fileId);
     const fileDoc = await getDoc(fileDocRef);
 
@@ -187,7 +213,6 @@ export const fetchDocumentUrl = async (projectId, fileId) => {
     let fileName = data.name;
     fileName = fileName.replace(".pdf", "");
 
-
     // Step 2: Request new signed URLs from the backend
     const responsePdf = await fetch(`${server}/generateReadSignedUrl`, {
       method: "POST",
@@ -226,19 +251,14 @@ export const fetchDocumentUrl = async (projectId, fileId) => {
   }
 };
 
-
-
-
 export const updateDocumentContent = async (
   projectId,
   fileId,
   newHtmlContent
 ) => {
   try {
-
     // console.log("newContent",newHtmlContent)
 
-    
     // Step 1: Request the signed URL for the update
     const signedUrlResponse = await fetch(
       `${server}/api/document/generateSignedUrlForHtmlUpdate`,
@@ -275,11 +295,8 @@ export const updateDocumentContent = async (
   }
 };
 
-
-
-
-export async function fetchUserWIPCount(){
- const headers = await getIdTokenHeader();
+export async function fetchUserWIPCount() {
+  const headers = await getIdTokenHeader();
   const response = await axios.get(`${server}/api/project/user-wip-count`, {
     headers,
   });
@@ -287,7 +304,6 @@ export async function fetchUserWIPCount(){
   // console.log("WIP count response:", response.data);
   return response.data.count;
 }
-
 
 /**
  * Fetch all "In Progress" files assigned to the current user.
@@ -305,14 +321,13 @@ export async function fetchInProgressFiles() {
  * Fetch all "Completed" files assigned to the current user.
  */
 export async function fetchCompletedFiles() {
- const headers = await getIdTokenHeader();
+  const headers = await getIdTokenHeader();
   const resp = await axios.get(`${server}/api/project/files/completed`, {
     headers,
   });
   // resp.data should be an array of file objects
   return resp.data;
 }
-
 
 export async function fetchClientInProgressFiles() {
   const headers = await getIdTokenHeader();
@@ -337,11 +352,6 @@ export async function fetchClientCompletedFiles() {
   // resp.data should be an array of file objects
   return resp.data;
 }
-
-
-
-
-
 
 /**
  * Fetch user's project‐count metrics (pending/underReview/completed).

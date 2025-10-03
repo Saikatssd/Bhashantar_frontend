@@ -19,6 +19,8 @@ import {
 } from "firebase/firestore";
 import { parse } from "date-fns";
 import { file } from "jszip";
+import axios from "axios";
+import { server } from "../main";
 // --- Project Operations ---
 
 // Fetch all projects
@@ -33,6 +35,32 @@ export const fetchAllProjects = async () => {
   } catch (error) {
     console.error("Error fetching projects:", error);
     throw new Error("Error fetching projects");
+  }
+};
+
+// Fetch projects with notification counts for status 2 files
+export const fetchProjectsWithNotifications = async (companyId) => {
+  try {
+    const response = await axios.get(
+      `${server}/api/project/${companyId}/getProjectsWithNotifications`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching projects with notifications:", error);
+    throw new Error("Error fetching projects with notifications");
+  }
+};
+
+// Fetch notification counts for status 2 files
+export const fetchNotificationCounts = async (companyId) => {
+  try {
+    const response = await axios.get(
+      `${server}/api/project/${companyId}/getNotificationCounts`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching notification counts:", error);
+    throw new Error("Error fetching notification counts");
   }
 };
 
@@ -224,7 +252,7 @@ export const fetchProjectFilesByFolder = async (projectId, folderId) => {
       ...doc.data(),
     }));
     // console.log("file in project service : ", files);
- 
+
     // const files = filesSnapshot.docs.map((doc) => {
     //   const data = doc.data();
     //   return {
@@ -259,7 +287,6 @@ export const fetchProjectFilesByFolder = async (projectId, folderId) => {
   }
 };
 
-
 export const fetchProjectFilesByFolderWithStatus = async (
   projectId,
   folderId,
@@ -268,16 +295,16 @@ export const fetchProjectFilesByFolderWithStatus = async (
   const filesCollection = collection(db, "projects", projectId, "files");
 
   // Build an array of where-clauses
-  const conditions = [ where("status", "==", status) ];
+  const conditions = [where("status", "==", status)];
   if (folderId) {
-    conditions.push( where("folderId", "==", folderId) );
+    conditions.push(where("folderId", "==", folderId));
   }
 
   // Apply them all at once
   const filesQuery = query(filesCollection, ...conditions);
-  const snapshot   = await getDocs(filesQuery);
+  const snapshot = await getDocs(filesQuery);
 
-  return snapshot.docs.map(doc => ({
+  return snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
@@ -396,8 +423,6 @@ export const fetchUserProjectsCount = async (userId, startDate, endDate) => {
   }
 };
 
-
-
 export const fetchQAProjectsCount = async () => {
   try {
     // Fetch all projects
@@ -512,7 +537,6 @@ export const fetchClientUserProjectsCount = async (userId) => {
     throw new Error("Error fetching project files by user");
   }
 };
-
 
 export const fetchTotalPagesInProject = async (status, projectId) => {
   try {
