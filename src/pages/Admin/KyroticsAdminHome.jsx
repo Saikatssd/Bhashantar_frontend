@@ -28,6 +28,7 @@ import FilterListOffRoundedIcon from "@mui/icons-material/FilterListOffRounded";
 import { FilePageSum } from "../../utils/FilepageSum";
 import ConfirmationDialog from "../../components/ConfirmationDialog";
 import Loader from '../../components/common/Loader';
+import GlassButton from "../../components/GlassButton";
 
 const defaultStartDate = new Date();
 defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
@@ -167,13 +168,8 @@ const KyroAdminHome = ({ companyId, role }) => {
         </>
       )}
       <div className="p-2 h-screen w-full overflow-y-auto">
-        <button
-          className={`fixed animate-bounce right-6 top-11 px-6 py-3 text-white rounded-full flex items-center shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:-translate-y-1 cursor-pointer ${
-            showDetailedReport
-              ? "bg-gradient-to-l from-blue-500 to-purple-500"
-              : // : 'bg-green-500 border border-green-700'
-                "bg-gradient-to-r from-blue-500 to-purple-500"
-          }`}
+        <GlassButton
+          className='fixed right-6 top-11'
           onClick={toggleReport}
         >
           {showDetailedReport ? (
@@ -189,7 +185,7 @@ const KyroAdminHome = ({ companyId, role }) => {
               <ReplyIcon className="ml-2 scale-x-[-1]" />
             </>
           )}
-        </button>
+        </GlassButton>
 
         {showDetailedReport ? (
           <div className="p-8 w-full">

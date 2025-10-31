@@ -44,7 +44,7 @@
 
 service: frontend
 runtime: nodejs22
-instance_class: F2
+instance_class: F1
 
 env_variables:
   VITE_FIREBASE_API_KEY: "AIzaSyDxIIbHMDg79KH9ND3JZ0U6vCcP5i9ZKNE"
