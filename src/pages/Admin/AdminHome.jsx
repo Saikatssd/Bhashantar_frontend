@@ -228,7 +228,7 @@ const AdminHome = ({ companyId, role }) => {
                           <tbody className="divide-y divide-gray-200 ">
                             {projectDetails.map((project, index) => (
                               <tr
-                                key={project.id}
+                                key={project.id || index}
                                 className="even:bg-[#f0f2ff] odd:bg-white hover:bg-[#b6bffa]"
                               >
                                 <td className="whitespace-nowrap px-6 py-2 text-center text-gray-900">
@@ -258,7 +258,7 @@ const AdminHome = ({ companyId, role }) => {
                               </tr>
                             ))}
                             {/* Add the totals row */}
-                            <tr className="bg-gray-200 font-bold">
+                            <tr key="totals-row" className="bg-gray-200 font-bold">
                               <td className="whitespace-nowrap px-6 py-2 text-center">Totals</td>
                               <td className="whitespace-nowrap px-6 py-2 text-center">
 
@@ -385,7 +385,7 @@ const AdminHome = ({ companyId, role }) => {
                             </tr>
                           ))}
                           {/* Add the totals row */}
-                          <tr className="bg-gray-200 font-bold">
+                          <tr key="report-totals-row" className="bg-gray-200 font-bold">
                             <td className="whitespace-nowrap px-6 py-2 text-center">Totals</td>
                             <td className="whitespace-nowrap px-6 py-2 text-center">
 

@@ -1,7 +1,7 @@
 // // //status notation
 // // //0-->client End for delete //1-->Ml
 // // //(KyroticsSide) 2-->Ready-for-work//3-->Assigned to User//4-->completed
-// // //(ClientSide)4-->Ready-for-work//5-->Assigned to User//6-->completed //7-->Downloaded
+// // //(ClientSide)5-->Ready-for-work//6-->Assigned to User//7-->completed //8-->Downloaded
 
 import { db } from "../utils/firebase";
 import { PDFDocument } from "pdf-lib";

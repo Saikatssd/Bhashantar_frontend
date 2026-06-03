@@ -15,6 +15,7 @@ import KyroSidebar from "../Kyrotics/KyroSidebar";
 import UserManage from "../../pages/UserManage";
 import ClientUserReport from "../reports/ClientUserReport";
 import AdminHome from "../../pages/Admin/AdminHome";
+import FeedbacksPage from "../../pages/FeedbacksPage";
 import { kyroCompanyId } from "../../services/companyServices";
 import InstanceIndicator from "../common/InstanceIndicator"; // Add this
 
@@ -86,6 +87,7 @@ const CompanyInstance = ({ role }) => {
               <Route path="permissionManage" element={<PermissionsManage />} />
               <Route path="roleManage" element={<RoleManage />} />
               <Route path="userReport" element={<ClientUserReport companyId={companyId} />} />
+              <Route path="feedbacks" element={<FeedbacksPage companyId={companyId} role={role} />} />
               <Route
                 path="userList"
                 element={<UserList companyId={companyId} />}

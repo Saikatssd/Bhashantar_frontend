@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { server } from "../main";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -43,21 +43,31 @@ function ProjectList() {
   }, [currentUser]);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     const fetchProjects = async () => {
       setIsLoading(true);
       try {
         // Use the new function that includes notification counts
         const projectsWithNotifications = await fetchProjectsWithNotifications(
-          companyId
+          companyId,
+          abortController.signal
         );
         setProjects(projectsWithNotifications);
+        setError(null);
       } catch (err) {
-        setError(err);
+        if (!axios.isCancel(err)) {
+          setError(err);
+        }
       } finally {
         setIsLoading(false);
       }
     };
     fetchProjects();
+
+    return () => {
+      abortController.abort();
+    };
   }, [companyId]);
 
   const handleProjectClick = (project) => {
@@ -68,17 +78,21 @@ function ProjectList() {
     setSelectedProject(null);
   };
 
-  const displayedProjects = projects.filter((project) => {
-    if (!debouncedSearch) return true;
-    const q = debouncedSearch.trim().toLowerCase();
-    return (project?.name || "").toLowerCase().includes(q);
-  });
+  const displayedProjects = useMemo(() => {
+    return projects.filter((project) => {
+      if (!debouncedSearch) return true;
+      const q = debouncedSearch.trim().toLowerCase();
+      return (project?.name || "").toLowerCase().includes(q);
+    });
+  }, [projects, debouncedSearch]);
 
-  const sortedProjects = [...displayedProjects].sort((a, b) => {
-    const aCount = typeof a?.notificationCount === "number" ? a.notificationCount : 0;
-    const bCount = typeof b?.notificationCount === "number" ? b.notificationCount : 0;
-    return bCount - aCount;
-  });
+  const sortedProjects = useMemo(() => {
+    return [...displayedProjects].sort((a, b) => {
+      const aCount = typeof a?.notificationCount === "number" ? a.notificationCount : 0;
+      const bCount = typeof b?.notificationCount === "number" ? b.notificationCount : 0;
+      return bCount - aCount;
+    });
+  }, [displayedProjects]);
 
   return (
     <div className="h-screen overflow-y-auto backdrop-blur-sm bg-white/30">

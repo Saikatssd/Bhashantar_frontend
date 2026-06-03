@@ -13,6 +13,8 @@ import ConfirmationDialog from "./ConfirmationDialog";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DownloadIcon from "@mui/icons-material/Download";
 import CloseIcon from "@mui/icons-material/Close";
+import RateReviewIcon from "@mui/icons-material/RateReview";
+import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { server } from "../main";
@@ -40,7 +42,7 @@ import "../config/pageBreakBlot";
 import { InsertPageBreak } from "@mui/icons-material";
 import Searcher from "../config/Searcher";
 import SearchedStringBlot from "../config/SearchBlot";
-import { recordFileSubmission } from "../services/trackFileServices";
+import { recordFileSubmission, submitFeedback } from "../services/trackFileServices";
 
 Quill.register("modules/resize", QuillResizeImage);
 Quill.register(SearchedStringBlot);
@@ -129,6 +131,7 @@ const Editor = () => {
   const [fileName, setFileName] = useState("");
   const [loading, setLoading] = useState(true);
   const [kyroId, setKyroId] = useState();
+  const [fileStatus, setFileStatus] = useState(null);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -154,6 +157,16 @@ const Editor = () => {
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [feedbackRating, setFeedbackRating] = useState("");
+  const [feedbackReason, setFeedbackReason] = useState("");
+  const [submitFeedbackAttempted, setSubmitFeedbackAttempted] = useState(false);
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+  const [hasExistingFeedback, setHasExistingFeedback] = useState(false);
+  
+  const [isNotesPanelOpen, setIsNotesPanelOpen] = useState(false);
+  const [notesContent, setNotesContent] = useState("");
 
   useEffect(() => {
     const handleOffline = () => {
@@ -631,6 +644,8 @@ const Editor = () => {
     };
   }, []);
 
+  console.log("htmlContent", htmlContent);  
+
   // useEffect(() => { // This useEffect for isLayoutReady is not strictly necessary for the restored layout
   //   setIsLayoutReady(true);
   //   return () => setIsLayoutReady(false);
@@ -665,12 +680,45 @@ const Editor = () => {
   }, []);
 
   useEffect(() => {
-    const fetchName = async () => {
-      const name = await fetchFileNameById(projectId, documentId);
-      setFileName(name);
+    const fetchFileInfo = async () => {
+      try {
+        const name = await fetchFileNameById(projectId, documentId);
+        setFileName(name);
+        // Fetch file status from Firestore
+        const { doc: docRef, getDoc } = await import("firebase/firestore");
+        const { db } = await import("../utils/firebase");
+        const fileDocRef = docRef(db, "projects", projectId, "files", documentId);
+        const fileDoc = await getDoc(fileDocRef);
+        if (fileDoc.exists()) {
+          setFileStatus(fileDoc.data().status);
+        }
+      } catch (err) {
+        console.error("Error fetching file info:", err);
+      }
     };
-    fetchName();
+    fetchFileInfo();
   }, [projectId, documentId]);
+
+  useEffect(() => {
+    const checkExistingFeedback = async () => {
+      if (!user?.uid) return;
+      try {
+        const { collection, query, where, getDocs } = await import("firebase/firestore");
+        const { db } = await import("../utils/firebase");
+        const feedbacksQuery = query(
+          collection(db, "feedbacks"),
+          where("documentId", "==", documentId),
+          where("userId", "==", user.uid),
+          where("status", "in", ["pending", "under_review"])
+        );
+        const feedbackSnapshot = await getDocs(feedbacksQuery);
+        setHasExistingFeedback(!feedbackSnapshot.empty);
+      } catch (err) {
+        console.error("Error checking existing feedback:", err);
+      }
+    };
+    checkExistingFeedback();
+  }, [projectId, documentId, user]);
 
   const handleInsertTable = () => {
     if (quillRef.current) {
@@ -738,7 +786,7 @@ const Editor = () => {
   const handleDownload = async () => {
     setError(null);
     try {
-      const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadDocx`;
+      const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadPdf`;
       await toast
         .promise(axios.get(endpoint, { responseType: "blob" }), {
           loading: "Downloading...",
@@ -769,6 +817,62 @@ const Editor = () => {
         style: { background: "#333", color: "#fff" },
       });
       console.error("Error during document download:", err);
+    }
+  };
+
+  const handleOpenFeedbackDialog = () => {
+    if (!isOnline) {
+      toast.error("You are offline. Cannot submit feedback now.");
+      return;
+    }
+    setFeedbackRating("");
+    setFeedbackReason("");
+    setSubmitFeedbackAttempted(false);
+    setIsFeedbackOpen(true);
+  };
+
+  const handleFeedbackSubmit = async () => {
+    if (!isOnline) {
+      toast.error("You are offline. Cannot submit feedback now.");
+      return;
+    }
+    
+    setSubmitFeedbackAttempted(true);
+
+    if (!feedbackRating) {
+      toast.error("Please select a quality review rating.");
+      return;
+    }
+
+    if ((feedbackRating === "poor" || feedbackRating === "average") && !feedbackReason.trim()) {
+      return;
+    }
+
+    setSubmittingFeedback(true);
+    try {
+      await submitFeedback({
+        projectId,
+        documentId,
+        fileName: fileName || "Document",
+        userId: user?.uid,
+        companyId,
+        qualityRating: feedbackRating,
+        reason: feedbackReason,
+        notes: notesContent,
+      });
+      toast.success("Feedback submitted successfully!");
+      setHasExistingFeedback(true);
+      setIsFeedbackOpen(false);
+      setFeedbackRating("");
+      setFeedbackReason("");
+      setNotesContent("");
+      setIsNotesPanelOpen(false);
+      setSubmitFeedbackAttempted(false);
+    } catch (err) {
+      console.error("Error submitting feedback:", err);
+      toast.error("Failed to submit feedback.");
+    } finally {
+      setSubmittingFeedback(false);
     }
   };
 
@@ -1131,6 +1235,89 @@ const Editor = () => {
             <div style={{ flexGrow: 1 }}></div> {/* Spacer */}
             {/* Reverted Back and Submit buttons to original HTML button structure and styling */}
             <div style={{ display: "flex", gap: "10px" }}>
+              {fileStatus === 6 && (
+                <Tooltip title={hasExistingFeedback ? "Feedback already submitted" : "Submit Feedback"} arrow>
+                  <button
+                    id="feedback-button-editor"
+                    onClick={hasExistingFeedback ? null : handleOpenFeedbackDialog}
+                    disabled={hasExistingFeedback}
+                    style={{
+                      borderRadius: "20px",
+                      textTransform: "none",
+                      padding: "10px 20px",
+                      minWidth: "160px",
+                      fontWeight: "bold",
+                      fontSize: "12px",
+                      color: "#FFFFFF",
+                      backgroundImage: hasExistingFeedback
+                        ? "none"
+                        : "linear-gradient(135deg, #ffa726 0%, #ff5722 100%)",
+                      backgroundColor: hasExistingFeedback ? "#cccccc" : "transparent",
+                      border: "none",
+                      boxShadow: hasExistingFeedback ? "none" : "0px 4px 10px rgba(255, 152, 0, 0.3)",
+                      cursor: hasExistingFeedback ? "not-allowed" : "pointer",
+                      boxSizing: "border-box",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: "40px",
+                      lineHeight: "1",
+                      transition: "all 0.2s ease-in-out",
+                    }}
+                    onMouseOver={(e) => {
+                      if (!hasExistingFeedback) {
+                        e.currentTarget.style.backgroundImage = "linear-gradient(135deg, #fb8c00 0%, #e64a19 100%)";
+                        e.currentTarget.style.transform = "translateY(-1px)";
+                        e.currentTarget.style.boxShadow = "0px 6px 14px rgba(255, 152, 0, 0.4)";
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      if (!hasExistingFeedback) {
+                        e.currentTarget.style.backgroundImage = "linear-gradient(135deg, #ffa726 0%, #ff5722 100%)";
+                        e.currentTarget.style.transform = "none";
+                        e.currentTarget.style.boxShadow = "0px 4px 10px rgba(255, 152, 0, 0.3)";
+                      }
+                    }}
+                  >
+                    <RateReviewIcon style={{ marginRight: "4px", fontSize: "16px" }} />
+                    {hasExistingFeedback ? "Feedback Submitted" : "Submit Feedback"}
+                  </button>
+                </Tooltip>
+              )}
+              <Tooltip title="Toggle Notes Panel" arrow>
+                <button
+                  onClick={() => setIsNotesPanelOpen(!isNotesPanelOpen)}
+                  style={{
+                    borderRadius: "20px",
+                    textTransform: "none",
+                    padding: "10px 20px",
+                    minWidth: "120px",
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    color: "#000000",
+                    backgroundColor: isNotesPanelOpen ? "#e0e0e0" : "#ffffff",
+                    border: "1px solid #9c27b0",
+                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                    cursor: "pointer",
+                    boxSizing: "border-box",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "40px",
+                    lineHeight: "1",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseOver={(e) => {
+                     e.currentTarget.style.backgroundColor = isNotesPanelOpen ? "#d5d5d5" : "#f5f5f5";
+                  }}
+                  onMouseOut={(e) => {
+                     e.currentTarget.style.backgroundColor = isNotesPanelOpen ? "#e0e0e0" : "#ffffff";
+                  }}
+                >
+                  <NoteAddIcon style={{ marginRight: "8px", fontSize: "18px" }} />
+                  {isNotesPanelOpen ? "Close Notes" : "Add Notes"}
+                </button>
+              </Tooltip>
               <Tooltip title="Go back" arrow>
                 <button
                   onClick={handleBack}
@@ -1216,6 +1403,60 @@ const Editor = () => {
             }}
           />
         </div>
+
+        {/* Sticky Notes Panel */}
+        {isNotesPanelOpen && (
+          <Box
+            sx={{
+              position: "fixed",
+              bottom: "40px",
+              right: "40px",
+              width: "350px",
+              backgroundColor: "#fffdf0",
+              border: "1px solid #f0e68c",
+              borderRadius: "8px",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+              zIndex: 1000,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              sx={{
+                backgroundColor: "#fff59d",
+                padding: "8px 12px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderBottom: "1px solid #f0e68c",
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#5a5a5a" }}>
+                Reviewer Notes
+              </Typography>
+              <IconButton size="small" onClick={() => setIsNotesPanelOpen(false)}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
+            <Box sx={{ p: 2 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={8}
+                placeholder={"Record issues like:\n- Incorrect translated text\n- Missing paragraphs\n- Formatting issues"}
+                value={notesContent}
+                onChange={(e) => setNotesContent(e.target.value)}
+                variant="standard"
+                InputProps={{
+                  disableUnderline: true,
+                  style: { fontSize: "14px", lineHeight: "1.5" },
+                }}
+              />
+            </Box>
+          </Box>
+        )}
+
         <ConfirmationDialog
           open={dialogOpen}
           handleClose={handleCloseDialog}
@@ -1347,6 +1588,160 @@ const Editor = () => {
               Replace All
             </Button>{" "}
             {/* MUI Button is fine here */}
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={isFeedbackOpen}
+          onClose={() => {
+            if (!submittingFeedback) setIsFeedbackOpen(false);
+          }}
+          fullWidth
+          maxWidth="sm"
+          PaperProps={{
+            sx: {
+              borderRadius: "16px",
+              padding: "8px",
+            },
+          }}
+        >
+          <DialogTitle
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              fontWeight: "bold",
+              pb: 1,
+            }}
+          >
+            Submit Quality Feedback
+            <IconButton
+              edge="end"
+              color="inherit"
+              onClick={() => setIsFeedbackOpen(false)}
+              disabled={submittingFeedback}
+              aria-label="close"
+              size="small"
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent dividers sx={{ py: 2 }}>
+            <Typography variant="body2" sx={{ color: "#666", mb: 2 }}>
+              Please rate the quality of the translation or document review:
+            </Typography>
+
+            <Box
+              display="grid"
+              gridTemplateColumns="repeat(4, 1fr)"
+              gap={1.5}
+              sx={{
+                mb: (feedbackRating === "poor" || feedbackRating === "average") ? 2 : 0,
+                transition: "margin 0.3s ease",
+              }}
+            >
+              {[
+                { value: "outstanding", label: "Outstanding", emoji: "🌟", color: "#4caf50", bg: "#e8f5e9" },
+                { value: "good", label: "Good", emoji: "👍", color: "#2196f3", bg: "#e3f2fd" },
+                { value: "average", label: "Average", emoji: "😐", color: "#ff9800", bg: "#fff3e0" },
+                { value: "poor", label: "Poor", emoji: "😞", color: "#f44336", bg: "#ffebee" }
+              ].map((r) => {
+                const isSelected = feedbackRating === r.value;
+                return (
+                  <Box
+                    key={r.value}
+                    onClick={() => setFeedbackRating(r.value)}
+                    sx={{
+                      border: `2px solid ${isSelected ? r.color : "#e0e0e0"}`,
+                      backgroundColor: isSelected ? r.bg : "transparent",
+                      borderRadius: "12px",
+                      padding: "16px 8px",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease-in-out",
+                      '&:hover': {
+                        transform: "translateY(-2px)",
+                        borderColor: r.color,
+                        backgroundColor: isSelected ? r.bg : "#f9f9f9",
+                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.05)",
+                      },
+                    }}
+                  >
+                    <Typography variant="h4" sx={{ mb: 1, filter: isSelected ? "none" : "grayscale(30%)" }}>
+                      {r.emoji}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: isSelected ? "bold" : "normal",
+                        color: isSelected ? r.color : "#555",
+                      }}
+                    >
+                      {r.label}
+                    </Typography>
+                  </Box>
+                );
+              })}
+            </Box>
+
+            {(feedbackRating === "poor" || feedbackRating === "average") && (
+              <Box
+                sx={{
+                  mt: 2,
+                  animation: "fadeIn 0.3s ease",
+                  "@keyframes fadeIn": {
+                    "0%": { opacity: 0, transform: "translateY(-10px)" },
+                    "100%": { opacity: 1, transform: "translateY(0)" },
+                  },
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "600", color: "#555" }}>
+                  Please tell us why it is {feedbackRating}: <span style={{ color: "#f44336" }}>*</span>
+                </Typography>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  placeholder="Tell us what went wrong or how we can improve..."
+                  value={feedbackReason}
+                  onChange={(e) => setFeedbackReason(e.target.value)}
+                  variant="outlined"
+                  error={submitFeedbackAttempted && !feedbackReason.trim()}
+                  helperText={submitFeedbackAttempted && !feedbackReason.trim() ? "This field is required for Poor and Average ratings" : ""}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                    }
+                  }}
+                />
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions sx={{ px: 2, py: 1.5 }}>
+            <Button
+              onClick={() => setIsFeedbackOpen(false)}
+              disabled={submittingFeedback}
+              sx={{ borderRadius: "20px", px: 3, textTransform: "none", fontWeight: "bold" }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleFeedbackSubmit}
+              disabled={submittingFeedback || !feedbackRating || ((feedbackRating === "poor" || feedbackRating === "average") && !feedbackReason.trim())}
+              variant="contained"
+              sx={{
+                borderRadius: "20px",
+                px: 4,
+                textTransform: "none",
+                fontWeight: "bold",
+                backgroundColor: "#ffa726",
+                '&:hover': {
+                  backgroundColor: "#ef6c00",
+                },
+              }}
+            >
+              {submittingFeedback ? "Submitting..." : "Submit"}
+            </Button>
           </DialogActions>
         </Dialog>
       </div>

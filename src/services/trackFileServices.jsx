@@ -60,3 +60,44 @@ export const fetchSubmissionHistory = async ({ projectId, documentId }) => {
   );
   return response.data;
 };
+
+// Submit feedback for a document
+export const submitFeedback = async ({
+  projectId,
+  documentId,
+  fileName,
+  userId,
+  companyId,
+  qualityRating,
+  reason,
+  notes,
+}) => {
+  const response = await axios.post(`${server}/api/track/feedback`, {
+    projectId,
+    documentId,
+    fileName,
+    userId,
+    companyId,
+    qualityRating,
+    reason,
+    notes,
+  });
+  return response.data;
+};
+
+// Fetch feedbacks for a company
+export const fetchFeedbacks = async (companyId) => {
+  const response = await axios.get(`${server}/api/track/feedbacks`, {
+    params: { companyId },
+  });
+  return response.data;
+};
+
+// Update feedback status
+export const updateFeedbackStatus = async (feedbackId, status) => {
+  const response = await axios.put(`${server}/api/track/feedback/status`, {
+    feedbackId,
+    status,
+  });
+  return response.data;
+};

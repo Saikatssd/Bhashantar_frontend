@@ -103,31 +103,58 @@ const UploadDocument = () => {
 
         {!selectedProject && (
           <>
-            {/* View toggle buttons */}
-            {projects.length > 0 && (
-              <div className="flex justify-end gap-2 mb-4">
-                <button
-                  onClick={() => setIsGridView(true)}
-                  className={`p-2 rounded-lg ${
-                    isGridView
-                      ? "bg-indigo-100 text-indigo-600"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  <GridIcon size={20} />
-                </button>
-                <button
-                  onClick={() => setIsGridView(false)}
-                  className={`p-2 rounded-lg ${
-                    !isGridView
-                      ? "bg-indigo-100 text-indigo-600"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  <ListIcon size={20} />
-                </button>
-              </div>
-            )}
+            <div className="flex justify-end items-center gap-4 mb-4">
+              {/* View toggle buttons */}
+              {projects.length > 0 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setIsGridView(true)}
+                    className={`p-2 rounded-lg ${
+                      isGridView
+                        ? "bg-indigo-100 text-indigo-600"
+                        : "hover:bg-gray-100"
+                    }`}
+                  >
+                    <GridIcon size={20} />
+                  </button>
+                  <button
+                    onClick={() => setIsGridView(false)}
+                    className={`p-2 rounded-lg ${
+                      !isGridView
+                        ? "bg-indigo-100 text-indigo-600"
+                        : "hover:bg-gray-100"
+                    }`}
+                  >
+                    <ListIcon size={20} />
+                  </button>
+                </div>
+              )}
+
+              <Fab
+                variant="extended"
+                color="primary"
+                size="medium"
+                sx={{
+                  width: "auto",
+                  height: "42px",
+                  paddingLeft: "16px",
+                  paddingRight: "16px",
+                  fontSize: "14px",
+                  textTransform: "none",
+                  fontWeight: 500,
+                  boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                  "&:hover": {
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 6px 12px rgba(0,0,0,0.15)",
+                  },
+                  transition: "all 0.2s ease-in-out",
+                }}
+                onClick={() => setIsModalOpen(true)}
+              >
+                <AddIcon sx={{ mr: 1, fontSize: "20px" }} />
+                New Folder
+              </Fab>
+            </div>
 
             <div
               className={`mt-10 ${
@@ -171,32 +198,7 @@ const UploadDocument = () => {
               ))}
             </div>
 
-            <Fab
-              variant="extended"
-              color="primary"
-              size="large"
-              sx={{
-                position: "fixed",
-                bottom: "24px",
-                right: "24px",
-                zIndex: 1000,
-                width: "auto",
-                height: "56px",
-                paddingLeft: "24px",
-                paddingRight: "24px",
-                fontSize: "16px",
-                boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
-                "&:hover": {
-                  transform: "translateY(-2px)",
-                  boxShadow: "0 12px 20px rgba(0,0,0,0.15)",
-                },
-                transition: "all 0.2s ease-in-out",
-              }}
-              onClick={() => setIsModalOpen(true)}
-            >
-              <AddIcon sx={{ mr: 1 }} />
-              New Project
-            </Fab>
+
           </>
         )}
 

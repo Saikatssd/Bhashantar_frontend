@@ -39,15 +39,16 @@ export const fetchAllProjects = async () => {
 };
 
 // Fetch projects with notification counts for status 2 files
-export const fetchProjectsWithNotifications = async (companyId) => {
+export const fetchProjectsWithNotifications = async (companyId, signal) => {
   try {
     const response = await axios.get(
-      `${server}/api/project/${companyId}/getProjectsWithNotifications`
+      `${server}/api/project/${companyId}/getProjectsWithNotifications`,
+      { signal }
     );
     return response.data;
   } catch (error) {
     console.error("Error fetching projects with notifications:", error);
-    throw new Error("Error fetching projects with notifications");
+    throw error;
   }
 };
 

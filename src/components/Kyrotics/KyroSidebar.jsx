@@ -19,6 +19,7 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import ManageHistoryRoundedIcon from '@mui/icons-material/ManageHistoryRounded';
 import { Collapse } from "@mui/material";
 import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
+import RateReviewIcon from "@mui/icons-material/RateReview";
 
 
 export default function KyroSidebar({ companyId, role }) {
@@ -132,6 +133,18 @@ export default function KyroSidebar({ companyId, role }) {
                   >
                     <AssignmentTurnedInIcon className="mr-5" />
                     User Report
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to={`/kyro/${companyId}/feedbacks`}
+                    className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/feedbacks`)
+                      ? "bg-[#e3d2fa] text-gray-700"
+                      : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                      }`}
+                  >
+                    <RateReviewIcon className="mr-5" />
+                    Feedbacks
                   </Link>
                 </li>
 

@@ -61,6 +61,7 @@ export const handleSendPasswordResetEmail = async (email) => {
 
 // Fetch the user's name by their ID
 export const fetchUserNameById = async (userId) => {
+  if (!userId) return "Unassigned";
   try {
     const userDocRef = doc(db, "users", userId);
     const userDoc = await getDoc(userDocRef);

@@ -16,6 +16,7 @@ import KyroAdminHome from "../../pages/Admin/KyroticsAdminHome";
 import UserReport from "../reports/UserReport";
 import UserList from "../../pages/userList";
 import ProjectList from "../../pages/ProjectList";
+import FeedbacksPage from "../../pages/FeedbacksPage";
 import { useAuth } from "../../context/AuthContext";
 import InstanceIndicator from "../common/InstanceIndicator"; // Add this
 
@@ -75,6 +76,7 @@ export default function KyroInstance({ role }) {
               <Route path="roleManage" element={<RoleManage />} />
               <Route path="fileStatus" element={<FileStatusManager />} />
               <Route path="userReport" element={<UserReport />} />
+              <Route path="feedbacks" element={<FeedbacksPage companyId={companyId} role={role} />} />
 
               <Route
                 path="userList"

@@ -18,6 +18,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
+import RateReviewIcon from "@mui/icons-material/RateReview";
 import { Collapse } from "@mui/material";
 import { Description, Dashboard } from "@mui/icons-material";
 
@@ -105,7 +106,7 @@ export default function Sidebar({ companyId, role }) {
                     Upload Document
                   </Link>
                 </li>
-                <li>
+                 <li>
                   <Link
                     to={`/company/${companyId}/userReport`}
                     className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/kyro/${companyId}/userReport`)
@@ -117,8 +118,18 @@ export default function Sidebar({ companyId, role }) {
                     User Report
                   </Link>
                 </li>
-
-
+                <li>
+                  <Link
+                    to={`/company/${companyId}/feedbacks`}
+                    className={`block rounded-lg px-4 py-3 text-md font-medium ${isActive(`/company/${companyId}/feedbacks`)
+                      ? "bg-[#e3d2fa] text-gray-700"
+                      : "text-gray-500 hover:bg-[#e3d2fa] hover:text-gray-700"
+                      }`}
+                  >
+                    <RateReviewIcon className="mr-5" />
+                    Feedbacks
+                  </Link>
+                </li>
               </>
             )}
 
