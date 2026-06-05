@@ -7,8 +7,9 @@ import "quill-table-better/dist/quill-table-better.css";
 
 import useDebounce from "../hooks/useDebounce";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Button, IconButton, Typography } from "@mui/material"; // Keep Button for other uses if any
-import { auth } from "../utils/firebase";
+import { Box, Button, IconButton, Typography, FormControl, InputLabel, Select, MenuItem } from "@mui/material"; // Keep Button for other uses if any
+import { useAuth } from "../context/AuthContext";
+import { useInstance } from "../context/InstanceContext";
 import ConfirmationDialog from "./ConfirmationDialog";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -27,7 +28,6 @@ import {
   updateFileStatus,
 } from "../services/fileServices";
 import { formatDate, fetchServerTimestamp } from "../utils/formatDate";
-import { kyroCompanyId } from "../services/companyServices";
 import "../App.css";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -161,15 +161,15 @@ const Editor = () => {
   const [pdfUrl, setPdfUrl] = useState("");
   const [fileName, setFileName] = useState("");
   const [loading, setLoading] = useState(true);
-  const [kyroId, setKyroId] = useState();
   const [fileStatus, setFileStatus] = useState(null);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState(null);
+  const { currentUser: user } = useAuth();
+  const { kyroId } = useInstance();
+  const companyId = user?.companyId;
+  const role = user?.roleName;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isInitialContentSet, setIsInitialContentSet] = useState(false);
   const debouncedHtmlContent = useDebounce(htmlContent, 3000);
-  const [companyId, setCompanyId] = useState(null);
-  const [role, setRole] = useState();
   // const [isLayoutReady, setIsLayoutReady] = useState(false); // Not strictly needed for this layout
 
   const [showTableDialog, setShowTableDialog] = useState(false);
@@ -192,6 +192,9 @@ const Editor = () => {
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [feedbackRating, setFeedbackRating] = useState("");
   const [feedbackReason, setFeedbackReason] = useState("");
+  const [feedbackCategory, setFeedbackCategory] = useState("");
+  const [feedbackSeverity, setFeedbackSeverity] = useState("");
+  const [feedbackAdditional, setFeedbackAdditional] = useState("");
   const [submitFeedbackAttempted, setSubmitFeedbackAttempted] = useState(false);
   const [submittingFeedback, setSubmittingFeedback] = useState(false);
   const [hasExistingFeedback, setHasExistingFeedback] = useState(false);
@@ -682,33 +685,7 @@ const Editor = () => {
   //   return () => setIsLayoutReady(false);
   // }, []);
 
-  useEffect(() => {
-    const fetchKyroticsCompanyId = async () => {
-      try {
-        const kyroId = await kyroCompanyId();
-        setKyroId(kyroId);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchKyroticsCompanyId();
-  }, []);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const token = await user.getIdTokenResult();
-        user.companyId = token.claims.companyId;
-        user.roleName = token.claims.roleName;
-        setUser(user);
-        setCompanyId(user.companyId);
-        setRole(user.roleName);
-      } else {
-        setUser(null);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
 
   useEffect(() => {
     const fetchFileInfo = async () => {
@@ -874,6 +851,9 @@ const Editor = () => {
     }
     setFeedbackRating("");
     setFeedbackReason("");
+    setFeedbackCategory("");
+    setFeedbackSeverity("");
+    setFeedbackAdditional("");
     setSubmitFeedbackAttempted(false);
     setIsFeedbackOpen(true);
   };
@@ -891,7 +871,7 @@ const Editor = () => {
       return;
     }
 
-    if ((feedbackRating === "poor" || feedbackRating === "average") && !feedbackReason.trim()) {
+    if ((feedbackRating === "poor" || feedbackRating === "average") && (!feedbackReason.trim() || !feedbackCategory || !feedbackSeverity)) {
       return;
     }
 
@@ -905,6 +885,9 @@ const Editor = () => {
         companyId,
         qualityRating: feedbackRating,
         reason: feedbackReason,
+        category: feedbackCategory,
+        severity: feedbackSeverity,
+        additionalComments: feedbackAdditional,
         notes: notesContent,
       });
       toast.success("Feedback submitted successfully!");
@@ -915,6 +898,7 @@ const Editor = () => {
       setNotesContent("");
       setIsNotesPanelOpen(false);
       setSubmitFeedbackAttempted(false);
+      await handleSave();
     } catch (err) {
       console.error("Error submitting feedback:", err);
       toast.error("Failed to submit feedback.");
@@ -1282,55 +1266,7 @@ const Editor = () => {
             <div style={{ flexGrow: 1 }}></div> {/* Spacer */}
             {/* Reverted Back and Submit buttons to original HTML button structure and styling */}
             <div style={{ display: "flex", gap: "10px" }}>
-              {fileStatus === 6 && (
-                <Tooltip title={hasExistingFeedback ? "Feedback already submitted" : "Submit Feedback"} arrow>
-                  <button
-                    id="feedback-button-editor"
-                    onClick={hasExistingFeedback ? null : handleOpenFeedbackDialog}
-                    disabled={hasExistingFeedback}
-                    style={{
-                      borderRadius: "20px",
-                      textTransform: "none",
-                      padding: "10px 20px",
-                      minWidth: "160px",
-                      fontWeight: "bold",
-                      fontSize: "12px",
-                      color: "#FFFFFF",
-                      backgroundImage: hasExistingFeedback
-                        ? "none"
-                        : "linear-gradient(135deg, #ffa726 0%, #ff5722 100%)",
-                      backgroundColor: hasExistingFeedback ? "#cccccc" : "transparent",
-                      border: "none",
-                      boxShadow: hasExistingFeedback ? "none" : "0px 4px 10px rgba(255, 152, 0, 0.3)",
-                      cursor: hasExistingFeedback ? "not-allowed" : "pointer",
-                      boxSizing: "border-box",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      height: "40px",
-                      lineHeight: "1",
-                      transition: "all 0.2s ease-in-out",
-                    }}
-                    onMouseOver={(e) => {
-                      if (!hasExistingFeedback) {
-                        e.currentTarget.style.backgroundImage = "linear-gradient(135deg, #fb8c00 0%, #e64a19 100%)";
-                        e.currentTarget.style.transform = "translateY(-1px)";
-                        e.currentTarget.style.boxShadow = "0px 6px 14px rgba(255, 152, 0, 0.4)";
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (!hasExistingFeedback) {
-                        e.currentTarget.style.backgroundImage = "linear-gradient(135deg, #ffa726 0%, #ff5722 100%)";
-                        e.currentTarget.style.transform = "none";
-                        e.currentTarget.style.boxShadow = "0px 4px 10px rgba(255, 152, 0, 0.3)";
-                      }
-                    }}
-                  >
-                    <RateReviewIcon style={{ marginRight: "4px", fontSize: "16px" }} />
-                    {hasExistingFeedback ? "Feedback Submitted" : "Submit Feedback"}
-                  </button>
-                </Tooltip>
-              )}
+            {companyId !== kyroId && (
               <Tooltip title="Toggle Notes Panel" arrow>
                 <button
                   onClick={() => setIsNotesPanelOpen(!isNotesPanelOpen)}
@@ -1365,6 +1301,7 @@ const Editor = () => {
                   {isNotesPanelOpen ? "Close Notes" : "Add Notes"}
                 </button>
               </Tooltip>
+            )}
               <Tooltip title="Go back" arrow>
                 <button
                   onClick={handleBack}
@@ -1395,7 +1332,13 @@ const Editor = () => {
               <Tooltip title="Submit changes" arrow>
                 <button
                   id="submit-button-editor" // Added ID for enabling/disabling
-                  onClick={handleOpenDialog}
+                  onClick={() => {
+                    if (companyId !== kyroId && fileStatus === 6 && !hasExistingFeedback) {
+                      handleOpenFeedbackDialog();
+                    } else {
+                      handleOpenDialog();
+                    }
+                  }}
                   style={{
                     borderRadius: "20px",
                     textTransform: "none",
@@ -1742,6 +1685,37 @@ const Editor = () => {
                   },
                 }}
               >
+                <FormControl fullWidth sx={{ mb: 2 }} size="small" error={submitFeedbackAttempted && !feedbackCategory}>
+                  <InputLabel id="feedback-category-label">Issue Category *</InputLabel>
+                  <Select
+                    labelId="feedback-category-label"
+                    value={feedbackCategory}
+                    label="Issue Category *"
+                    onChange={(e) => setFeedbackCategory(e.target.value)}
+                  >
+                    <MenuItem value="Translation Accuracy">Translation Accuracy</MenuItem>
+                    <MenuItem value="Formatting">Formatting</MenuItem>
+                    <MenuItem value="Missing Content">Missing Content</MenuItem>
+                    <MenuItem value="Tone/Style">Tone/Style</MenuItem>
+                    <MenuItem value="Other">Other</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth sx={{ mb: 2 }} size="small" error={submitFeedbackAttempted && !feedbackSeverity}>
+                  <InputLabel id="feedback-severity-label">Severity Level *</InputLabel>
+                  <Select
+                    labelId="feedback-severity-label"
+                    value={feedbackSeverity}
+                    label="Severity Level *"
+                    onChange={(e) => setFeedbackSeverity(e.target.value)}
+                  >
+                    <MenuItem value="Low">Low</MenuItem>
+                    <MenuItem value="Medium">Medium</MenuItem>
+                    <MenuItem value="High">High</MenuItem>
+                    <MenuItem value="Critical">Critical</MenuItem>
+                  </Select>
+                </FormControl>
+
                 <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "600", color: "#555" }}>
                   Please tell us why it is {feedbackRating}: <span style={{ color: "#f44336" }}>*</span>
                 </Typography>
@@ -1763,6 +1737,23 @@ const Editor = () => {
                 />
               </Box>
             )}
+
+            <Box sx={{ mt: 2 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={2}
+                placeholder="Any additional feedback or general comments? (Optional)"
+                value={feedbackAdditional}
+                onChange={(e) => setFeedbackAdditional(e.target.value)}
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                  }
+                }}
+              />
+            </Box>
           </DialogContent>
           <DialogActions sx={{ px: 2, py: 1.5 }}>
             <Button
@@ -1774,7 +1765,7 @@ const Editor = () => {
             </Button>
             <Button
               onClick={handleFeedbackSubmit}
-              disabled={submittingFeedback || !feedbackRating || ((feedbackRating === "poor" || feedbackRating === "average") && !feedbackReason.trim())}
+              disabled={submittingFeedback || !feedbackRating || ((feedbackRating === "poor" || feedbackRating === "average") && (!feedbackReason.trim() || !feedbackCategory || !feedbackSeverity))}
               variant="contained"
               sx={{
                 borderRadius: "20px",
