@@ -41,15 +41,16 @@ import {
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { fetchFeedbacks, updateFeedbackStatus } from "../services/trackFileServices";
-import { kyroCompanyId } from "../services/companyServices";
+import { useInstance } from "../context/InstanceContext";
 import Loader from "../components/common/Loader";
 import { toast } from "react-hot-toast";
 
 const FeedbacksPage = ({ companyId }) => {
+  const { isKyroInstance, kyroId } = useInstance();
   const [feedbacks, setFeedbacks] = useState([]);
   const [users, setUsers] = useState({});
   const [companies, setCompanies] = useState({});
-  const [isKyrotics, setIsKyrotics] = useState(false);
+  const isKyrotics = isKyroInstance || (companyId && kyroId && companyId === kyroId);
   const [loading, setLoading] = useState(true);
   
   const [selectedNote, setSelectedNote] = useState("");
@@ -83,10 +84,6 @@ const FeedbacksPage = ({ companyId }) => {
           companiesMap[doc.id] = doc.data().name || "Unknown Company";
         });
         setCompanies(companiesMap);
-
-        // Check if current user company is Kyrotics
-        const kyroticsId = await kyroCompanyId();
-        setIsKyrotics(companyId === kyroticsId);
       } catch (err) {
         console.error("Error loading feedback details:", err);
       } finally {
@@ -314,11 +311,14 @@ const FeedbacksPage = ({ companyId }) => {
                 <TableCell className="px-6 py-4 font-semibold text-purple-800">
                   <div className="flex items-center"><PersonIcon className="mr-2 text-purple-600" />Submitter</div>
                 </TableCell>
-                <TableCell className="px-6 py-4 font-semibold text-purple-800">
-                  <div className="flex items-center"><BusinessIcon className="mr-2 text-purple-600" />Company</div>
-                </TableCell>
+                {isKyrotics && (
+                  <TableCell className="px-6 py-4 font-semibold text-purple-800">
+                    <div className="flex items-center"><BusinessIcon className="mr-2 text-purple-600" />Company</div>
+                  </TableCell>
+                )}
                 <TableCell className="px-6 py-4 font-semibold text-purple-800">Rating</TableCell>
-                <TableCell className="px-6 py-4 font-semibold text-purple-800">Reason & Notes</TableCell>
+                <TableCell className="px-6 py-4 font-semibold text-purple-800">Reason</TableCell>
+                <TableCell className="px-6 py-4 font-semibold text-purple-800">Notes</TableCell>
                 <TableCell className="px-6 py-4 font-semibold text-purple-800">Status</TableCell>
                 <TableCell className="px-6 py-4 font-semibold text-purple-800">Date Submitted</TableCell>
               </TableRow>
@@ -326,7 +326,7 @@ const FeedbacksPage = ({ companyId }) => {
             <TableBody>
               {paginatedFeedbacks.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" className="py-8 text-gray-500 font-medium">
+                  <TableCell colSpan={isKyrotics ? 8 : 7} align="center" className="py-8 text-gray-500 font-medium">
                     No feedbacks found matching search and filters.
                   </TableCell>
                 </TableRow>
@@ -338,40 +338,44 @@ const FeedbacksPage = ({ companyId }) => {
                   >
                     <TableCell className="px-6 py-4 font-medium text-gray-900">{f.fileName}</TableCell>
                     <TableCell className="px-6 py-4 text-gray-700">{users[f.userId] || f.userId}</TableCell>
-                    <TableCell className="px-6 py-4 text-gray-700">{companies[f.companyId] || f.companyId}</TableCell>
+                    {isKyrotics && (
+                      <TableCell className="px-6 py-4 text-gray-700">{companies[f.companyId] || f.companyId}</TableCell>
+                    )}
                     <TableCell className="px-6 py-4">{getRatingChip(f.qualityRating)}</TableCell>
                     <TableCell className="px-6 py-4 text-gray-600 italic">
-                      <div className="flex flex-col gap-2">
-                        {f.reason ? (
-                          <Box sx={{
-                            background: "#fafafa",
-                            p: 1,
-                            borderRadius: "8px",
-                            borderLeft: "3px solid #ff9800",
-                            maxWidth: "250px",
-                            wordBreak: "break-word",
-                            fontSize: "13px"
-                          }}>
-                            "{f.reason}"
-                          </Box>
-                        ) : (
-                          <span className="text-gray-400">—</span>
-                        )}
-                        {f.notes && (
-                          <Button 
-                            variant="outlined" 
-                            size="small" 
-                            startIcon={<VisibilityIcon />}
-                            onClick={() => {
-                              setSelectedNote(f.notes);
-                              setIsNoteModalOpen(true);
-                            }}
-                            sx={{ borderRadius: '16px', textTransform: 'none', width: 'fit-content', mt: 0.5 }}
-                          >
-                            View Notes
-                          </Button>
-                        )}
-                      </div>
+                      {f.reason ? (
+                        <Box sx={{
+                          background: "#fafafa",
+                          p: 1,
+                          borderRadius: "8px",
+                          borderLeft: "3px solid #ff9800",
+                          maxWidth: "250px",
+                          wordBreak: "break-word",
+                          fontSize: "13px"
+                        }}>
+                          "{f.reason}"
+                        </Box>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
+                      {f.notes ? (
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          startIcon={<VisibilityIcon />}
+                          onClick={() => {
+                            setSelectedNote(f.notes);
+                            setIsNoteModalOpen(true);
+                          }}
+                          sx={{ borderRadius: '16px', textTransform: 'none', width: 'fit-content' }}
+                        >
+                          View Notes
+                        </Button>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </TableCell>
                     <TableCell className="px-6 py-4">
                       {isKyrotics ? (() => {

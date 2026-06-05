@@ -85,8 +85,8 @@ function CompletedTable({
   };
 
   const handleDownloadClick = (format) => {
-    if (currentFile) {
-      handleDownload(currentFile.projectId, currentFile.id, format);
+    if (currentFile && handleDownload) {
+      handleDownload(projectId, currentFile.id, format);
     }
     handleMenuClose();
   };

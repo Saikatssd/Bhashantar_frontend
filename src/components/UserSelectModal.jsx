@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../utils/firebase';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemButton from '@mui/material/ListItemButton';
 import TextField from '@mui/material/TextField';
+import { server } from '../main';
 
 const style = {
     position: 'absolute',
@@ -34,17 +32,25 @@ const UserSelectModal = ({ open, handleClose, handleAssign, companyId }) => {
     useEffect(() => {
         const getUsers = async () => {
             setIsLoading(true);
+            setError(null);
             try {
-                const usersQuery = query(
-                    collection(db, 'users'),
-                    where('companyId', '==', companyId),
-                    // where('disabled', '==', 'false')
+                const response = await fetch(
+                    `${server}/api/company/getCompanyUsers/${companyId}?activeOnly=true`
                 );
-                const usersSnapshot = await getDocs(usersQuery);
-                const usersData = usersSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
+
+                if (!response.ok) {
+                    throw new Error('Could not load active users.');
+                }
+
+                const data = await response.json();
+                const usersData = (data.users || [])
+                    .map(user => ({
+                        ...user,
+                        id: user.uid || user.id,
+                    }))
+                    .filter(user => user.disabled !== true)
+                    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
                 setUsers(usersData);
                 setFilteredUsers(usersData); // Initialize filtered users
             } catch (err) {
@@ -55,15 +61,22 @@ const UserSelectModal = ({ open, handleClose, handleAssign, companyId }) => {
             }
         };
 
-        if (open) {
+        if (open && companyId) {
             getUsers();
+        } else if (open) {
+            setUsers([]);
+            setFilteredUsers([]);
+            setIsLoading(false);
+        } else {
+            setSearchTerm('');
         }
     }, [open, companyId]);
 
     // Filter users based on the search term
     useEffect(() => {
+        const normalizedSearchTerm = searchTerm.toLowerCase();
         const results = users.filter(user =>
-            user.name.toLowerCase().includes(searchTerm.toLowerCase())
+            (user.name || '').toLowerCase().includes(normalizedSearchTerm)
         );
         setFilteredUsers(results);
     }, [searchTerm, users]);

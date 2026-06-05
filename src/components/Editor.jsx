@@ -122,6 +122,37 @@ const TableDialog = ({
   );
 };
 
+const DEFAULT_DOWNLOAD_ERROR =
+  "We couldn't prepare the download right now. Please try again in a moment.";
+
+const getDownloadErrorMessage = async (err) => {
+  const fallbackMessage = DEFAULT_DOWNLOAD_ERROR;
+  const responseData = err?.response?.data;
+
+  if (responseData instanceof Blob) {
+    try {
+      const text = await responseData.text();
+      if (!text) return fallbackMessage;
+
+      try {
+        const parsed = JSON.parse(text);
+        return parsed.message || parsed.error || fallbackMessage;
+      } catch {
+        return text;
+      }
+    } catch {
+      return fallbackMessage;
+    }
+  }
+
+  return (
+    err?.response?.data?.message ||
+    err?.response?.data?.error ||
+    err?.message ||
+    fallbackMessage
+  );
+};
+
 const Editor = () => {
   const { projectId, documentId } = useParams();
   const navigate = useNavigate();
@@ -785,22 +816,34 @@ const Editor = () => {
 
   const handleDownload = async () => {
     setError(null);
+    if (hasUnsavedChanges) {
+      if (!isOnline) {
+        toast.error("Cannot save changes while offline. Download will not include your latest edits.");
+      } else {
+        await toast.promise(saveContent(), {
+          loading: "Saving latest changes before download...",
+          success: "Changes saved.",
+          error: "Failed to save changes."
+        });
+      }
+    }
+
     try {
       const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadPdf`;
-      await toast
-        .promise(axios.get(endpoint, { responseType: "blob" }), {
-          loading: "Downloading...",
-          success: "Zip File Downloaded!",
-          error: "An error occurred while downloading the document.",
-        })
-        .then((response) => {
+      const downloadPromise = axios
+        .get(endpoint, { responseType: "blob" })
+        .then(async (response) => {
           const contentDisposition = response.headers["content-disposition"];
           const filename = contentDisposition
             ? contentDisposition.split("filename=")[1].replace(/"/g, "")
             : "document.zip";
+
           if (!response.data || response.data.size === 0) {
-            throw new Error("File is empty or not valid.");
+            throw new Error(
+              "The download file was empty. Please save the document and try again."
+            );
           }
+
           const url = window.URL.createObjectURL(new Blob([response.data]));
           const link = document.createElement("a");
           link.href = url;
@@ -809,13 +852,17 @@ const Editor = () => {
           link.click();
           link.remove();
           window.URL.revokeObjectURL(url);
+        })
+        .catch(async (err) => {
+          throw new Error(await getDownloadErrorMessage(err));
         });
-    } catch (err) {
-      console.log("Download error", err);
-      toast.error("Error: File can't be downloaded or is blank", {
-        position: "top-right",
-        style: { background: "#333", color: "#fff" },
+
+      await toast.promise(downloadPromise, {
+        loading: "Preparing download...",
+        success: "Download ready.",
+        error: (err) => err.message || DEFAULT_DOWNLOAD_ERROR,
       });
+    } catch (err) {
       console.error("Error during document download:", err);
     }
   };

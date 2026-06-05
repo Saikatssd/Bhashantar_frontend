@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import TabPanel from "../TabPanel.jsx";
 import {
   fetchProjectFiles,
+  fetchProjectFilesByFolder,
   fetchProjectName,
 } from "../../services/projectServices.jsx";
 import { updateFileStatus } from "../../services/fileServices.jsx";
@@ -60,7 +61,7 @@ const columnsDownloaded = [
   { id: "client_assignedTo", label: "Completed By", minWidth: 150 },
 ];
 
-const AdminFileFlow = ({ projectId, companyId }) => {
+const AdminFileFlow = ({ projectId, companyId, folderId }) => {
   // console.log(companyId)
   const [tabValue, setTabValue] = useState(0);
   const [readyForWorkFiles, setReadyForWorkFiles] = useState([]);
@@ -99,7 +100,9 @@ const AdminFileFlow = ({ projectId, companyId }) => {
       if (!companyId || !projectId) return;
       setIsLoading(true);
       try {
-        const projectFiles = await fetchProjectFiles(projectId);
+        const projectFiles = folderId
+          ? await fetchProjectFilesByFolder(projectId, folderId)
+          : await fetchProjectFiles(projectId);
         const projectName = await fetchProjectName(projectId);
 
         const fetchFileUsers = async (files) => {
@@ -332,7 +335,7 @@ const AdminFileFlow = ({ projectId, companyId }) => {
   // };
 
   // console.log("rows",selectedRows)
-  const handleDownloadSelected = async () => {
+  const handleDownloadSelected = async (format = 'pdf') => {
     setError(null);
 
     try {
@@ -345,6 +348,7 @@ const AdminFileFlow = ({ projectId, companyId }) => {
             {
               projectId,
               documentIds: selectedRows, // Send all selected rows
+              format,
             },
             {
               responseType: "blob", // Expect a blob for download

@@ -10,6 +10,7 @@ import {
 import {
   fetchProjectName,
   fetchProjectFiles,
+  fetchProjectFilesByFolder,
 } from "../../services/projectServices";
 import { updateFileStatus } from "../../services/fileServices";
 import { useAuth } from "../../context/AuthContext";
@@ -63,7 +64,7 @@ const columnsQA = [
   { id: "kyro_assignedToName", label: "Completed By", minWidth: 150 },
 ];
 
-const KyroAdminFileFlow = ({ projectId, companyId }) => {
+const KyroAdminFileFlow = ({ projectId, companyId, folderId }) => {
   // const { projectId,companyId } = useParams();
     console.log('projectId ',projectId)
   
@@ -105,7 +106,9 @@ const KyroAdminFileFlow = ({ projectId, companyId }) => {
     if (!companyId || !projectId) return;
     setIsLoading(true);
     try {
-      const projectFiles = await fetchProjectFiles(projectId);
+      const projectFiles = folderId
+        ? await fetchProjectFilesByFolder(projectId, folderId)
+        : await fetchProjectFiles(projectId);
       const projectName = await fetchProjectName(projectId);
 
       const fetchFileUsers = async (files) => {
@@ -213,7 +216,7 @@ const KyroAdminFileFlow = ({ projectId, companyId }) => {
             prevFiles.filter((file) => file.id !== fileId)
           );
 
-          const fileData = await fetchProjectFiles(projectId).then((files) =>
+          const fileData = await (folderId ? fetchProjectFilesByFolder(projectId, folderId) : fetchProjectFiles(projectId)).then((files) =>
             files.find((file) => file.id === fileId)
           );
 
@@ -248,7 +251,7 @@ const KyroAdminFileFlow = ({ projectId, companyId }) => {
           prevFiles.filter((file) => file.id !== selectedFileId)
         );
 
-        const fileData = await fetchProjectFiles(projectId).then((files) =>
+        const fileData = await (folderId ? fetchProjectFilesByFolder(projectId, folderId) : fetchProjectFiles(projectId)).then((files) =>
           files.find((file) => file.id === selectedFileId)
         );
 

@@ -10,6 +10,7 @@ import {
 } from "../../utils/auth";
 import {
   fetchProjectFiles,
+  fetchProjectFilesByFolder,
   fetchProjectName,
 } from "../../services/projectServices";
 import {
@@ -42,7 +43,7 @@ const columnsQA = [
   { id: "kyro_assignedToName", label: "Completed By", minWidth: 150 },
 ];
 
-const QAWorkspace = ({ projectId }) => {
+const QAWorkspace = ({ projectId, folderId }) => {
   // const { projectId } = useParams();
   const [files, setFiles] = useState([]);
   const [tabValue, setTabValue] = useState(0);
@@ -81,7 +82,9 @@ const QAWorkspace = ({ projectId }) => {
     if (!companyId || !projectId) return;
     setIsLoading(true);
     try {
-      const projectFiles = await fetchProjectFiles(projectId);
+      const projectFiles = folderId
+        ? await fetchProjectFilesByFolder(projectId, folderId)
+        : await fetchProjectFiles(projectId);
       const projectName = await fetchProjectName(projectId);
 
       const fetchFileUsers = async (files) => {

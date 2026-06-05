@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { uploadFile } from "../../services/fileServices";
-import { fetchProjectFiles, fetchProjectName } from "../../services/projectServices";
+import { fetchProjectFiles, fetchProjectFilesByFolder, fetchProjectName } from "../../services/projectServices";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAuth } from "../../context/AuthContext";
 import { updateFileStatus } from "../../services/fileServices";
@@ -10,7 +10,7 @@ import { toast } from "react-hot-toast";
 import UserAssignTable from "../Table/UserAssignTable";
 
 
-const UserFileAssign = ({ projectId, companyId }) => {
+const UserFileAssign = ({ projectId, companyId, folderId }) => {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -35,7 +35,9 @@ const UserFileAssign = ({ projectId, companyId }) => {
       const getProjectData = async () => {
         setIsLoading(true);
         try {
-          const projectFiles = await fetchProjectFiles(projectId);
+          const projectFiles = folderId
+            ? await fetchProjectFilesByFolder(projectId, folderId)
+            : await fetchProjectFiles(projectId);
           const projectName = await fetchProjectName(projectId);
           const filteredFiles = projectFiles.filter(
             (file) => file.status === 5
@@ -86,7 +88,7 @@ const UserFileAssign = ({ projectId, companyId }) => {
   const handleFileAssign = async (id) => {
     try {
       // Fetch the latest data for the file from the database
-      const fileData = await fetchProjectFiles(projectId).then((files) =>
+      const fileData = await (folderId ? fetchProjectFilesByFolder(projectId, folderId) : fetchProjectFiles(projectId)).then((files) =>
         files.find((file) => file.id === id)
       );
 

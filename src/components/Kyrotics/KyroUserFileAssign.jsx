@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   fetchProjectName,
   fetchProjectFiles,
+  fetchProjectFilesByFolder,
 } from "../../services/projectServices";
 import { fetchUserWIPCount, assignFileToUser } from "../../services/fileServices";
 import { useAuth } from "../../context/AuthContext";
@@ -11,7 +12,7 @@ import { toast } from "react-hot-toast";
 import Loader from "../common/Loader";
 import UserAssignTable from "../Table/UserAssignTable";
 
-const KyroUserFileAssign = ({ projectId, companyId }) => {
+const KyroUserFileAssign = ({ projectId, companyId, folderId }) => {
   // const { projectId } = useParams();
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +37,9 @@ const KyroUserFileAssign = ({ projectId, companyId }) => {
   const getProjectData = async () => {
     setIsLoading(true);
     try {
-      const projectFiles = await fetchProjectFiles(projectId);
+      const projectFiles = folderId
+        ? await fetchProjectFilesByFolder(projectId, folderId)
+        : await fetchProjectFiles(projectId);
       const projectName = await fetchProjectName(projectId);
       const filteredFiles = projectFiles.filter(
         (file) => file.status === 2
