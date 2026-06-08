@@ -18,11 +18,7 @@ automatic_scaling:
   max_instances: 5
 
 handlers:
-  - url: /.*
-    script: auto
-    secure: always
-    redirect_http_response_code: 301
-  # Serve static assets from the 'assets' folder
+  # Serve static assets from the 'dist/assets' folder first
   - url: /assets
     static_dir: dist/assets
 
@@ -38,7 +34,9 @@ handlers:
     static_files: dist/\1
     upload: dist/.*\.(ico|png|svg|jpg)
 
-  # Catch-all handler to serve index.html for other routes
-  - url: /.* 
+  # Catch-all handler to serve index.html for client-side routing
+  - url: /.*
     static_files: dist/index.html
     upload: dist/index.html
+    secure: always
+    redirect_http_response_code: 301

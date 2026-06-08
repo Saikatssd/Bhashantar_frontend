@@ -7,13 +7,15 @@ import "quill-table-better/dist/quill-table-better.css";
 
 import useDebounce from "../hooks/useDebounce";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Button, IconButton, Typography, FormControl, InputLabel, Select, MenuItem } from "@mui/material"; // Keep Button for other uses if any
+import { Box, Button, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, Menu, ListItemIcon, ListItemText } from "@mui/material"; // Keep Button for other uses if any
 import { useAuth } from "../context/AuthContext";
 import { useInstance } from "../context/InstanceContext";
 import ConfirmationDialog from "./ConfirmationDialog";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DownloadIcon from "@mui/icons-material/Download";
 import CloseIcon from "@mui/icons-material/Close";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import DescriptionIcon from "@mui/icons-material/Description";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import axios from "axios";
@@ -201,6 +203,7 @@ const Editor = () => {
   
   const [isNotesPanelOpen, setIsNotesPanelOpen] = useState(false);
   const [notesContent, setNotesContent] = useState("");
+  const [downloadAnchorEl, setDownloadAnchorEl] = useState(null);
 
   useEffect(() => {
     const handleOffline = () => {
@@ -678,7 +681,6 @@ const Editor = () => {
     };
   }, []);
 
-  console.log("htmlContent", htmlContent);  
 
   // useEffect(() => { // This useEffect for isLayoutReady is not strictly necessary for the restored layout
   //   setIsLayoutReady(true);
@@ -791,8 +793,9 @@ const Editor = () => {
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (format = 'pdf') => {
     setError(null);
+    setDownloadAnchorEl(null);
     if (hasUnsavedChanges) {
       if (!isOnline) {
         toast.error("Cannot save changes while offline. Download will not include your latest edits.");
@@ -806,7 +809,7 @@ const Editor = () => {
     }
 
     try {
-      const endpoint = `${server}/api/document/${projectId}/${documentId}/downloadPdf`;
+      const endpoint = `${server}/api/document/${projectId}/${documentId}/download${format === 'docx' ? 'Docx' : 'Pdf'}`;
       const downloadPromise = axios
         .get(endpoint, { responseType: "blob" })
         .then(async (response) => {
@@ -1255,11 +1258,38 @@ const Editor = () => {
                 <FindInPageIcon sx={{ fontSize: "20px" }} />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Download" arrow>
-              <IconButton onClick={handleDownload} size="small">
-                <DownloadIcon sx={{ fontSize: "20px" }} />
-              </IconButton>
-            </Tooltip>
+            <>
+              <Tooltip title="Download" arrow>
+                <IconButton 
+                  onMouseEnter={(e) => setDownloadAnchorEl(e.currentTarget)}
+                  onClick={(e) => setDownloadAnchorEl(e.currentTarget)}
+                  size="small"
+                >
+                  <DownloadIcon sx={{ fontSize: "20px" }} />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                anchorEl={downloadAnchorEl}
+                open={Boolean(downloadAnchorEl)}
+                onClose={() => setDownloadAnchorEl(null)}
+                MenuListProps={{
+                  onMouseLeave: () => setDownloadAnchorEl(null)
+                }}
+              >
+                <MenuItem onClick={() => handleDownload('pdf')}>
+                  <ListItemIcon>
+                    <PictureAsPdfIcon fontSize="small" sx={{ color: '#E53935' }} />
+                  </ListItemIcon>
+                  <ListItemText>Download PDF</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={() => handleDownload('docx')}>
+                  <ListItemIcon>
+                    <DescriptionIcon fontSize="small" sx={{ color: '#1E88E5' }} />
+                  </ListItemIcon>
+                  <ListItemText>Download DOCX</ListItemText>
+                </MenuItem>
+              </Menu>
+            </>
             <Tooltip title="Clear Formatting" arrow>
               <button className="ql-clean" />
             </Tooltip>
