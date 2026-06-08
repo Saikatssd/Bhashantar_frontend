@@ -4,8 +4,7 @@ import App from './App.jsx'
 import './index.css'
 
 
-// export const server='https://bhasantar-ui-and-llm.as.r.appspot.com'
-export const server = 'http://localhost:5566'
+export const server = import.meta.env.VITE_API_SERVER_URL
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
