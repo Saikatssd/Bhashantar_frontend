@@ -10,7 +10,7 @@ env_variables:
   VITE_FIREBASE_MESSAGING_SENDER_ID: "241781571118"
   VITE_FIREBASE_APP_ID: "1:241781571118:web:39c389a42bae56443529bf"
   VITE_FIREBASE_MEASUREMENT_ID: "G-S0WGY3B0EC"
-  VITE_SERVER_URL: "https://bhasantar-ui-and-llm.as.r.appspot.com"
+  VITE_SERVER_URL: "https://bhasantar-server-484859279811.us-central1.run.app/"
 
 automatic_scaling:
   target_cpu_utilization: 0.65
