@@ -7,7 +7,7 @@ import "quill-table-better/dist/quill-table-better.css";
 
 import useDebounce from "../hooks/useDebounce";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Button, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, Menu, ListItemIcon, ListItemText } from "@mui/material"; // Keep Button for other uses if any
+import { Box, Button, IconButton, Typography, FormControl, InputLabel, Select, MenuItem, Menu, ListItemIcon, ListItemText, Badge } from "@mui/material"; // Keep Button for other uses if any
 import { useAuth } from "../context/AuthContext";
 import { useInstance } from "../context/InstanceContext";
 import ConfirmationDialog from "./ConfirmationDialog";
@@ -16,7 +16,6 @@ import DownloadIcon from "@mui/icons-material/Download";
 import CloseIcon from "@mui/icons-material/Close";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import DescriptionIcon from "@mui/icons-material/Description";
-import RateReviewIcon from "@mui/icons-material/RateReview";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -1327,7 +1326,9 @@ const Editor = () => {
                      e.currentTarget.style.backgroundColor = isNotesPanelOpen ? "#e0e0e0" : "#ffffff";
                   }}
                 >
-                  <NoteAddIcon style={{ marginRight: "8px", fontSize: "18px" }} />
+                  <Badge color="error" variant="dot" invisible={!notesContent.trim()}>
+                    <NoteAddIcon style={{ marginRight: "8px", fontSize: "18px" }} />
+                  </Badge>
                   {isNotesPanelOpen ? "Close Notes" : "Add Notes"}
                 </button>
               </Tooltip>
@@ -1653,7 +1654,7 @@ const Editor = () => {
 
             <Box
               display="grid"
-              gridTemplateColumns="repeat(4, 1fr)"
+              gridTemplateColumns="repeat(5, 1fr)"
               gap={1.5}
               sx={{
                 mb: (feedbackRating === "poor" || feedbackRating === "average") ? 2 : 0,
@@ -1662,6 +1663,7 @@ const Editor = () => {
             >
               {[
                 { value: "outstanding", label: "Outstanding", emoji: "🌟", color: "#4caf50", bg: "#e8f5e9" },
+                { value: "excellent", label: "Excellent", emoji: "🤩", color: "#00bcd4", bg: "#e0f7fa" },
                 { value: "good", label: "Good", emoji: "👍", color: "#2196f3", bg: "#e3f2fd" },
                 { value: "average", label: "Average", emoji: "😐", color: "#ff9800", bg: "#fff3e0" },
                 { value: "poor", label: "Poor", emoji: "😞", color: "#f44336", bg: "#ffebee" }
@@ -1773,7 +1775,7 @@ const Editor = () => {
                 fullWidth
                 multiline
                 rows={2}
-                placeholder="Any additional feedback or general comments? (Optional)"
+                placeholder="Any additional feedback for improvement? (Optional)"
                 value={feedbackAdditional}
                 onChange={(e) => setFeedbackAdditional(e.target.value)}
                 variant="outlined"
@@ -1784,6 +1786,11 @@ const Editor = () => {
                 }}
               />
             </Box>
+            {notesContent.trim() && (
+              <Typography variant="body2" sx={{ mt: 2, color: "#666", fontStyle: "italic" }}>
+                * The notes you added to the document will be included with your feedback.
+              </Typography>
+            )}
           </DialogContent>
           <DialogActions sx={{ px: 2, py: 1.5 }}>
             <Button
@@ -1795,7 +1802,7 @@ const Editor = () => {
             </Button>
             <Button
               onClick={handleFeedbackSubmit}
-              disabled={submittingFeedback || !feedbackRating || ((feedbackRating === "poor" || feedbackRating === "average") && (!feedbackReason.trim() || !feedbackCategory || !feedbackSeverity))}
+              disabled={submittingFeedback}
               variant="contained"
               sx={{
                 borderRadius: "20px",

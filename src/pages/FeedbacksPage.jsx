@@ -38,7 +38,7 @@ import {
   Close as CloseIcon,
   Visibility as VisibilityIcon,
 } from "@mui/icons-material";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../utils/firebase";
 import { fetchFeedbacks, updateFeedbackStatus } from "../services/trackFileServices";
 import { useInstance } from "../context/InstanceContext";
@@ -69,20 +69,40 @@ const FeedbacksPage = ({ companyId }) => {
         const feedbacksData = await fetchFeedbacks(companyId);
         setFeedbacks(feedbacksData);
 
-        // Fetch users to map userIds to user names
-        const usersSnapshot = await getDocs(collection(db, "users"));
+        // Extract unique IDs
+        const uniqueUserIds = [...new Set(feedbacksData.map(f => f.userId).filter(Boolean))];
+        const uniqueCompanyIds = [...new Set(feedbacksData.map(f => f.companyId).filter(Boolean))];
+
+        // Fetch specific users
         const usersMap = {};
-        usersSnapshot.docs.forEach((doc) => {
-          usersMap[doc.id] = doc.data().name || doc.data().email || "Unknown User";
-        });
+        await Promise.all(
+          uniqueUserIds.map(async (uid) => {
+            try {
+              const userSnap = await getDoc(doc(db, "users", uid));
+              if (userSnap.exists()) {
+                usersMap[uid] = userSnap.data().name || userSnap.data().email || "Unknown User";
+              }
+            } catch (err) {
+              console.warn(`Failed to fetch user ${uid}`, err);
+            }
+          })
+        );
         setUsers(usersMap);
 
-        // Fetch companies to map companyIds to names
-        const companiesSnapshot = await getDocs(collection(db, "companies"));
+        // Fetch specific companies
         const companiesMap = {};
-        companiesSnapshot.docs.forEach((doc) => {
-          companiesMap[doc.id] = doc.data().name || "Unknown Company";
-        });
+        await Promise.all(
+          uniqueCompanyIds.map(async (cid) => {
+            try {
+              const compSnap = await getDoc(doc(db, "companies", cid));
+              if (compSnap.exists()) {
+                companiesMap[cid] = compSnap.data().name || "Unknown Company";
+              }
+            } catch (err) {
+              console.warn(`Failed to fetch company ${cid}`, err);
+            }
+          })
+        );
         setCompanies(companiesMap);
       } catch (err) {
         console.error("Error loading feedback details:", err);
@@ -120,7 +140,7 @@ const FeedbacksPage = ({ companyId }) => {
 
   // Filtered feedbacks
   const filteredFeedbacks = feedbacks.filter((f) => {
-    const matchesSearch = f.fileName?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (f.fileName || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRating = ratingFilter === "all" || f.qualityRating === ratingFilter;
     return matchesSearch && matchesRating;
   });
@@ -181,29 +201,6 @@ const FeedbacksPage = ({ companyId }) => {
           borderHover: "#93c5fd",
         };
     }
-  };
-
-  const getStatusChip = (status) => {
-    const style = getStatusStyle(status);
-    const labelText = status
-      ? status.charAt(0).toUpperCase() + status.slice(1).replace("_", " ")
-      : "Pending";
-    return (
-      <Chip
-        label={labelText}
-        size="small"
-        sx={{
-          backgroundColor: style.bg,
-          color: style.text,
-          border: `1px solid ${style.border}`,
-          fontWeight: "bold",
-          px: 1.5,
-          py: 0.5,
-          borderRadius: "12px",
-          fontSize: "11px",
-        }}
-      />
-    );
   };
 
   return (
@@ -319,14 +316,16 @@ const FeedbacksPage = ({ companyId }) => {
                 <TableCell className="px-6 py-4 font-semibold text-purple-800">Rating</TableCell>
                 <TableCell className="px-6 py-4 font-semibold text-purple-800">Reason</TableCell>
                 <TableCell className="px-6 py-4 font-semibold text-purple-800">Notes</TableCell>
-                <TableCell className="px-6 py-4 font-semibold text-purple-800">Status</TableCell>
+                {isKyrotics && (
+                  <TableCell className="px-6 py-4 font-semibold text-purple-800">Status</TableCell>
+                )}
                 <TableCell className="px-6 py-4 font-semibold text-purple-800">Date Submitted</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {paginatedFeedbacks.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={isKyrotics ? 8 : 7} align="center" className="py-8 text-gray-500 font-medium">
+                  <TableCell colSpan={isKyrotics ? 8 : 6} align="center" className="py-8 text-gray-500 font-medium">
                     No feedbacks found matching search and filters.
                   </TableCell>
                 </TableRow>
@@ -377,64 +376,64 @@ const FeedbacksPage = ({ companyId }) => {
                         <span className="text-gray-400">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="px-6 py-4">
-                      {isKyrotics ? (() => {
-                        const style = getStatusStyle(f.status);
-                        return (
-                          <Select
-                            value={f.status || "pending"}
-                            onChange={(e) => handleStatusChange(f.id, e.target.value)}
-                            size="small"
-                            sx={{
-                              borderRadius: "20px",
-                              fontSize: "12px",
-                              fontWeight: "bold",
-                              height: "28px",
-                              backgroundColor: style.bg,
-                              color: style.text,
-                              transition: "all 0.2s ease-in-out",
-                              "& .MuiSelect-select": {
-                                py: "4px",
-                                pl: "10px",
-                                pr: "24px",
-                                display: "flex",
-                                alignItems: "center",
-                              },
-                              "& .MuiSelect-icon": {
+                    {isKyrotics && (
+                      <TableCell className="px-6 py-4">
+                        {(() => {
+                          const style = getStatusStyle(f.status);
+                          return (
+                            <Select
+                              value={f.status || "pending"}
+                              onChange={(e) => handleStatusChange(f.id, e.target.value)}
+                              size="small"
+                              sx={{
+                                borderRadius: "20px",
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                                height: "28px",
+                                backgroundColor: style.bg,
                                 color: style.text,
-                                transition: "color 0.2s",
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: style.border,
-                              },
-                              "&:hover .MuiOutlinedInput-notchedOutline": {
-                                borderColor: style.borderHover,
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                borderColor: style.text,
-                                borderWidth: "1.5px",
-                              },
-                              "&:hover": {
-                                transform: "translateY(-1px)",
-                                boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.05)",
-                              },
-                            }}
-                          >
-                            <MenuItem value="pending" sx={{ fontWeight: "bold", color: "#b78103", fontSize: "12px" }}>
-                              Pending
-                            </MenuItem>
-                            <MenuItem value="under_review" sx={{ fontWeight: "bold", color: "#1d4ed8", fontSize: "12px" }}>
-                              Under Review
-                            </MenuItem>
-                            <MenuItem value="resolved" sx={{ fontWeight: "bold", color: "#047857", fontSize: "12px" }}>
-                              Resolved
-                            </MenuItem>
-                          </Select>
-                        );
-                      })() : (
-                        getStatusChip(f.status)
-                      )}
-                    </TableCell>
+                                transition: "all 0.2s ease-in-out",
+                                "& .MuiSelect-select": {
+                                  py: "4px",
+                                  pl: "10px",
+                                  pr: "24px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                },
+                                "& .MuiSelect-icon": {
+                                  color: style.text,
+                                  transition: "color 0.2s",
+                                },
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                  borderColor: style.border,
+                                },
+                                "&:hover .MuiOutlinedInput-notchedOutline": {
+                                  borderColor: style.borderHover,
+                                },
+                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                  borderColor: style.text,
+                                  borderWidth: "1.5px",
+                                },
+                                "&:hover": {
+                                  transform: "translateY(-1px)",
+                                  boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.05)",
+                                },
+                              }}
+                            >
+                              <MenuItem value="pending" sx={{ fontWeight: "bold", color: "#b78103", fontSize: "12px" }}>
+                                Pending
+                              </MenuItem>
+                              <MenuItem value="under_review" sx={{ fontWeight: "bold", color: "#1d4ed8", fontSize: "12px" }}>
+                                Under Review
+                              </MenuItem>
+                              <MenuItem value="resolved" sx={{ fontWeight: "bold", color: "#047857", fontSize: "12px" }}>
+                                Resolved
+                              </MenuItem>
+                            </Select>
+                          );
+                        })()}
+                      </TableCell>
+                    )}
                     <TableCell className="px-6 py-4 text-gray-500 text-sm">
                       {f.submittedAt ? new Date(f.submittedAt).toLocaleString() : "N/A"}
                     </TableCell>
